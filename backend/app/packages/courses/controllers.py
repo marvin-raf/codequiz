@@ -1,5 +1,5 @@
-from flask import Blueprint
-
+from flask import Blueprint, jsonify
+from app.util.db import query
 courses_module = Blueprint("courses", __name__, url_prefix="/courses")
 
 
@@ -8,5 +8,5 @@ def helloworld():
     """
     Print hello world
     """
-
-    return "helloworld"
+    data = query("SELECT 1+1")
+    return jsonify(data)
