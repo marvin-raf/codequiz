@@ -2,9 +2,12 @@
 Entry point to application
 """
 
+from app import app
+from config import config
+
 
 def run_server():
-    pass
+    app.run(host="0.0.0.0", port=config["PORT"], debug=True)
 
 
 run_server()
