@@ -20,42 +20,42 @@ def success(data=None):
     """
     Success response with 200 status
     """
-    return response(data, 200)
+    return response(200, data)
 
 
 def created(data=None):
     """
     Created response with 201 status
     """
-    return response(data, 201)
+    return response(201, data)
 
 
 def bad_request(data=None):
     """
     Bad Request response with 400 status 
     """
-    return response(data, 400)
+    return response(400, data)
 
 
 def unauthorized(data=None):
     """
     Unauthorized response with 401 status
     """
-    return response(data, 401)
+    return response(401, data)
 
 
 def forbidden(data=None):
     """
     Forbidden response with 403 status
     """
-    return response(data, 403)
+    return response(403, data)
 
 
 def not_found(data=None):
     """
     Not Found response with 404 status
     """
-    return response(data, 404)
+    return response(404, data)
 
 
 def server_error(data=None):
@@ -63,4 +63,4 @@ def server_error(data=None):
     Server Error response with 500 status
     """
 
-    return response(data, 500)
+    return response(500, data)
