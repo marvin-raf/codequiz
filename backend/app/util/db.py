@@ -8,13 +8,25 @@ connection = pymysql.connect(
     cursorclass=pymysql.cursors.DictCursor)
 
 
-def query(sql, values=""):
+def query(sql, values=None):
     with connection.cursor() as cursor:
-        if values != "":
+        if values:
             cursor.execute(sql, values)
             result = cursor.fetchall()
         else:
             cursor.execute(sql)
             result = cursor.fetchall()
+    connection.commit()
+    return result
+
+
+def insert_query(sql, values=None):
+    with connection.cursor() as cursor:
+        if values:
+            cursor.execute(sql, values)
+            result = cursor.lastrowid
+        else:
+            cursor.execute(sql)
+            result = cursor.lastrowid
     connection.commit()
     return result

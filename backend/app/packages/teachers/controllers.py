@@ -21,11 +21,12 @@ def signup():
             return bad_request()
 
         teacher_hash = models.create_hash(password)
-
         teacher_id = models.insert_teacher(name, email, teacher_hash)
+        print("testing")
     except KeyError:
         return bad_request()
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
 
     return created({"teacher_id": teacher_id})

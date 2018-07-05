@@ -33,8 +33,9 @@ def insert_teacher(name, email, teacher_hash):
     """
     query = """
     INSERT INTO teachers (teacher_name, teacher_email, teacher_hash)
-    VALUES (%s, %s, %s);
-    SELECT LAST_INSERT_ID()
+    VALUES (%s, %s, %s)
     """
-    teacher_id = db.query(query, (name, email, teacher_hash))
+
+    teacher_id = db.insert_query(query, (name, email, teacher_hash))
+    print(teacher_id)
     return teacher_id
