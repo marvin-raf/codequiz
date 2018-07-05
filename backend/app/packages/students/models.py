@@ -4,7 +4,6 @@ Contains models for the Students package
 
 import bcrypt
 import pymysql
-import secrets
 from app.util import db
 
 
