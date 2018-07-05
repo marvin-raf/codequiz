@@ -8,7 +8,7 @@ teachers_module = Blueprint("teachers", __name__, url_prefix="/teachers")
 @teachers_module.route("/signup", methods=["POST"])
 def signup():
     """
-    Signs a teacher up and inserts info into db
+    Signs a teacher up and returns their id
     """
     try:
         body = request.get_json()
@@ -22,11 +22,35 @@ def signup():
 
         teacher_hash = models.create_hash(password)
         teacher_id = models.insert_teacher(name, email, teacher_hash)
-        print("testing")
     except KeyError:
         return bad_request()
-    except Exception as e:
-        print(e)
+    except Exception:
         return server_error()
 
     return created({"teacher_id": teacher_id})
+
+
+@teachers_module.route("/signin", methods=["POST"])
+def signin():
+    """
+    Signs a teacher in and returns their id and token
+    """
+    try:
+        body = request.get_json()
+
+        email = body["email"]
+        password = body["password"]
+        teacher_id = models.id_from_credentials(email, password)
+
+        if not teacher_id:
+            return bad_request()
+
+        token = models.create_token()
+        models.save_token(token, teacher_id)
+
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
+
+    return success({"token": token, "teacher_id": teacher_id})
