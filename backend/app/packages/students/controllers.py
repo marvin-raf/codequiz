@@ -1,5 +1,4 @@
 from flask import Blueprint, request, abort, jsonify
-from pymysql import MySQLError
 from app.packages.students import models
 from app.util.responses import success, bad_request, server_error, created
 
@@ -12,6 +11,8 @@ def courses():
     Let's the students view their courses
     """
 
+    pass
+
 
 @students_module.route("/activate", methods=["POST"])
 def activate():
@@ -21,21 +22,24 @@ def activate():
     try:
         body = request.get_json()
 
-        student_activate_token = body["student_activate_token"]
-        student_password = body["student_password"]
+        activate_token = body["activate_token"]
+        password = body["password"]
 
-        if len(student_password) < 3 or len(student_password) > 50:
+        if len(password) < 3 or len(password) > 50:
             return bad_request()
 
-        if not models.token_exists(student_activate_token):
+        if not models.token_exists(activate_token):
             return bad_request()
 
-        student_hash = models.create_hash(student_password)
-        models.save_hash(student_hash, student_activate_token)
+        student_hash = models.create_hash(password)
+        models.save_hash(student_hash, activate_token)
+
+        return success()
 
     except KeyError:
         return bad_request()
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
 
 
@@ -48,21 +52,19 @@ def signin():
     try:
         body = request.get_json()
 
-        if not "student_email" in body or not "student_password" in body:
-            return ("", 400)
-
-        student_email = body["student_email"]
-        student_password = body["student_password"]
-        student_id = models.id_from_credentials(student_email,
-                                                student_password)
+        email = body["email"]
+        password = body["password"]
+        student_id = models.id_from_credentials(email, password)
 
         if not student_id:
-            return ("", 400)
+            return bad_request()
 
-        student_token = models.create_token()
-        models.save_token(student_token, student_id)
+        token = models.create_token()
+        models.save_token(token, student_id)
 
-        return jsonify({"token": student_token})
+        return jsonify({"token": token, "student_id": student_id})
 
-    except MySQLError:
-        return ("", 500)
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
