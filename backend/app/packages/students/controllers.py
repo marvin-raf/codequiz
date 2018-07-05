@@ -1,17 +1,8 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.students import models
-from app.util.responses import success, bad_request, server_error, created
+from app.util.responses import success, bad_request, server_error, created, forbidden
 
 students_module = Blueprint("students", __name__, url_prefix="/students")
-
-
-@students_module.route("/courses", methods=["GET"])
-def courses():
-    """
-    Let's the students view their courses
-    """
-
-    pass
 
 
 @students_module.route("/activate", methods=["POST"])
@@ -29,18 +20,19 @@ def activate():
             return bad_request()
 
         if not models.token_exists(activate_token):
+
             return bad_request()
 
         student_hash = models.create_hash(password)
         models.save_hash(student_hash, activate_token)
-
-        return success()
 
     except KeyError:
         return bad_request()
     except Exception as e:
         print(e)
         return server_error()
+
+    return success()
 
 
 @students_module.route("/signin", methods=["POST"])
@@ -62,9 +54,10 @@ def signin():
         token = models.create_token()
         models.save_token(token, student_id)
 
-        return jsonify({"token": token, "student_id": student_id})
-
     except KeyError:
         return bad_request()
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
+
+    return success({"token": token, "student_id": student_id})
