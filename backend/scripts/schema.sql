@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-07-04 23:58:02 +0000
+# Generation Time: 2018-07-05 03:36:56 +0000
 # ************************************************************
 
 
@@ -130,13 +130,13 @@ CREATE TABLE `students` (
   `student_teacher_id` int(11) unsigned NOT NULL,
   `student_name` varchar(50) NOT NULL DEFAULT '',
   `student_email` varchar(128) NOT NULL DEFAULT '',
-  `student_hash` varchar(128) NOT NULL DEFAULT '',
+  `student_hash` varchar(128) DEFAULT '',
   `student_activate_token` varchar(128) NOT NULL DEFAULT '',
   `student_token` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`student_id`),
   UNIQUE KEY `student_email` (`student_email`),
-  UNIQUE KEY `student_hash` (`student_hash`),
   UNIQUE KEY `student_token` (`student_activate_token`),
+  UNIQUE KEY `student_hash` (`student_hash`),
   KEY `student_teacher_id` (`student_teacher_id`),
   CONSTRAINT `students_ibfk_1` FOREIGN KEY (`student_teacher_id`) REFERENCES `teachers` (`teacher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

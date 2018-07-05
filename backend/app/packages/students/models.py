@@ -26,8 +26,9 @@ def save_hash(student_hash, activate_token):
     query = """
     UPDATE students 
     SET student_hash = %s
-    WHERE student_token = %s
+    WHERE student_activate_token = %s
     """
+
     db.query(query, (student_hash, activate_token))
 
 
@@ -37,7 +38,7 @@ def token_exists(token):
     """
 
     query = """
-    SELECT student_token
+    SELECT student_activate_token
     FROM students
     WHERE student_activate_token = %s
     """
@@ -59,7 +60,7 @@ def id_from_credentials(email, password):
     query = """
     SELECT student_id, student_hash
     FROM students
-    WHERE student_email = %s
+    WHERE student_email = %s AND student_hash IS NOT NULL
     """
 
     rows = db.query(query, (email))
@@ -71,7 +72,8 @@ def id_from_credentials(email, password):
     student_id = rows[0]["student_id"]
 
     # Compared hashed password from request to hashed password in db
-    if bcrypt.hashpw(password, student_hash) == student_hash:
+    if bcrypt.hashpw(password.encode(),
+                     student_hash.encode()) == student_hash.encode():
         return student_id
 
     return None
