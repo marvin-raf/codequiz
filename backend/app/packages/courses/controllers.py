@@ -1,12 +1,27 @@
-from flask import Blueprint, jsonify
-from app.util.db import query
+from flask import Blueprint, request, abort, jsonify
+from app.packages.courses import models
+from app.util.responses import success, bad_request, server_error, created, forbidden
+from app.util.middleware import teacher_signed_in
+
 courses_module = Blueprint("courses", __name__, url_prefix="/courses")
 
 
-@courses_module.route("/")
-def helloworld():
+@courses_module.route("/", methods=["POST"])
+@teacher_signed_in
+def create():
     """
-    Print hello world
+    Creates a course
     """
-    data = query("SELECT 1+1")
-    return jsonify(data)
+    try:
+        body = request.get_json()
+
+        teacher_id = request.teacher_id
+        name = body["name"]
+
+        course_id = models.insert_course(name, teacher_id)
+
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
+    return created({"course_id": course_id})
