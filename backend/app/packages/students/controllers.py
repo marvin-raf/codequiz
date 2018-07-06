@@ -1,8 +1,16 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.students import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
+from app.util.middleware import student_signed_in
 
 students_module = Blueprint("students", __name__, url_prefix="/students")
+
+
+@students_module.route("/", methods=["GET"])
+@student_signed_in
+def hell22o():
+    print(request.student_id)
+    return "sdfsd"
 
 
 @students_module.route("/activate", methods=["POST"])
