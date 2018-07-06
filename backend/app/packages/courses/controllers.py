@@ -18,7 +18,7 @@ def create():
         teacher_id = request.teacher_id
         name = body["name"]
 
-        course_id = models.insert_course(name, teacher_id)
+        course_id = models.insert_course(teacher_id, name)
 
     except KeyError:
         return bad_request()
