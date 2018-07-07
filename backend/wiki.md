@@ -1,4 +1,4 @@
-# Cookfolio Documentation
+# Quiz-server Documentation
 
 Welcome to the quiz-server wiki. This wiki contains the backend documentation for all backend packages
 

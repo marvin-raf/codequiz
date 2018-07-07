@@ -40,7 +40,7 @@ Bad Request indicates that
 
 Status Code (500)
 
-Server Error indicates anything else that is unexpected and mysql errors
+- Server Error indicates anything else that is unexpected and mysql errors
 
 ---
 
@@ -81,6 +81,6 @@ Bad Request indicates that
 
 Status Code (500)
 
-Server Error indicates anything else that is unexpected and mysql errors
+- Server Error indicates anything else that is unexpected and mysql errors
 
 ---
