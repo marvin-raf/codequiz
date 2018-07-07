@@ -6,6 +6,22 @@ from app.util.middleware import teacher_signed_in
 courses_module = Blueprint("courses", __name__, url_prefix="/courses")
 
 
+@courses_module.route("/", methods=["GET"])
+@teacher_signed_in
+def get_courses():
+    """
+    Gets all of a teachers courses
+    """
+    try:
+        teacher_id = request.teacher_id
+
+        courses = models.get_courses(teacher_id)
+
+    except Exception:
+        return server_error()
+    return success({"courses": courses})
+
+
 @courses_module.route("/", methods=["POST"])
 @teacher_signed_in
 def create():

@@ -2,6 +2,7 @@
 
 - ["/teachers/signup"](#signup)
 - ["/teachers/signin"](#signin)
+- ["/teachers/signout"](@signout)
 
 ## signup
 
