@@ -1,9 +1,11 @@
 # Students Endpoints
 
-- ["/students/activate"](#activate)
-- ["/signin"](#signin)
+- ["/students/activate"](#/students/activate)
+- ["/students/signin"](#/students/signin)
 
-## activate
+## `/students/activate`
+
+### POST
 
 **URL** `/students/activate`
 
@@ -16,8 +18,13 @@
 - `activate_token`
 - `password`
 
+  {
+  "activate_token": "string",
+  "password": "string"
+  }
+
 **Responses**
-Status Code (200)
+Status Code (201)
 
 Success response indicates the student has been activated and have set their password
 
@@ -38,7 +45,9 @@ Server Error indicates anything else that is unexpected and mysql errors
 
 ---
 
-## signin
+## `/students/signin`
+
+### POST
 
 **URL** `/students/signin`
 
@@ -48,8 +57,10 @@ Server Error indicates anything else that is unexpected and mysql errors
 
 **Request Body**
 
-- `email`
-- `password`
+    {
+        "email": "string",
+        password: "string"
+    }
 
 **Responses**
 Status Code (200)
@@ -57,7 +68,7 @@ Status Code (200)
 Success response indicates the student has been signed in
 
     {
-        "token": "123",
+        "token": "string",
         "student_id": 1
     }
 
@@ -69,6 +80,43 @@ Bad Request indicates that
 
 - `email` or `password` do not exist in request body
 - `email` and `password` do not match to a user
+
+---
+
+Status Code (500)
+
+Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+## `/students/parse`
+
+### POST
+
+**URL** `/students/parse`
+
+**Description** This endpoint parses an excel document into a list of students
+
+**Authentication** Teacher
+
+**Request Body** - NOTE: Request body should be FormData NOT JSON
+
+    FormData = {"excel_doc": image}
+
+**Responses**
+Status Code (200)
+
+Success response indicates that the excel document has been parsed successfully.
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `excel_doc` image was not uploaded
+- `excel_doc` was not an excel document
+- The headers (email or name) of `excel_doc` were incorrect
 
 ---
 

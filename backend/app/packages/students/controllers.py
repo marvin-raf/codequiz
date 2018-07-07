@@ -38,7 +38,7 @@ def activate():
         print(e)
         return server_error()
 
-    return success()
+    return created()
 
 
 @students_module.route("/signin", methods=["POST"])
