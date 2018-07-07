@@ -64,8 +64,8 @@ Status Code (200)
 Created response indicates that the teacher has successfully signed in
 
     {
-        "token": "abc",
-        "teacher_id": 2
+        "token": "string",
+        "teacher_id": 1
     }
 
 ---
