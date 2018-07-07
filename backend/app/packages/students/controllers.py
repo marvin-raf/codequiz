@@ -1,16 +1,14 @@
+import os
+import uuid
+import xlrd
 from flask import Blueprint, request, abort, jsonify
+from werkzeug.utils import secure_filename
+from config import config
 from app.packages.students import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
 from app.util.middleware import student_signed_in
 
 students_module = Blueprint("students", __name__, url_prefix="/students")
-
-
-@students_module.route("/", methods=["GET"])
-@student_signed_in
-def hell22o():
-    print(request.student_id)
-    return "sdfsd"
 
 
 @students_module.route("/activate", methods=["POST"])
@@ -69,3 +67,32 @@ def signin():
         return server_error()
 
     return success({"token": token, "student_id": student_id})
+
+
+@students_module.route("/parse", methods=["POST"])
+def parse():
+    """
+    Parses an excel spreadsheet and returns students
+    """
+
+    try:
+        if "excel_doc" not in request.files:
+            return bad_request()
+
+        excel_doc = request.files["excel_doc"]
+
+        if not models.allowed_file(excel_doc.filename):
+            return bad_request()
+
+        file_path = models.save_excel_doc(excel_doc)
+
+        students = models.parse_students(file_path)
+
+        os.remove(file_path)
+    except ValueError as e:
+        return bad_request()
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success(students)

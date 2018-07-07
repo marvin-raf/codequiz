@@ -5,6 +5,7 @@ import VueRouter from "vue-router";
 import Vuetify from "vuetify";
 
 import Home from "./containers/Home/Home.vue";
+import Info from "./containers/Info/Info.vue";
 
 import authHelper from "./helpers/authHelper";
 
@@ -16,12 +17,13 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    component: Home,
-    beforeEnter: authHelper.checkLoggedIn
+    component: Home
+  },
+  {
+    path: "/info",
+    component: Info
   }
 ];
-
-const raf = async () => {};
 
 const router = new VueRouter({
   routes,

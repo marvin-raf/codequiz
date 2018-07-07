@@ -15,6 +15,8 @@ def create_app():
 
     flask_app = Flask(__name__)
 
+    flask_app.config["UPLOAD_FOLDER"] = "img/"
+
     flask_app.register_blueprint(students_module)
     flask_app.register_blueprint(teachers_module)
     flask_app.register_blueprint(quizzes_module)

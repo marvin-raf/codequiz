@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <Sidebar/>
+    <Sidebar id="sidebar"/>
+
+    <div id="router-view">
+      <router-view></router-view>
+    </div>
+
 
     
   </div>
@@ -43,5 +48,15 @@ h6,
 p,
 span {
   opacity: 0.87;
+}
+
+#sidebar {
+  float: left;
+}
+
+#router-view {
+  width: calc(100% - 200px);
+  border: 1px solid red;
+  float: left;
 }
 </style>

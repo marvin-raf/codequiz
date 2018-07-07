@@ -2,9 +2,12 @@
 Contains models for the Students package
 """
 
+import os
 import bcrypt
 import pymysql
 import uuid
+import xlrd
+from config import config
 
 from app.util import db
 
@@ -112,3 +115,44 @@ def save_token(token, student_id):
     """
 
     db.query(query, (token, student_id))
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ["xlsx", "xlsm"]
+
+
+def save_excel_doc(excel_doc):
+    """
+    Saves the excel doc in the config["UPLOAD_FOLDER"] directory
+    """
+
+    filename = "{}.xlsx".format(uuid.uuid4())
+    file_path = os.path.join(config["UPLOAD_FOLDER"], filename)
+    excel_doc.save(file_path)
+
+    return file_path
+
+
+def parse_students(file_path):
+    """
+    Parses the email and names of students from the file_path excel doc
+    """
+
+    book = xlrd.open_workbook(file_path)
+
+    sheet = book.sheet_by_index(0)
+
+    student_list = []
+
+    for i in range(sheet.nrows):
+        name_cell = sheet.cell_value(rowx=i, colx=0)
+        email_cell = sheet.cell_value(rowx=i, colx=1)
+
+        if i == 0:
+            if name_cell.lower() != "name" or email_cell.lower() != "email":
+                raise ValueError("Name or Email header is wrong")
+        else:
+            student_list.append({"name": name_cell, "email": email_cell})
+
+    return student_list
