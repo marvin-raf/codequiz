@@ -84,3 +84,36 @@ Status Code (500)
 - Server Error indicates anything else that is unexpected and mysql errors
 
 ---
+
+## signout
+
+**URL** `/teachers/signout`
+
+**Description** This endpoint signs out a teacher by setting their token to null
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+
+Status Code (200)
+
+Success response indicates that the teacher has been successfully signed out
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---

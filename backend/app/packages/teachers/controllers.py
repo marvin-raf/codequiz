@@ -1,6 +1,7 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.teachers import models
 from app.util.responses import success, bad_request, server_error, created
+from app.util.middleware import teacher_signed_in
 
 teachers_module = Blueprint("teachers", __name__, url_prefix="/teachers")
 
@@ -54,3 +55,19 @@ def signin():
         return server_error()
 
     return success({"token": token, "teacher_id": teacher_id})
+
+
+@teachers_module.route("/signout", methods=["POST"])
+@teacher_signed_in
+def signout():
+    """
+    Signs a teacher out by changing their token to null
+    """
+    try:
+        teacher_id = request.teacher_id
+
+        models.remove_token(teacher_id)
+
+    except Exception:
+        return server_error()
+    return success()
