@@ -84,10 +84,12 @@ def taken_email(email):
     """
     Checks if the email is taken
     """
+
     query = """
     SELECT teacher_id FROM teachers
     WHERE teacher_email = %s
     """
+
     taken = db.query(query, (email))
     return taken
 
@@ -96,6 +98,7 @@ def insert_teacher(name, email, teacher_hash):
     """
     Inserts a new teacher into the database
     """
+
     query = """
     INSERT INTO teachers (teacher_name, teacher_email, teacher_hash)
     VALUES (%s, %s, %s)
@@ -103,3 +106,17 @@ def insert_teacher(name, email, teacher_hash):
 
     teacher_id = db.insert_query(query, (name, email, teacher_hash))
     return teacher_id
+
+
+def remove_token(teacher_id):
+    """
+    Sets a teachers token to null in the database
+    """
+
+    query = """
+    UPDATE teachers
+    SET teacher_token = %s
+    WHERE teacher_id = %s
+    """
+
+    db.query(query, (None, teacher_id))

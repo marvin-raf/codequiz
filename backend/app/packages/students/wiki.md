@@ -15,13 +15,10 @@
 
 **Request Body**
 
-- `activate_token`
-- `password`
-
-  {
-  "activate_token": "string",
-  "password": "string"
-  }
+    {
+        "activate_token": "string",
+        "password": "string"
+    }
 
 **Responses**
 Status Code (201)
