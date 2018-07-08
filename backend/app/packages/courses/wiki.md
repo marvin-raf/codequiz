@@ -1,6 +1,7 @@
 # Courses Enpoints
 
 - ["/courses"](#/courses)
+- ["/courses/<id>"](#/courses/<id>)
 - ["/courses/<id>/quizzes"](#/courses/<id>/quizzes)
 
 ## `/courses`
@@ -94,6 +95,60 @@ Status Code (500)
 
 ---
 
+## `/courses/<id>`
+
+### GET
+
+**URL** `/courses/<id>`
+
+**Description** This endpoint gets information about a course
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the quizzes have been successfully retrieved
+
+    {
+        "quizzes": [
+            {
+                "quiz_id": 1,
+                "quiz_name": "string",
+                "quiz_start_date": 1,
+                "quiz_end_date": 1
+            }
+        ]
+    }
+
+---
+
+Status Code (400)
+
+Bad request indicates that
+
+- `course_id` does not exist in course table
+- `course_id` is not assigned to the authenticated teacher
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
 ## `/courses/<id>/quizzes`
 
 ### GET
@@ -121,6 +176,15 @@ Success response indicates the quizzes have been successfully retrieved
             }
         ]
     }
+
+---
+
+Status Code (400)
+
+Bad request indicates that
+
+- `course_id` does not exist in course table
+- `course_id` is not assigned to the authenticated teacher
 
 ---
 

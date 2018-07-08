@@ -49,6 +49,20 @@ def course_exists(course_id, teacher_id):
     return course
 
 
+def get_course(course_id):
+    """
+    Gets information on one course
+    """
+
+    query = """
+    SELECT * FROM courses
+    WHERE course_id = %s
+    """
+
+    course = db.query(query, (course_id))
+    return course
+
+
 def get_quizzes(course_id):
     """
     Gets all of a courses quizzes
