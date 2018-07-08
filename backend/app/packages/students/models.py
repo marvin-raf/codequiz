@@ -134,6 +134,45 @@ def save_excel_doc(excel_doc):
     return file_path
 
 
+def using_full_name_format(sheet):
+    """
+    Validates the contents of the headers in the excel doc and returns if the teacher
+    is using full name format or given and last name format
+    """
+
+    if sheet.nrows == 0:
+        raise ValueError("Wrong Format")
+
+    # If there are only 2 columns in the first row, then just validate against {Email | Name}
+    if len(sheet.row(0)) == 2:
+        email = sheet.cell_value(rowx=0, colx=0)
+        name = sheet.cell_value(rowx=0, colx=1)
+
+        if email.lower() != "email" or name.lower() != "name":
+            raise ValueError("Wrong Format")
+
+        return True
+
+    else:
+        email = sheet.cell_value(rowx=0, colx=0)
+        name_or_first_name = sheet.cell_value(rowx=0, colx=1)
+        last_name = sheet.cell_value(rowx=0, colx=2)
+
+        # Else, validate against both {Email | Name} and {Email | First Name | Last Name}
+        if email.lower() != "email":
+            raise ValueError("Wrong Format")
+
+        if name_or_first_name.lower() == "first name":
+            if last_name.lower() != "last name":
+                raise ValueError("Wrong Format")
+
+            return False
+        elif name_or_first_name.lower() == "name":
+            return True
+        else:
+            raise ValueError("Wrong format")
+
+
 def parse_students(file_path):
     """
     Parses the email and names of students from the file_path excel doc
@@ -145,14 +184,24 @@ def parse_students(file_path):
 
     student_list = []
 
-    for i in range(sheet.nrows):
-        name_cell = sheet.cell_value(rowx=i, colx=0)
-        email_cell = sheet.cell_value(rowx=i, colx=1)
+    full_name_format = using_full_name_format(sheet)
 
-        if i == 0:
-            if name_cell.lower() != "name" or email_cell.lower() != "email":
-                raise ValueError("Name or Email header is wrong")
+    print(full_name_format)
+
+    for i in range(1, sheet.nrows):
+        if full_name_format:
+            email = sheet.cell_value(rowx=i, colx=0)
+            name = sheet.cell_value(rowx=i, colx=1)
+
+            student_list.append({"name": name, "email": email})
         else:
-            student_list.append({"name": name_cell, "email": email_cell})
+            email = sheet.cell_value(rowx=i, colx=0)
+            first_name = sheet.cell_value(rowx=i, colx=1)
+            last_name = sheet.cell_value(rowx=i, colx=2)
+
+            student_list.append({
+                "name": "{} {}".format(first_name, last_name),
+                "email": email
+            })
 
     return student_list

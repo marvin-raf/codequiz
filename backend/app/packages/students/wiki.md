@@ -98,7 +98,7 @@ Status Code (500)
 
 **Request Body** - NOTE: Request body should be FormData NOT JSON
 
-    FormData = {"excel_doc": image}
+    FormData = {"excel_doc": excel_doc}
 
 **Responses**
 Status Code (200)
@@ -113,7 +113,7 @@ Bad Request indicates that
 
 - `excel_doc` image was not uploaded
 - `excel_doc` was not an excel document
-- The headers (email or name) of `excel_doc` were incorrect
+- The headers (email, name) or (email, first_name, last_name) of `excel_doc` were incorrect
 
 ---
 
