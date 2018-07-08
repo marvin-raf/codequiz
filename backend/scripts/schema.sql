@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-07-06 04:57:23 +0000
+# Generation Time: 2018-07-08 08:46:59 +0000
 # ************************************************************
 
 
@@ -36,6 +36,33 @@ CREATE TABLE `answers` (
 
 
 
+# Dump of table classes
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `classes`;
+
+CREATE TABLE `classes` (
+  `class_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `class_name` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`class_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table classes_courses
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `classes_courses`;
+
+CREATE TABLE `classes_courses` (
+  `cc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `cc_class_id` int(11) NOT NULL,
+  `cc_course_id` int(11) NOT NULL,
+  PRIMARY KEY (`cc_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table courses
 # ------------------------------------------------------------
 
@@ -48,24 +75,6 @@ CREATE TABLE `courses` (
   PRIMARY KEY (`course_id`),
   KEY `course_teacher_id` (`course_teacher_id`),
   CONSTRAINT `courses_ibfk_1` FOREIGN KEY (`course_teacher_id`) REFERENCES `teachers` (`teacher_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-
-# Dump of table courses_students
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `courses_students`;
-
-CREATE TABLE `courses_students` (
-  `cs_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `cs_student_id` int(11) unsigned NOT NULL,
-  `cs_course_id` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`cs_id`),
-  KEY `cs_student_id` (`cs_student_id`),
-  KEY `cs_course_id` (`cs_course_id`),
-  CONSTRAINT `courses_students_ibfk_1` FOREIGN KEY (`cs_student_id`) REFERENCES `students` (`student_id`),
-  CONSTRAINT `courses_students_ibfk_2` FOREIGN KEY (`cs_course_id`) REFERENCES `courses` (`course_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -123,6 +132,20 @@ CREATE TABLE `students` (
   UNIQUE KEY `student_token` (`student_activate_token`),
   KEY `student_teacher_id` (`student_teacher_id`),
   CONSTRAINT `students_ibfk_1` FOREIGN KEY (`student_teacher_id`) REFERENCES `teachers` (`teacher_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table students_classes
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `students_classes`;
+
+CREATE TABLE `students_classes` (
+  `sc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `sc_student_id` int(11) NOT NULL,
+  `sc_class_id` int(11) NOT NULL,
+  PRIMARY KEY (`sc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
