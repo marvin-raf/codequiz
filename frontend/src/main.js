@@ -9,6 +9,7 @@ import Info from "./containers/Info/Info.vue";
 
 import authHelper from "./helpers/authHelper";
 
+import "bootstrap/dist/css/bootstrap-grid.min.css";
 import "vuetify/dist/vuetify.min.css"; // Ensure you are using css-loader
 
 Vue.use(Vuetify);

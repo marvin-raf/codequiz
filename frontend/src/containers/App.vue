@@ -56,7 +56,6 @@ span {
 
 #router-view {
   width: calc(100% - 200px);
-  border: 1px solid red;
   float: left;
 }
 </style>
