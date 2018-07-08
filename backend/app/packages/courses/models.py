@@ -38,6 +38,7 @@ def course_exists(course_id, teacher_id):
     """
     Checks if the course_id supplied exists
     """
+
     query = """
     SELECT * FROM courses
     WHERE course_id = %s
@@ -46,6 +47,21 @@ def course_exists(course_id, teacher_id):
 
     course = db.query(query, (course_id, teacher_id))
     return course
+
+
+def get_quizzes(course_id):
+    """
+    Gets all of a courses quizzes
+    """
+
+    query = """
+    SELECT quiz_id, quiz_name, quiz_start_date, quiz_end_date
+    FROM quizzes
+    WHERE quiz_course_id = %s
+    """
+
+    quizzes = db.query(query, (course_id))
+    return quizzes
 
 
 def check_dates(start_date, end_date):

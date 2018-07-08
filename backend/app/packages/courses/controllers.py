@@ -43,6 +43,25 @@ def create():
     return created({"course_id": course_id})
 
 
+@courses_module.route("/<course_id>/quizzes", methods=["GET"])
+@teacher_signed_in
+def get_quizzes(course_id):
+    """
+    Gets all of a courses quizzes
+    """
+    try:
+        teacher_id = request.teacher_id
+
+        if not models.course_exists(course_id, teacher_id):
+            return bad_request()
+
+        quizzes = models.get_quizzes(course_id)
+
+    except Exception:
+        return server_error()
+    return success({"quizzes": quizzes})
+
+
 @courses_module.route("/<course_id>/quizzes", methods=["POST"])
 @teacher_signed_in
 def create_quiz(course_id):
@@ -66,7 +85,6 @@ def create_quiz(course_id):
 
     except KeyError:
         return bad_request()
-    except Exception as e:
-        print(e)
+    except Exception:
         return server_error()
     return created({"quiz_id": quiz_id})
