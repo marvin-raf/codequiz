@@ -1,0 +1,183 @@
+# Classes Enpoints
+
+- ["/classes"](#/courses)
+
+## `/classes`
+
+### GET
+
+**URL** `/classes`
+
+**Description** This endpoint gets all of a teachers classes
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the classes have been successfully retrieved
+
+    {
+        "classes": [
+            {
+                "class_id": 1,
+                "class_name": "string"
+            }
+        ]
+    }
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+### POST
+
+**URL** `/classes`
+
+**Description** This endpoint creates a class
+
+**Authentication** Teacher
+
+**Request Body**
+
+    {
+        "name": "string",
+    }
+
+**Responses**
+Status Code (201)
+
+Created response indicates the class has been created
+
+    {
+        "class_id": 1
+    }
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `name` does not exist in request body
+- `name` is empty
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+### PATCH
+
+**URL** `/classes`
+
+**Description** This endpoint changes the class name
+
+**Authentication** Teacher
+
+**Request Body**
+
+    {
+        "name": "string",
+    }
+
+**Responses**
+Status Code (200)
+
+Success response indicates the class name has been changed
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `name` does not exist in request body
+- `name` is empty
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+### DELETE
+
+**URL** `/classes`
+
+**Description** This endpoint deletes a class
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the class has been deleted
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
