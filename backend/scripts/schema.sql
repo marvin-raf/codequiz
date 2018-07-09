@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-07-08 08:46:59 +0000
+# Generation Time: 2018-07-09 22:09:48 +0000
 # ************************************************************
 
 
@@ -44,6 +44,7 @@ DROP TABLE IF EXISTS `classes`;
 CREATE TABLE `classes` (
   `class_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `class_name` varchar(50) NOT NULL DEFAULT '',
+  `class_teacher_id` int(11) NOT NULL,
   PRIMARY KEY (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
