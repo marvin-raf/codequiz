@@ -6,13 +6,20 @@ import Vuetify from "vuetify";
 
 import Home from "./containers/Home/Home.vue";
 import Info from "./containers/Info/Info.vue";
+import Signin from "./containers/Signin/Signin.vue";
+import Signup from "./containers/Signup/Signup.vue";
 
 import authHelper from "./helpers/authHelper";
 
 import "bootstrap/dist/css/bootstrap-grid.min.css";
 import "vuetify/dist/vuetify.min.css"; // Ensure you are using css-loader
 
-Vue.use(Vuetify);
+Vue.use(Vuetify, {
+  theme: {
+    primary: "#34495e",
+    secondary: "#2ecc71"
+  }
+});
 Vue.use(VueRouter);
 
 const routes = [
@@ -23,6 +30,14 @@ const routes = [
   {
     path: "/info",
     component: Info
+  },
+  {
+    path: "/signup",
+    component: Signup
+  },
+  {
+    path: "/signin",
+    component: Signin
   }
 ];
 
