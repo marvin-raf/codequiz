@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "bootstrap": "^4.1.1",
+    "email-validator": "^2.0.4",
+    "js-cookie": "^2.2.0",
     "material-design-icons-iconfont": "^3.0.3",
     "vue": "^2.5.11",
     "vue-router": "^3.0.1",

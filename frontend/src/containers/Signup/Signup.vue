@@ -1,22 +1,25 @@
 <template>
-<v-card class="col-lg-8 offset-lg-2" id="signup">
-    <h1>Signup</h1>
+<v-card class="col-lg-8 offset-lg-2" id="sign-up">
+    <h1>Sign Up</h1>
 
-    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="nameErrors"></v-text-field> 
+    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.name" :maxlength="50"></v-text-field> 
 
-    <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="emailErrors"></v-text-field>
+    <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
 
-    <v-text-field type="password" label="Password" v-model="password" color="secondary" class="col-md-10 offset-md-1" :error-messages="passwordErrors"></v-text-field>
+    <v-text-field type="password" label="Password" v-model="password" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.password" :maxlength="50"></v-text-field>
 
-    <v-text-field type="password" label="Confirm Password" v-model="confirmPassword" class="col-md-10 offset-md-1" color="secondary" :error-messages="confirmPasswordErrors"></v-text-field>
+    <v-text-field type="password" label="Confirm Password" v-model="confirmPassword" class="col-md-10 offset-md-1" color="secondary" :error-messages="errors.confirmPassword" :maxlength="50"></v-text-field>
 
-    <v-btn color="secondary" id="sign-up-btn" depressed @click="signUp()">Sign Up</v-btn>
+    <v-btn color="secondary" id="sign-up-btn" depressed @click="signUp()" :loading="loading">Sign Up</v-btn>
 
 
     </v-card>
 </template>
 
 <script>
+import helpers from "./helpers.js";
+import cookies from "js-cookie";
+
 export default {
   data() {
     return {
@@ -29,15 +32,41 @@ export default {
         email: [],
         password: [],
         confirmPassword: []
-      }
+      },
+      loading: false
     };
   },
   methods: {
-    signUp() {
+    async signUp() {
       this.resetErrors();
+
+      if (helpers.formHasErrors(this)) return;
+
+      this.loading = true;
+
+      try {
+        await helpers.signUp({
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          errors: this.errors
+        });
+
+        const token = await helpers.signIn({
+          email: this.email,
+          password: this.password
+        });
+
+        cookies.set("teacher", token);
+
+        this.loading = false;
+        this.$router.push("/profile/dashboard");
+      } catch (e) {
+        this.loading = false;
+      }
     },
     resetErrors() {
-      for (key of Object.keys(this.errors)) {
+      for (const key of Object.keys(this.errors)) {
         this.errors[key] = [];
       }
     }
@@ -49,7 +78,7 @@ export default {
 <style lang="scss">
 @import "../../styles/_mixins.scss";
 @import "../../styles/_variables.scss";
-#signup {
+#sign-up {
   background-color: #fff;
   h1 {
     text-align: center;
