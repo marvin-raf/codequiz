@@ -5,7 +5,7 @@ Middleware functions
 from functools import wraps
 from flask import request
 from app.util import db
-from app.util.responses import unauthorized
+from app.util.responses import unauthorized, bad_request
 
 
 def student_signed_in(func):
@@ -65,6 +65,31 @@ def teacher_signed_in(func):
             return unauthorized()
 
         request.teacher_id = rows[0]["teacher_id"]
+        return func(*args, **kwargs)
+
+    return wrap
+
+
+def class_exists(func):
+    """Decorator"""
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        """Used to figure out whether to return the function or json"""
+
+        teacher_id = request.teacher_id
+        class_id = request.view_args["class_id"]
+
+        query = """
+        SELECT * FROM classes
+        WHERE class_id = %s
+        AND class_teacher_id = %s
+        """
+
+        classes = db.query(query, (class_id, teacher_id))
+
+        if not classes:
+            return bad_request()
         return func(*args, **kwargs)
 
     return wrap

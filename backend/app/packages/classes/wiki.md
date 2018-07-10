@@ -1,6 +1,8 @@
 # Classes Enpoints
 
 - ["/classes"](#/courses)
+- ["/classes/<id>"](#/classes/<id>)
+- ["/classes/<id>/students"](#/classes/<id>/students)
 
 ## `/classes`
 
@@ -94,9 +96,11 @@ Status Code (500)
 
 ---
 
+## `/classes/<id>`
+
 ### PATCH
 
-**URL** `/classes`
+**URL** `/classes/<id>`
 
 **Description** This endpoint changes the class name
 
@@ -164,6 +168,111 @@ Bad Request indicates that
 
 - `class_id` doesn't match with a class in the database
 - `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+## `/classes/<id>/students`
+
+### GET
+
+**URL** `/classes/<id>/students`
+
+**Description** This endpoint gets all the students of a class
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the students have been successfully retrieved
+
+    {
+        "students": [
+            {
+                "student_id": 1,
+                "student_name": "string",
+                "student_email": "string"
+            }
+        ]
+    }
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `X-Authorization` header isn't given
+- `X-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+### POST
+
+**URL** `/classes/<id>/students`
+
+**Description** This endpoint adds a list of students to the database
+
+**Authentication** Teacher
+
+**Request Body**
+
+    {
+        "students: [
+            {
+                "name": "string",
+                "email": "string"
+            }
+        ]
+    }
+
+**Responses**
+Status Code (201)
+
+Success response indicates the students have been successfully added
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+- `name` is missing in students
+- `email` is miisng in students
 
 ---
 
