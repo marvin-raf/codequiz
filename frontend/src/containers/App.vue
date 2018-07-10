@@ -3,11 +3,12 @@
     <Sidebar id="sidebar"/>
 
     <div id="router-view">
-      <router-view></router-view>
-    </div>
+      <v-app>
+        <router-view></router-view>
+        </v-app>
+          </div>
 
 
-    
   </div>
 </template>
 
@@ -26,11 +27,10 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../styles/variables.scss";
-@import "../styles/imports.scss";
+@import "../styles/_variables.scss";
+@import "../styles/_imports.scss";
 html,
 body {
-  background-color: $background;
   font-family: "Roboto";
   height: 100%;
 }
@@ -55,7 +55,10 @@ span {
 }
 
 #router-view {
+  height: 100%;
+  position: relative;
   width: calc(100% - 200px);
   float: left;
+  background-color: $background;
 }
 </style>
