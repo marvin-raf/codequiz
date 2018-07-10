@@ -8,6 +8,7 @@ auth_module = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_module.route("/signin", methods=["POST"])
+@cross_origin
 def signin():
     """
     Signs in either a teacher or a student
@@ -38,17 +39,22 @@ def signin():
     })
 
 
-@teachers_module.route("/signout", methods=["POST"])
+@auth_module.route("/signout", methods=["POST"])
 @cross_origin()
-@teacher_signed_in
 def signout():
     """
-    Signs a teacher out by changing their token to null
+    Signs a teacher or student out by changing their token to null
     """
     try:
-        teacher_id = request.teacher_id
+        if hasattr(request, "teacher_id") 
+            user_id = request.teacher_id
+            is_teacher = True
+        else:
+            user_id = request.student_id
+            is_teacher = False
 
-        models.remove_token(teacher_id)
+
+        models.remove_token(user_id, is_teacher)
 
     except Exception:
         return server_error()

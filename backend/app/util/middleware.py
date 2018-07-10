@@ -93,7 +93,7 @@ def class_exists(func):
     return wrap
 
 
-def student_teacher_signed_in(func):
+def teacher_student_logged_in(func):
     """
     Checks to see if a student or a teacher is signed in.
     """
@@ -114,7 +114,7 @@ def student_teacher_signed_in(func):
             if not rows:
                 return unauthorized()
 
-            request.teacher_id = rows[0]["student_id"]
+            request.teacher_id = rows[0]["teacher_id"]
             return func(*args, **kwargs)
         elif "Student-Authorization" in request.headers:
             query = """
@@ -122,8 +122,6 @@ def student_teacher_signed_in(func):
             FROM students
             WHERE student_token = %s
             """
-
-            print(request.headers["Student-Authorization"])
 
             rows = db.query(query, (request.headers["Student-Authorization"]))
 

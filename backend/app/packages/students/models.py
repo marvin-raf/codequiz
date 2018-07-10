@@ -54,69 +54,6 @@ def token_exists(token):
     return False
 
 
-def id_from_credentials(email, password):
-    """
-    Gets the students_id from their credentials. If their credentials
-    don't match, then None will be returned
-    """
-
-    query = """
-    SELECT student_id, student_hash
-    FROM students
-    WHERE student_email = %s AND student_hash IS NOT NULL
-    """
-
-    rows = db.query(query, (email))
-
-    if not rows:
-        return None
-
-    student_hash = rows[0]["student_hash"]
-    student_id = rows[0]["student_id"]
-
-    # Compared hashed password from request to hashed password in db
-    if bcrypt.hashpw(password.encode(),
-                     student_hash.encode()) == student_hash.encode():
-        return student_id
-
-    return None
-
-
-def create_token():
-    """
-    Creates the students login token
-    """
-
-    token = uuid.uuid4().hex
-
-    query = """
-    SELECT student_token
-    FROM students
-    WHERE student_token = %s
-    """
-
-    rows = db.query(query, (token))
-
-    if rows:
-        return create_token()
-
-    return token
-
-
-def save_token(token, student_id):
-    """
-    Saves the student token
-    """
-
-    query = """
-    UPDATE students
-    SET student_token = %s
-    WHERE student_id = %s
-    """
-
-    db.query(query, (token, student_id))
-
-
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ["xlsx", "xlsm"]

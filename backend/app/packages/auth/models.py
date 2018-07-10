@@ -97,15 +97,22 @@ def save_token(token, user_id, is_teacher):
     db.query(query, (token, user_id))
 
 
-def remove_token(teacher_id):
+def remove_token(user_id, is_teacher):
     """
-    Sets a teachers token to null in the database
-    """
-
-    query = """
-    UPDATE teachers
-    SET teacher_token = %s
-    WHERE teacher_id = %s
+    Sets a teachers or students token to null in the database
     """
 
-    db.query(query, (None, teacher_id))
+    if is_teacher:
+        query = """
+        UPDATE teachers
+        SET teacher_token = %s
+        WHERE teacher_id = %s
+        """
+    else:
+        query = """
+        UPDATE teachers
+        SET student_token = %s
+        WHERE student_id = %s
+        """
+
+    db.query(query, (None, user_id))

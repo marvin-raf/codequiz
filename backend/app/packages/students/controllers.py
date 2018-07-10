@@ -2,6 +2,7 @@ import os
 import uuid
 import xlrd
 from flask import Blueprint, request, abort, jsonify
+from flask_cors import cross_origin
 from werkzeug.utils import secure_filename
 from config import config
 from app.packages.students import models
@@ -12,6 +13,7 @@ students_module = Blueprint("students", __name__, url_prefix="/students")
 
 
 @students_module.route("/activate", methods=["POST"])
+@cross_origin
 def activate():
     """
     Activates a student account and set's there password
@@ -41,35 +43,8 @@ def activate():
     return created()
 
 
-@students_module.route("/signin", methods=["POST"])
-def signin():
-    """
-    Signs a student in and returns their signin token
-    """
-
-    try:
-        body = request.get_json()
-
-        email = body["email"]
-        password = body["password"]
-        student_id = models.id_from_credentials(email, password)
-
-        if not student_id:
-            return bad_request()
-
-        token = models.create_token()
-        models.save_token(token, student_id)
-
-    except KeyError:
-        return bad_request()
-    except Exception as e:
-        print(e)
-        return server_error()
-
-    return success({"token": token, "student_id": student_id})
-
-
 @students_module.route("/parse", methods=["POST"])
+@cross_origin
 def parse():
     """
     Parses an excel spreadsheet and returns students
