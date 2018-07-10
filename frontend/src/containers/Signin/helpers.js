@@ -18,7 +18,9 @@ helpers.signIn = (email, password) => {
       return;
     }
 
-    resolve();
+    const json = await res.json();
+
+    resolve(json);
   });
 };
 

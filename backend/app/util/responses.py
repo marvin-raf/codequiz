@@ -11,7 +11,7 @@ def response(status_code, data=None):
     """
 
     if data:
-        return (jsonify({"data": data}), status_code)
+        return (jsonify(data), status_code)
 
     return ("", status_code)
 
