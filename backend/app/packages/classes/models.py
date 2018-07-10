@@ -90,7 +90,7 @@ def insert_students(students, teacher_id):
     query = """
     INSERT IGNORE INTO students 
     (student_teacher_id, student_name, student_email, student_activate_token)
-    VALUES 
+    VALUES
     """
     values = []
     token = None
@@ -104,5 +104,5 @@ def insert_students(students, teacher_id):
 
     query = query[:-2]
 
-    db.query(query, tuple(values))
-    return
+    student_list = db.query(query, tuple(values))
+    return student_list

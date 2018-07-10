@@ -113,10 +113,11 @@ def add_students(class_id):
         teacher_id = request.teacher_id
         students = body["students"]
 
-        models.insert_students(students, teacher_id)
+        student_list = models.insert_students(students, teacher_id)
 
     except KeyError:
         return bad_request()
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
-    return created()
+    return created({"students": student_list})
