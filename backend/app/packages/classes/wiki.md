@@ -1,6 +1,6 @@
 # Classes Enpoints
 
-[Back to main wiki](#../../../wiki.md)
+[Back to main wiki](../../../wiki.md)
 
 - ["/classes"](#markdown-header-classes)
 - ["/classes/<id>"](#markdown-header-classes-id)
