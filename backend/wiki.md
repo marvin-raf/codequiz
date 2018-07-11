@@ -8,6 +8,8 @@ Welcome to the quiz-server wiki. This wiki contains the backend documentation fo
 
 [Students](app/packages/students/wiki.md)
 
+[Classes](app/packages/classes/wiki.md)
+
 [Courses](app/packages/courses/wiki.md)
 
 [Quizzes](app/packages/quizzes/wiki.md)

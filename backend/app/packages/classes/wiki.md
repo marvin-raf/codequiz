@@ -1,11 +1,11 @@
 # Classes Enpoints
 
-- ["/classes"](#/courses)
-- ["/classes/<id>"](#/classes/<id>)
-- ["/classes/<id>/students"](#/classes/<id>/students)
-- ["/classes/<id>/students/<id>"](#/classes/<id>/students/<id>)
+- ["/classes"](#classes)
+- ["/classes/\<id\>"](#classes-id)
+- ["/classes/\<id\>/students"](#classes-id-students)
+- ["/classes/\<id\>/students/\<id\>"](#classes-id-students-id)
 
-## `/classes`
+## `classes`
 
 ### GET
 
@@ -97,7 +97,7 @@ Status Code (500)
 
 ---
 
-## `/classes/<id>`
+## `classes id`
 
 ### PATCH
 
@@ -208,7 +208,7 @@ Status Code (500)
 
 ---
 
-## `/classes/<id>/students`
+## `classes id students`
 
 ### GET
 
@@ -383,7 +383,7 @@ Status Code (500)
 
 ---
 
-## `/classes/<id>/students/<id>`
+## `classes id students id`
 
 ### DELETE
 

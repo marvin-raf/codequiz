@@ -1,9 +1,9 @@
 # Students Endpoints
 
-- ["/students/activate"](#/students/activate)
-- ["/students/parse"](#/students/parse)
+- ["/students/activate"](#students-activate)
+- ["/students/parse"](#students-parse)
 
-## `/students/activate`
+## `students activate`
 
 ### POST
 
@@ -42,7 +42,7 @@ Status Code (500)
 
 ---
 
-## `/students/parse`
+## `students parse`
 
 ### POST
 
