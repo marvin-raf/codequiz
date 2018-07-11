@@ -1,6 +1,4 @@
 from flask import Blueprint, request, abort, jsonify
-from flask_cors import cross_origin
-
 from app.packages.auth import models
 from app.util.responses import success, bad_request, server_error, created
 
@@ -8,7 +6,6 @@ auth_module = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 @auth_module.route("/signin", methods=["POST"])
-@cross_origin
 def signin():
     """
     Signs in either a teacher or a student
@@ -40,19 +37,17 @@ def signin():
 
 
 @auth_module.route("/signout", methods=["POST"])
-@cross_origin()
 def signout():
     """
     Signs a teacher or student out by changing their token to null
     """
     try:
-        if hasattr(request, "teacher_id") 
+        if hasattr(request, "teacher_id"):
             user_id = request.teacher_id
             is_teacher = True
         else:
             user_id = request.student_id
             is_teacher = False
-
 
         models.remove_token(user_id, is_teacher)
 

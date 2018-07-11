@@ -44,51 +44,59 @@ helpers.formHasErrors = data => {
 // Signs up a new teacher
 helpers.signUp = data => {
   return new Promise(async (resolve, reject) => {
-    const res = await fetch("http://localhost:5000/teachers/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: data.name,
-        email: data.email,
-        password: data.password
-      })
-    });
+    try {
+      const res = await fetch("http://localhost:5000/teachers/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password
+        })
+      });
 
-    if (res.status !== 201) {
-      if (res.status === 400) {
-        data.errors.email.push("Email Address already taken");
+      if (res.status !== 201) {
+        if (res.status === 400) {
+          data.errors.email.push("Email Address already taken");
+        }
+        reject();
+        return;
       }
-      reject();
-      return;
-    }
 
-    resolve();
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
 // Signs in a new teacher
 helpers.signIn = data => {
   return new Promise(async (resolve, reject) => {
-    const res = await fetch("http://localhost:5000/teachers/signin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password
-      })
-    });
+    try {
+      const res = await fetch("http://localhost:5000/teachers/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password
+        })
+      });
 
-    if (res.status !== 200) {
-      reject();
-      return;
+      if (res.status !== 200) {
+        reject();
+        return;
+      }
+
+      const json = await res.json();
+      resolve(json.data.token);
+    } catch (e) {
+      reject(e);
     }
-
-    const json = await res.json();
-    resolve(json.data.token);
   });
 };
 

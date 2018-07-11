@@ -13,7 +13,6 @@ students_module = Blueprint("students", __name__, url_prefix="/students")
 
 
 @students_module.route("/activate", methods=["POST"])
-@cross_origin
 def activate():
     """
     Activates a student account and set's there password
@@ -44,7 +43,6 @@ def activate():
 
 
 @students_module.route("/parse", methods=["POST"])
-@cross_origin
 def parse():
     """
     Parses an excel spreadsheet and returns students

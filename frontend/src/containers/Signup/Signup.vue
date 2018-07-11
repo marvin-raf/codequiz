@@ -60,7 +60,7 @@ export default {
         cookies.set("teacher", token);
 
         this.loading = false;
-        this.$router.push("/profile/dashboard");
+        this.$router.push("/dashboard");
       } catch (e) {
         this.loading = false;
       }

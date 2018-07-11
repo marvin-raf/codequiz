@@ -12,6 +12,7 @@
 
 <script>
 import helpers from "./helpers";
+import cookies from "js-cookie";
 
 export default {
   data() {
@@ -42,9 +43,23 @@ export default {
 
       if (this.errors.email.length || this.errors.password.length) return;
 
+      this.loading = true;
+
       try {
-        await helpers.signIn(email, password);
+        const json = await helpers.signIn(this.email, this.password);
+        console.log("Did I make it past here");
+
+        if (json.teacher_id) {
+          cookies.set("teacher", json.token);
+        } else {
+          cookies.set("student", json.token);
+        }
+
+        this.loading = false;
+        this.$router.push("/dashboard");
       } catch (e) {
+        console.log(e);
+        this.loading = false;
         console.log("There was an error");
       }
     }
