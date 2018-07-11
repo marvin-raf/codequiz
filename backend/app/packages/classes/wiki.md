@@ -1,9 +1,9 @@
 # Classes Enpoints
 
-- ["/classes"](#classes)
-- ["/classes/<id>"](#classes-id)
-- ["/classes/<id>/students"](#classes-id-students)
-- ["/classes/<id>/students/<id>"](#classes-id-students-id)
+- ["/classes"](#markdown-header-classes)
+- ["/classes/<id>"](#markdown-header-classes-id)
+- ["/classes/<id>/students"](#markdown-header-classes-id-students)
+- ["/classes/<id>/students/<id>"](#markdown-header-classes-id-students-id)
 
 ## `classes`
 
