@@ -104,5 +104,65 @@ def insert_students(students, teacher_id):
 
     query = query[:-2]
 
-    student_list = db.query(query, tuple(values))
+    db.query(query, tuple(values))
+    return
+
+
+def delete_unique():
+    """
+    Deletes student emails that are already taken by a teacher
+    """
+
+    query = """
+    DELETE FROM students
+    WHERE student_email IN 
+    (SELECT teacher_email FROM teachers)
+    """
+
+    db.query(query)
+    return
+
+
+def insert_into_class(class_id, emails):
+    """
+    Adds students into students_classes
+    """
+
+    query = """
+    INSERT INTO students_classes (sc_student_id, sc_class_id)
+    SELECT student_id, %s
+    FROM students
+    WHERE student_email IN %s
+    """
+
+    student_list = db.query(query, (class_id, emails))
     return student_list
+
+
+def delete_students(class_id):
+    """
+    Deletes all students in a class
+    """
+
+    query = """
+    DELETE FROM students_classes
+    WHERE sc_class_id = %s
+    """
+
+    db.query(query, (class_id))
+    return
+
+
+def delete_student(class_id, student_id):
+    """
+    Deletes a student from a class
+    """
+
+    query = """
+    DELETE FROM students_classes
+    WHERE sc_class_id = %s
+    AND sc_student_id = %s
+    """
+
+    db.query(query, (class_id, student_id))
+    return

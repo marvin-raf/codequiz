@@ -3,6 +3,7 @@
 - ["/classes"](#/courses)
 - ["/classes/<id>"](#/classes/<id>)
 - ["/classes/<id>/students"](#/classes/<id>/students)
+- ["/classes/<id>/students/<id>"](#/classes/<id>/students/<id>)
 
 ## `/classes`
 
@@ -36,8 +37,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -85,8 +86,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -134,8 +135,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -175,8 +176,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -228,8 +229,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -271,6 +272,7 @@ Bad Request indicates that
 
 - `class_id` doesn't match with a class in the database
 - `class_id` and `teacher_id` don't match in the database
+- `students` is missing
 - `name` is missing in students
 - `email` is miisng in students
 
@@ -280,8 +282,92 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+### DELETE
+
+**URL** `/classes/<id>/students`
+
+**Description** This endpoint deletes all students in a class
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the students have been successfully deleted
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+## `/classes/<id>/students/<id>`
+
+### DELETE
+
+**URL** `/classes/<id>/students/<id>`
+
+**Description** This endpoint deletes a student from a class
+
+**Authentication** Teacher
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates the student has been successfully deleted
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `class_id` doesn't match with a class in the database
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
