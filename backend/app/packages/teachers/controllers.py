@@ -1,5 +1,4 @@
 from flask import Blueprint, request, abort, jsonify
-from flask_cors import cross_origin
 from app.packages.teachers import models
 from app.util.responses import success, bad_request, server_error, created
 from app.util.middleware import teacher_signed_in
@@ -8,7 +7,6 @@ teachers_module = Blueprint("teachers", __name__, url_prefix="/teachers")
 
 
 @teachers_module.route("/signup", methods=["POST"])
-@cross_origin()
 def signup():
     """
     Signs a teacher up and returns their id

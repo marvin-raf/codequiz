@@ -8,6 +8,11 @@ import Home from "./containers/Home/Home.vue";
 import Info from "./containers/Info/Info.vue";
 import Signin from "./containers/Signin/Signin.vue";
 import Signup from "./containers/Signup/Signup.vue";
+import Dashboard from "./containers/Dashboard/Dashboard.vue";
+import Classes from "./containers/Classes/Classes.vue";
+import Class from "./containers/Class/Class.vue";
+import Courses from "./containers/Courses/Courses.vue";
+import Course from "./containers/Course/Course.vue";
 
 import authHelper from "./helpers/authHelper";
 
@@ -38,6 +43,26 @@ const routes = [
   {
     path: "/signin",
     component: Signin
+  },
+  {
+    path: "/dashboard",
+    component: Dashboard
+  },
+  {
+    path: "/classes",
+    component: Classes
+  },
+  {
+    path: "/classes/:id",
+    component: Class
+  },
+  {
+    path: "/courses",
+    component: Courses
+  },
+  {
+    path: "/courses/:id",
+    component: Course
   }
 ];
 
