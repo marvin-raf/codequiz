@@ -1,5 +1,7 @@
 # Courses Enpoints
 
+[Back to main wiki](../../../wiki.md)
+
 - ["/courses"](#/courses)
 - ["/courses/<id>"](#/courses/<id>)
 - ["/courses/<id>/quizzes"](#/courses/<id>/quizzes)

@@ -1,5 +1,7 @@
 # Students Endpoints
 
+[Back to main wiki](../../../wiki.md)
+
 - ["/students/activate"](#students-activate)
 - ["/students/parse"](#students-parse)
 

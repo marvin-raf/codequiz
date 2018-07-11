@@ -1,5 +1,7 @@
 # Teachers Endpoints
 
+[Back to main wiki](../../../wiki.md)
+
 - ["/teachers/signup"](#signup)
 - ["/teachers/signin"](#signin)
 - ["/teachers/signout"](@signout)
