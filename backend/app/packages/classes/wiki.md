@@ -126,8 +126,6 @@ Bad Request indicates that
 
 - `name` does not exist in request body
 - `name` is empty
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
 
 ---
 
@@ -140,6 +138,22 @@ Unauthorized indicates that
 
 ---
 
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
+
+---
+
 Status Code (500)
 
 - Server Error indicates anything else that is unexpected and mysql errors
@@ -148,7 +162,7 @@ Status Code (500)
 
 ### DELETE
 
-**URL** `/classes`
+**URL** `/classes/<id>`
 
 **Description** This endpoint deletes a class
 
@@ -163,21 +177,28 @@ Success response indicates the class has been deleted
 
 ---
 
-Status Code (400)
-
-Bad Request indicates that
-
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
-
----
-
 Status Code (401)
 
 Unauthorized indicates that
 
 - `Teacher-Authorization` header isn't given
 - `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
 
 ---
 
@@ -216,21 +237,28 @@ Success response indicates the students have been successfully retrieved
 
 ---
 
-Status Code (400)
-
-Bad Request indicates that
-
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
-
----
-
 Status Code (401)
 
 Unauthorized indicates that
 
 - `Teacher-Authorization` header isn't given
 - `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
 
 ---
 
@@ -270,8 +298,6 @@ Status Code (400)
 
 Bad Request indicates that
 
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
 - `students` is missing
 - `name` is missing in students
 - `email` is miisng in students
@@ -284,6 +310,22 @@ Unauthorized indicates that
 
 - `Teacher-Authorization` header isn't given
 - `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
 
 ---
 
@@ -310,21 +352,28 @@ Success response indicates the students have been successfully deleted
 
 ---
 
-Status Code (400)
-
-Bad Request indicates that
-
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
-
----
-
 Status Code (401)
 
 Unauthorized indicates that
 
 - `Teacher-Authorization` header isn't given
 - `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
 
 ---
 
@@ -353,21 +402,30 @@ Success response indicates the student has been successfully deleted
 
 ---
 
-Status Code (400)
-
-Bad Request indicates that
-
-- `class_id` doesn't match with a class in the database
-- `class_id` and `teacher_id` don't match in the database
-
----
-
 Status Code (401)
 
 Unauthorized indicates that
 
 - `Teacher-Authorization` header isn't given
 - `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `class_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `class_id` doesn't match with a class in the database
+- `student_id` doesn't match with a student in the database
+- `class_id` and `student_id` don't match in the database
 
 ---
 

@@ -5,7 +5,7 @@ Middleware functions
 from functools import wraps
 from flask import request
 from app.util import db
-from app.util.responses import unauthorized, bad_request
+from app.util.responses import unauthorized, bad_request, not_found, forbidden
 
 
 def student_signed_in(func):
@@ -81,13 +81,23 @@ def class_exists(func):
         query = """
         SELECT * FROM classes
         WHERE class_id = %s
+        """
+
+        classes = db.query(query, (class_id))
+
+        if not classes:
+            return not_found()
+
+        query = """
+        SELECT * FROM classes
+        WHERE class_id = %s
         AND class_teacher_id = %s
         """
 
         classes = db.query(query, (class_id, teacher_id))
 
         if not classes:
-            return bad_request()
+            return forbidden()
         return func(*args, **kwargs)
 
     return wrap

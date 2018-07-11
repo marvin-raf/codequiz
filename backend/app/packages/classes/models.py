@@ -70,7 +70,7 @@ def get_students(class_id):
 
     query = """
     SELECT 
-    students_classes.sc_student_id AS student_id, 
+    students.student_id AS student_id, 
     students.student_name AS student_name, 
     students.student_email AS student_email
     FROM students_classes 
@@ -129,7 +129,7 @@ def insert_into_class(class_id, emails):
     """
 
     query = """
-    INSERT INTO students_classes (sc_student_id, sc_class_id)
+    INSERT IGNORE INTO students_classes (sc_student_id, sc_class_id)
     SELECT student_id, %s
     FROM students
     WHERE student_email IN %s
@@ -151,6 +151,22 @@ def delete_students(class_id):
 
     db.query(query, (class_id))
     return
+
+
+def check_student(class_id, student_id):
+    """
+    Checks if a student exists or if he matches a class
+    """
+
+    query = """
+    SELECT * FROM students_classes
+    WHERE sc_class_id = %s
+    AND sc_student_id = %s
+    """
+
+    student = db.query(query, (class_id, student_id))
+
+    return student
 
 
 def delete_student(class_id, student_id):
