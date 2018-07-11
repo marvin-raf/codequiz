@@ -1,9 +1,9 @@
 # Classes Enpoints
 
 - ["/classes"](#classes)
-- ["/classes/\<id\>"](#classes-id)
-- ["/classes/\<id\>/students"](#classes-id-students)
-- ["/classes/\<id\>/students/\<id\>"](#classes-id-students-id)
+- ["/classes/<id>"](#classes-id)
+- ["/classes/<id>/students"](#classes-id-students)
+- ["/classes/<id>/students/<id>"](#classes-id-students-id)
 
 ## `classes`
 
@@ -196,7 +196,7 @@ Forbidden indicates that
 
 Status Code (404)
 
-Not Found indicates taht
+Not Found indicates that
 
 - `class_id` doesn't match with a class in the database
 
@@ -290,7 +290,7 @@ Status Code (500)
 **Responses**
 Status Code (201)
 
-Success response indicates the students have been successfully added
+Created response indicates the students have been successfully added
 
 ---
 
