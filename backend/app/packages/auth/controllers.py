@@ -1,6 +1,8 @@
 from flask import Blueprint, request, abort, jsonify
+
 from app.packages.auth import models
 from app.util.responses import success, bad_request, server_error, created
+from app.util.middleware import teacher_student_logged_in
 
 auth_module = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -37,6 +39,7 @@ def signin():
 
 
 @auth_module.route("/signout", methods=["POST"])
+@teacher_student_logged_in
 def signout():
     """
     Signs a teacher or student out by changing their token to null
@@ -51,6 +54,7 @@ def signout():
 
         models.remove_token(user_id, is_teacher)
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
     return success()

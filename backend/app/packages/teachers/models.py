@@ -49,3 +49,19 @@ def insert_teacher(name, email, teacher_hash):
 
     teacher_id = db.insert_query(query, (name, email, teacher_hash))
     return teacher_id
+
+
+def get_teacher_data(teacher_id):
+    """
+    Gets teacher data from teacher_id    
+    """
+
+    query = """
+    SELECT teacher_id, teacher_name, teacher_email
+    FROM teachers
+    WHERE teacher_id = %s
+    """
+
+    rows = db.query(query, (teacher_id))
+
+    return rows[0]

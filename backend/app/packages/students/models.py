@@ -142,3 +142,20 @@ def parse_students(file_path):
             })
 
     return student_list
+
+
+def get_student_data(student_id):
+    """
+    Gets student data from student_id    
+    """
+
+    query = """
+    SELECT students.student_id, students.student_name, teachers.teacher_id, teachers.teacher_name, students.student_email
+    FROM students 
+    INNER JOIN teachers ON students.student_teacher_id = teachers.teacher_id
+    WHERE student_id = %s
+    """
+
+    rows = db.query(query, (student_id))
+
+    return rows[0]

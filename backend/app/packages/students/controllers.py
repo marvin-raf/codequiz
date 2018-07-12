@@ -12,6 +12,21 @@ from app.util.middleware import student_signed_in
 students_module = Blueprint("students", __name__, url_prefix="/students")
 
 
+@students_module.route("/me", methods=["GET"])
+@student_signed_in
+def me():
+    """
+    Returns student data if they are logged in
+    """
+    try:
+        student_data = models.get_student_data(request.student_id)
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success(student_data)
+
+
 @students_module.route("/activate", methods=["POST"])
 def activate():
     """
