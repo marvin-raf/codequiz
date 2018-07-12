@@ -23,6 +23,7 @@ def create_app():
     CORS(flask_app)
 
     flask_app.config['CORS_HEADERS'] = 'Content-Type'
+    flask_app.url_map.strict_slashes = False
 
     flask_app.register_blueprint(auth_module)
     flask_app.register_blueprint(students_module)

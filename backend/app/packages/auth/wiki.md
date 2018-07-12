@@ -1,4 +1,11 @@
-## signin
+#Auth Endpoints
+
+[Back to main wiki](../../../wiki.md)
+
+- ["/auth/signin"](#auth-signin)
+- ["/auth/signout"](#auth-signout)
+
+## auth signin
 
 **URL** `/auth/signin`
 
@@ -46,7 +53,7 @@ Status Code (500)
 
 ---
 
-## signout
+## auth signout
 
 **URL** `/auth/signout`
 

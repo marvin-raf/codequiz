@@ -1,9 +1,11 @@
 # Students Endpoints
 
-- ["/students/activate"](#/students/activate)
-- ["/students/parse"](#/students/parse)
+[Back to main wiki](../../../wiki.md)
 
-## `/students/activate`
+- ["/students/activate"](#students-activate)
+- ["/students/parse"](#students-parse)
+
+## `students activate`
 
 ### POST
 
@@ -42,7 +44,7 @@ Status Code (500)
 
 ---
 
-## `/students/parse`
+## `students parse`
 
 ### POST
 

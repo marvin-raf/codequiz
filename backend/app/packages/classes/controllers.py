@@ -1,6 +1,6 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.classes import models
-from app.util.responses import success, bad_request, server_error, created, forbidden
+from app.util.responses import success, bad_request, server_error, created, forbidden, not_found
 from app.util.middleware import teacher_signed_in, class_exists
 
 classes_module = Blueprint("classes", __name__, url_prefix="/classes")
@@ -18,7 +18,7 @@ def get_classes():
         classes = models.get_classes(teacher_id)
 
     except Exception:
-        return server_error
+        return server_error()
     return success({"classes": classes})
 
 
@@ -112,12 +112,50 @@ def add_students(class_id):
 
         teacher_id = request.teacher_id
         students = body["students"]
+        emails = []
 
-        student_list = models.insert_students(students, teacher_id)
+        for email in students:
+            emails.append(email["email"])
+
+        models.insert_students(students, teacher_id)
+        models.delete_unique()
+        models.insert_into_class(class_id, tuple(emails))
 
     except KeyError:
         return bad_request()
-    except Exception as e:
-        print(e)
+    except Exception:
         return server_error()
-    return created({"students": student_list})
+    return created()
+
+
+@classes_module.route("/<class_id>/students", methods=["DELETE"])
+@teacher_signed_in
+@class_exists
+def delete_students(class_id):
+    """
+    Deletes all students in a class
+    """
+    try:
+        models.delete_students(class_id)
+
+    except Exception:
+        return server_error()
+    return success()
+
+
+@classes_module.route("/<class_id>/students/<student_id>", methods=["DELETE"])
+@teacher_signed_in
+@class_exists
+def delete_student(class_id, student_id):
+    """
+    Deletes a student from a class
+    """
+    try:
+        if not models.check_student(class_id, student_id):
+            return not_found()
+
+        models.delete_student(class_id, student_id)
+
+    except Exception:
+        return server_error()
+    return success()
