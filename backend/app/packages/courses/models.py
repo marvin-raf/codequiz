@@ -34,33 +34,18 @@ def insert_course(teacher_id, name):
     return course_id
 
 
-def course_exists(course_id, teacher_id):
-    """
-    Checks if the course_id supplied exists
-    """
-
-    query = """
-    SELECT * FROM courses
-    WHERE course_id = %s
-    AND course_teacher_id = %s
-    """
-
-    course = db.query(query, (course_id, teacher_id))
-    return course
-
-
-def get_course(course_id):
+def get_name(course_id):
     """
     Gets information on one course
     """
 
     query = """
-    SELECT * FROM courses
+    SELECT course_name FROM courses
     WHERE course_id = %s
     """
 
     course = db.query(query, (course_id))
-    return course
+    return course[0]["course_name"]
 
 
 def get_quizzes(course_id):
@@ -76,6 +61,40 @@ def get_quizzes(course_id):
 
     quizzes = db.query(query, (course_id))
     return quizzes
+
+
+def get_classes(course_id):
+    """
+    Gets all of a courses classes
+    """
+
+    query = """
+    SELECT 
+    classes.class_id AS class_id,
+    classes.class_name AS class_name
+    FROM classes 
+    INNER JOIN classes_courses
+    ON classes.class_id = classes_courses.cc_class_id
+    WHERE cc_course_id = %s
+    """
+
+    classes = db.query(query, (course_id))
+    return classes
+
+
+def change_course(course_id, name):
+    """
+    Changes the name of a course
+    """
+
+    query = """
+    UPDATE courses
+    SET course_name = %s
+    WHERE course_id = %s
+    """
+
+    db.query(query, (name, course_id))
+    return
 
 
 def check_dates(start_date, end_date):

@@ -103,6 +103,41 @@ def class_exists(func):
     return wrap
 
 
+def course_exists(func):
+    """Decorator"""
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        """Used to figure out whether to return the function or json"""
+
+        teacher_id = request.teacher_id
+        course_id = request.view_args["course_id"]
+
+        query = """
+        SELECT * FROM courses
+        WHERE course_id = %s
+        """
+
+        courses = db.query(query, (course_id))
+
+        if not courses:
+            return not_found()
+
+        query = """
+        SELECT * FROM courses
+        WHERE course_id = %s
+        AND course_teacher_id = %s
+        """
+
+        courses = db.query(query, (course_id, teacher_id))
+
+        if not courses:
+            return forbidden()
+        return func(*args, **kwargs)
+
+    return wrap
+
+
 def teacher_student_logged_in(func):
     """
     Checks to see if a student or a teacher is signed in.

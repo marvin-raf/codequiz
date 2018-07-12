@@ -2,9 +2,9 @@
 
 [Back to main wiki](../../../wiki.md)
 
-- ["/courses"](#/courses)
-- ["/courses/<id>"](#/courses/<id>)
-- ["/courses/<id>/quizzes"](#/courses/<id>/quizzes)
+- ["/courses"](#courses)
+- ["/courses/<id>"](#courses-id)
+- ["/courses/<id>/quizzes"](#courses-id-quizzes)
 
 ## `/courses`
 
@@ -38,8 +38,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -86,8 +86,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -97,7 +97,7 @@ Status Code (500)
 
 ---
 
-## `/courses/<id>`
+## `courses id`
 
 ### GET
 
@@ -115,24 +115,23 @@ Status Code (200)
 Success response indicates the quizzes have been successfully retrieved
 
     {
-        "quizzes": [
+        "course_id": 1,
+        "course_name": "string",
+        "course_quizzes": [
             {
                 "quiz_id": 1,
                 "quiz_name": "string",
                 "quiz_start_date": 1,
                 "quiz_end_date": 1
             }
+        ],
+        "course_classes": [
+            {
+                "class_id": 1,
+                "class_name": "string"
+            }
         ]
     }
-
----
-
-Status Code (400)
-
-Bad request indicates that
-
-- `course_id` does not exist in course table
-- `course_id` is not assigned to the authenticated teacher
 
 ---
 
@@ -140,8 +139,24 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `course_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `course_id` doesn't match with a class in the database
 
 ---
 
@@ -151,7 +166,68 @@ Status Code (500)
 
 ---
 
-## `/courses/<id>/quizzes`
+### POST
+
+**URL** `/courses/<id>`
+
+**Description** This endpoint changes name of a course
+
+**Authentication** Teacher
+
+**Request Body**
+
+    {
+        "name": "string"
+    }
+
+**Responses**
+Status Code (200)
+
+Success response indicates the course name has been changed
+
+---
+
+Status Code (400)
+
+Bad Request indicates that
+
+- `name` does not exist in request body
+- `name` is empty
+
+---
+
+Status Code (401)
+
+Unauthorized indicates that
+
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
+
+---
+
+Status Code (403)
+
+Forbidden indicates that
+
+- `course_id` and `teacher_id` don't match in the database
+
+---
+
+Status Code (404)
+
+Not Found indicates taht
+
+- `course_id` doesn't match with a class in the database
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
+
+## `courses id quizzes`
 
 ### GET
 
@@ -194,8 +270,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
@@ -249,8 +325,8 @@ Status Code (401)
 
 Unauthorized indicates that
 
-- `X-Authorization` header isn't given
-- `X-Authorization` isn't matched to a teacher in the database
+- `Teacher-Authorization` header isn't given
+- `Teacher-Authorization` isn't matched to a teacher in the database
 
 ---
 
