@@ -76,7 +76,7 @@ helpers.signUp = data => {
 helpers.signIn = data => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch("http://localhost:5000/teachers/signin", {
+      const res = await fetch("http://localhost:5000/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -93,7 +93,7 @@ helpers.signIn = data => {
       }
 
       const json = await res.json();
-      resolve(json.data.token);
+      resolve(json.token);
     } catch (e) {
       reject(e);
     }

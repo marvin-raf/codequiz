@@ -13,7 +13,6 @@ import Classes from "./containers/Classes/Classes.vue";
 import Class from "./containers/Class/Class.vue";
 import Courses from "./containers/Courses/Courses.vue";
 import Course from "./containers/Course/Course.vue";
-
 import authHelper from "./helpers/authHelper";
 
 import "bootstrap/dist/css/bootstrap-grid.min.css";
@@ -30,39 +29,48 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    component: Home
+    component: Home,
+    beforeEnter: authHelper.loggedInOrOut
   },
   {
     path: "/info",
-    component: Info
+    component: Info,
+    beforeEnter: authHelper.loggedInOrOut
   },
   {
     path: "/signup",
-    component: Signup
+    component: Signup,
+    beforeEnter: authHelper.loggedOut
   },
   {
     path: "/signin",
-    component: Signin
+    component: Signin,
+    beforeEnter: authHelper.loggedOut
   },
   {
     path: "/dashboard",
-    component: Dashboard
+    component: Dashboard,
+    beforeEnter: authHelper.loggedIn
   },
   {
     path: "/classes",
-    component: Classes
+    component: Classes,
+    beforeEnter: authHelper.teacherLoggedIn
   },
   {
     path: "/classes/:id",
-    component: Class
+    component: Class,
+    beforeEnter: authHelper.teacherLoggedIn
   },
   {
     path: "/courses",
-    component: Courses
+    component: Courses,
+    beforeEnter: authHelper.loggedIn
   },
   {
     path: "/courses/:id",
-    component: Course
+    component: Course,
+    beforeEnter: authHelper.loggedIn
   }
 ];
 
