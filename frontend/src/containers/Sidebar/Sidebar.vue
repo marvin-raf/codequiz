@@ -38,8 +38,6 @@
         </v-list-tile-content>
 
       </v-list-tile>
-
-      {{ teacherStore }}
     </v-list>
   </v-navigation-drawer>
 </template>

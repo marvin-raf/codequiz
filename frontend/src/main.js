@@ -5,7 +5,7 @@ import VueRouter from "vue-router";
 import Vuetify from "vuetify";
 
 import Home from "./containers/Home/Home.vue";
-import Info from "./containers/Info/Info.vue";
+import About from "./containers/About/About.vue";
 import Signin from "./containers/Signin/Signin.vue";
 import Signup from "./containers/Signup/Signup.vue";
 import Dashboard from "./containers/Dashboard/Dashboard.vue";
@@ -13,6 +13,7 @@ import Classes from "./containers/Classes/Classes.vue";
 import Class from "./containers/Class/Class.vue";
 import Courses from "./containers/Courses/Courses.vue";
 import Course from "./containers/Course/Course.vue";
+import Quiz from "./containers/Quiz/Quiz.vue";
 import authHelper from "./helpers/authHelper";
 
 import "bootstrap/dist/css/bootstrap-grid.min.css";
@@ -33,8 +34,8 @@ const routes = [
     beforeEnter: authHelper.loggedInOrOut
   },
   {
-    path: "/info",
-    component: Info,
+    path: "/about",
+    component: About,
     beforeEnter: authHelper.loggedInOrOut
   },
   {
@@ -70,6 +71,11 @@ const routes = [
   {
     path: "/courses/:id",
     component: Course,
+    beforeEnter: authHelper.loggedIn
+  },
+  {
+    path: "/quizzes/:id",
+    component: Quiz,
     beforeEnter: authHelper.loggedIn
   }
 ];

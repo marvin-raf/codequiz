@@ -12,6 +12,8 @@ def me():
     """
     Returns teachers data if they are logged in
     """
+
+    print("Hello")
     try:
         teacher_data = models.get_teacher_data(request.teacher_id)
     except Exception as e:

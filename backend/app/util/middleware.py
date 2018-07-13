@@ -179,3 +179,43 @@ def teacher_student_logged_in(func):
             return unauthorized()
 
     return wrap
+
+
+def teacher_owns_quiz(func):
+    """Decorator"""
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        """Used to figure out whether to return the function or json"""
+
+        teacher_id = request.teacher_id
+
+        quiz_id = request.view_args["quiz_id"]
+
+        query = """
+        SELECT quiz_id
+        FROM quizzes
+        WHERE quiz_id = %s
+        """
+
+        quizzes = db.query(query, (quiz_id))
+
+        if not quizzes:
+            return not_found()
+
+        query = """
+        SELECT quiz_id
+        FROM quizzes
+        INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
+        INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
+        WHERE quizzes.quiz_id = %s
+        AND teachers.teacher_id = %s
+        """
+
+        quizzes = db.query(query, (quiz_id, teacher_id))
+
+        if not quizzes:
+            return forbidden()
+        return func(*args, **kwargs)
+
+    return wrap
