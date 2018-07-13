@@ -5,8 +5,10 @@
 - ["/courses"](#courses)
 - ["/courses/<id>"](#courses-id)
 - ["/courses/<id>/quizzes"](#courses-id-quizzes)
+- ["/courses/<id>/classes"](#courses-id-classes)
+- ["/courses/<id>/classes/<id>"](#courses-id-classes-id)
 
-## `/courses`
+## `courses`
 
 ### GET
 
