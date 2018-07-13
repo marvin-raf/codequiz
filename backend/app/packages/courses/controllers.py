@@ -1,6 +1,6 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.courses import models
-from app.util.responses import success, bad_request, server_error, created, forbidden
+from app.util.responses import success, bad_request, server_error, created, forbidden, not_found
 from app.util.middleware import teacher_signed_in, course_exists
 
 courses_module = Blueprint("courses", __name__, url_prefix="/courses")
@@ -33,6 +33,9 @@ def create():
 
         teacher_id = request.teacher_id
         name = body["name"]
+
+        if not name:
+            return bad_request()
 
         course_id = models.insert_course(teacher_id, name)
 
@@ -73,7 +76,7 @@ def change_course(course_id):
     Changes name of a course
     """
     try:
-        body = request.json()
+        body = request.get_json()
 
         name = body["name"]
 
@@ -89,23 +92,24 @@ def change_course(course_id):
     return success()
 
 
-@courses_module.route("/<course_id>/quizzes", methods=["GET"])
+@courses_module.route("/<course_id>", methods=["DELETE"])
 @teacher_signed_in
-def get_quizzes(course_id):
+@course_exists
+def delete_course(course_id):
     """
-    Gets all of a courses quizzes
+    Deletes a course
     """
     try:
-
-        quizzes = models.get_quizzes(course_id)
+        models.delete_course(course_id)
 
     except Exception:
         return server_error()
-    return success({"quizzes": quizzes})
+    return success()
 
 
 @courses_module.route("/<course_id>/quizzes", methods=["POST"])
 @teacher_signed_in
+@course_exists
 def create_quiz(course_id):
     """
     Creates a quiz
@@ -113,7 +117,6 @@ def create_quiz(course_id):
     try:
         body = request.get_json()
 
-        teacher_id = request.teacher_id
         name = body["name"]
         start_date = body["start_date"]
         end_date = body["end_date"]
@@ -128,3 +131,48 @@ def create_quiz(course_id):
     except Exception:
         return server_error()
     return created({"quiz_id": quiz_id})
+
+
+@courses_module.route("<course_id>/classes", methods=["POST"])
+@teacher_signed_in
+@course_exists
+def add_class(course_id):
+    """
+    Adds a class to a course
+    """
+    try:
+        body = request.get_json()
+
+        teacher_id = request.teacher_id
+        class_id = body["id"]
+
+        if not models.class_exists(teacher_id, class_id):
+            return bad_request()
+
+        models.add_class(course_id, class_id)
+
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
+    return success()
+
+
+@courses_module.route("<course_id>/classes/<class_id>", methods=["DELETE"])
+@teacher_signed_in
+@course_exists
+def delete_class(course_id, class_id):
+    """
+    Deletes a class from a course
+    """
+    try:
+        teacher_id = request.teacher_id
+
+        if not models.class_exists(teacher_id, class_id):
+            return not_found()
+
+        models.delete_class(course_id, class_id)
+
+    except Exception:
+        return server_error()
+    return success()
