@@ -97,11 +97,31 @@ def change_course(course_id, name):
     return
 
 
+def delete_course(course_id):
+    """
+    Deletes a course
+    """
+
+    query = """
+    DELETE FROM questions
+    WHERE question_quiz_id IN (
+        SELECT quiz_id
+        FROM quizzes 
+        WHERE quiz_course_id = %s
+    )
+    """
+
+    db.query(query, (course_id))
+    return
+
+
 def check_dates(start_date, end_date):
     """
     Returns true if dates are in the right order
     """
+
     current_date = int(time.time())
+
     if current_date <= start_date and start_date <= end_date:
         return True
     return False
@@ -111,9 +131,57 @@ def insert_quiz(course_id, name, start_date, end_date):
     """
     Inserts a quiz and returns its id
     """
+
     query = """
-    INSERT INTO quizzes (quiz_course_id, quiz_name, quiz_start_date, quiz_end_date)
+    INSERT INTO quizzes 
+    (quiz_course_id, quiz_name, quiz_start_date, quiz_end_date)
     VALUES (%s, %s, %s, %s)
     """
+
     quiz_id = db.insert_query(query, (course_id, name, start_date, end_date))
     return quiz_id
+
+
+def class_exists(teacher_id, class_id):
+    """
+    Checks if the class exists or if it matches the course
+    """
+
+    query = """
+    SELECT * FROM classes
+    WHERE class_teacher_id = %s
+    AND class_id = %s
+    """
+
+    classes = db.query(query, (teacher_id, class_id))
+    return classes
+
+
+def add_class(course_id, class_id):
+    """
+    Adds a class to a course
+    """
+
+    query = """
+    INSERT INTO classes_courses
+    (cc_class_id, cc_course_id)
+    VALUES (%s, %s)
+    """
+
+    db.insert_query(query, (class_id, course_id))
+    return
+
+
+def delete_class(course_id, class_id):
+    """
+    Deletes a class from a course
+    """
+
+    query = """
+    DELETE FROM classes_courses
+    WHERE class_id = %s
+    AND course_id = %s
+    """
+
+    db.query(query, (class_id, course_id))
+    return
