@@ -2,11 +2,11 @@
 
 [Back to main wiki](../../../wiki.md)
 
-- ["/courses"](#courses)
-- ["/courses/<id>"](#courses-id)
-- ["/courses/<id>/quizzes"](#courses-id-quizzes)
-- ["/courses/<id>/classes"](#courses-id-classes)
-- ["/courses/<id>/classes/<id>"](#courses-id-classes-id)
+- ["/courses"](#markdown-header-courses)
+- ["/courses/<id>"](#markdown-header-courses-id)
+- ["/courses/<id>/quizzes"](#markdown-header-courses-id-quizzes)
+- ["/courses/<id>/classes"](#markdown-header-courses-id-classes)
+- ["/courses/<id>/classes/<id>"](#markdown-header-courses-id-classes-id)
 
 ## `courses`
 
