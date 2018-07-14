@@ -155,6 +155,7 @@ export default {
   background-color: $wet-asphalt;
   width: 200px !important;
   height: 100%;
+  position: fixed;
 }
 </style>
 

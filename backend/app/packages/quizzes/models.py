@@ -35,3 +35,21 @@ def get_questions(quiz_id):
     questions = db.query(query, (quiz_id))
 
     return questions
+
+
+def get_tests(questions):
+    """
+    Gets question test cases based on quiz id
+    """
+
+    for question in questions:
+        query = """
+        SELECT test_id, test_input, test_expected
+        FROM tests
+        WHERE test_question_id = %s
+        """
+
+        test_cases = db.query(query, (question["question_id"]))
+        question["test_cases"] = test_cases
+
+    return questions

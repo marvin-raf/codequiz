@@ -17,7 +17,9 @@ def get_quiz(quiz_id):
     try:
         quiz_name = models.get_name(quiz_id)
         questions = models.get_questions(quiz_id)
-    except Exception:
+        questions_with_tests = models.get_tests(questions)
+    except Exception as e:
+        print(e)
         return server_error()
 
-    return success({"quiz_name": quiz_name, "questions": questions})
+    return success({"quiz_name": quiz_name, "questions": questions_with_tests})

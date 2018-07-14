@@ -41,4 +41,34 @@ helpers.getQuizData = quizId => {
   });
 };
 
+helpers.addQuestion = (question, quizId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/quizzes/${quizId}/questions`,
+        {
+          method: "POST",
+          headers: {
+            "Teacher-Authorization": cookies.get("teacher"),
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            description: question.question_description,
+            test_cases: question.test_cases
+          })
+        }
+      );
+
+      if (res.status !== 201) {
+        reject(res.status);
+        return;
+      }
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 export default helpers;

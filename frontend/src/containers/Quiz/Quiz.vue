@@ -5,11 +5,18 @@
 
     </v-card>
 
-        <Question v-for="question in questions" :question="question" v-bind:key="question.quiz_id" >
+        <Question
+        v-for="(question, index) in questions"
+        :question="question"
+        :questionIndex="index"
+        v-bind:key="question.quiz_id"
+        v-on:alter-question="alterDescription"
+        v-on:new-test-case="addTestCase"
+        >
 
         </Question>
 
-        <v-btn flat id="new-question"><v-icon>add</v-icon></v-btn>
+        <v-btn flat id="new-question" @click="addQuestion()"><v-icon v-if="!addingQuestion">add</v-icon><span v-else>Save</span></v-btn>
 
         </div>
 </template>
@@ -30,7 +37,8 @@ export default {
       teacherStore: teacherStore.data,
       studentStore: studentStore.data,
       quizName: null,
-      questions: null
+      questions: null,
+      addingQuestion: false
     };
   },
   async mounted() {
@@ -43,6 +51,41 @@ export default {
       this.questions = questions;
     } catch (e) {
       this.$router.push("/dashboard");
+    }
+  },
+  methods: {
+    async addQuestion() {
+      if (!this.addingQuestion) {
+        this.questions.push({
+          question_description: "",
+          edit_mode: true,
+          test_cases: []
+        });
+
+        this.addingQuestion = true;
+        return;
+      }
+
+      const question = this.questions[this.questions.length - 1];
+
+      try {
+        await helpers.addQuestion(question);
+      } catch (e) {
+        console.log(e);
+      }
+
+      question.edit_mode = false;
+      this.addingQuestion = false;
+    },
+    alterDescription(question) {
+      this.questions[question.questionIndex].question_description =
+        question.questionDescription;
+    },
+    addTestCase(testCase) {
+      this.questions[testCase.questionIndex].test_cases.push({
+        test_input: testCase.testCaseContent,
+        test_expected: testCase.testCaseExpected
+      });
     }
   }
 };

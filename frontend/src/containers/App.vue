@@ -2,8 +2,7 @@
   <div id="app">
     <Sidebar id="sidebar"/>
 
-    <div id="router-view">
-      <v-app>
+    <div id="router-view"> <v-app>
         <router-view></router-view>
         </v-app>
           </div>
@@ -58,6 +57,7 @@ span {
   height: 100%;
   position: relative;
   width: calc(100% - 200px);
+  margin-left: 200px;
   float: left;
   background-color: $background;
 }

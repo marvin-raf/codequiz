@@ -1,27 +1,46 @@
 <template>
     <v-card class="question col-md-8 offset-md-2">
-        <h3>Question 1</h3>
+        <h3>Question {{ questionIndex + 1 }}</h3>
 
 
-        <vue-markdown>
-            {{ question.question_description }}
+        <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
 
-        </vue-markdown>
+
+       <v-textarea
+          v-else
+          hint="Question Description"
+          auto-grow
+          color="secondary"
+          v-model="questionDescription"
+        ></v-textarea>
+
 
         <v-divider></v-divider>
 
   <v-data-table
     :headers="headers"
-    :items="testCases"
+    :items="question.test_cases"
     hide-actions
+    no-data-text="No Test Cases"
     class="elevation-1"
   >
     <template slot="items" slot-scope="props">
-      <td v-bind:class="{ 'question-right': props.item.expected === props.item.actual, 'question-wrong': props.item.expected !== props.item.actual }"> <pre>{{ props.item.testCase }}</pre></td>
-      <td v-bind:class="{ 'question-right': props.item.expected === props.item.actual,  'question-wrong': props.item.expected !== props.item.actual}"><pre>{{ props.item.expected }}</pre></td>
-      <td v-bind:class="{ 'question-right': props.item.expected === props.item.actual, 'question-wrong': props.item.expected !== props.item.actual}"><pre>{{ props.item.actual }}</pre></td>
+      <td> <pre>{{ props.item.test_input }}</pre></td>
+      <td><pre>{{ props.item.test_expected }}</pre></td>
     </template>
   </v-data-table>
+
+  <div v-if="question.edit_mode">
+  <div class="split-fields">
+    <v-textarea label="Test Case" color="secondary" v-model="testCaseContent" :error-messages="testCaseContentErrors"></v-textarea>
+  </div>
+  <div class="split-fields">
+    <v-textarea label="Expected" color="secondary" v-model="testCaseExpected" :error-messages="testCaseExpectedErrors"></v-textarea>
+  </div>
+
+  </div>
+
+  <v-btn flat v-if="question.edit_mode" class="add-test-case" @click="addTestCase()">Add Test Case</v-btn>
 
 
 
@@ -32,7 +51,7 @@
 import VueMarkdown from "vue-markdown";
 
 export default {
-  props: ["question"],
+  props: ["question", "questionIndex"],
   components: {
     "vue-markdown": VueMarkdown
   },
@@ -48,26 +67,48 @@ export default {
           text: "Expected",
           sortable: false,
           value: "expected"
-        },
-        {
-          text: "Actual",
-          sortable: false,
-          value: "actual"
         }
       ],
-      testCases: [
-        {
-          testCase: "print(sum(3, 4))",
-          expected: "7",
-          actual: "7"
-        },
-        {
-          testCase: "print(sum(3, 9))",
-          expected: "12",
-          actual: "13"
-        }
-      ]
+      questionDescription: this.question.question_description,
+      testCaseContent: "",
+      testCaseExpected: "",
+      testCaseContentErrors: [],
+      testCaseExpectedErrors: []
     };
+  },
+  methods: {
+    // Resets and checks for errors, and emits new-test-case events if no errors
+    addTestCase() {
+      this.testCaseContentErrors = [];
+      this.testCaseExpectedErrors = [];
+
+      if (!this.testCaseContent) {
+        this.testCaseContentErrors.push("Field Required");
+      }
+      if (!this.testCaseExpected) {
+        this.testCaseExpectedErrors.push("Field Required");
+      }
+
+      if (
+        this.testCaseContentErrors.length ||
+        this.testCaseExpectedErrors.length
+      )
+        return;
+
+      this.$emit("new-test-case", {
+        testCaseContent: this.testCaseContent,
+        testCaseExpected: this.testCaseExpected,
+        questionIndex: this.questionIndex
+      });
+    }
+  },
+  watch: {
+    questionDescription(newVal, oldVal) {
+      this.$emit("alter-question", {
+        questionDescription: this.questionDescription,
+        questionIndex: this.questionIndex
+      });
+    }
   }
 };
 </script>
@@ -86,6 +127,19 @@ export default {
 
 .question-wrong {
   background-color: rgba(231, 76, 60, 0.5);
+}
+
+.add-test-case {
+  background-color: $emerald !important;
+  color: #fff !important;
+  margin: 0 auto;
+  display: block;
+  margin-top: 10px;
+}
+
+.split-fields {
+  width: 50%;
+  float: left;
 }
 </style>
 
