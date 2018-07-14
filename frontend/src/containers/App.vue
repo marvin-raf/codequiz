@@ -36,6 +36,7 @@ body {
 
 #app {
   height: 100%;
+  background-color: $background;
 }
 
 h1,
@@ -59,6 +60,6 @@ span {
   width: calc(100% - 200px);
   margin-left: 200px;
   float: left;
-  background-color: $background;
+  background-color: $background !important;
 }
 </style>

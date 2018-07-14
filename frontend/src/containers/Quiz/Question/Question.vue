@@ -15,8 +15,6 @@
         ></v-textarea>
 
 
-        <v-divider></v-divider>
-
   <v-data-table
     :headers="headers"
     :items="question.test_cases"

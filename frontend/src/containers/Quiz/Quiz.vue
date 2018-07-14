@@ -3,6 +3,23 @@
     <v-card class="col-md-8 offset-md-2" id="quiz">
         <h1 v-if="quizName">{{ quizName }}</h1>
 
+        <div id="dates" class="col-md-8 offset-md-2">
+          <v-text-field label="Start Date" class="split-fields" color="secondary" type="date"></v-text-field>
+          <v-text-field label="Start Time" class="split-fields" color="secondary" type="time"></v-text-field>
+
+          <!--Used so that the v-card expands-->
+          <div style="clear: both;"></div>
+
+          <v-text-field label="End Date" class="split-fields" color="secondary" type="date"></v-text-field>
+          <v-text-field label="End Time" class="split-fields" color="secondary" type="time"></v-text-field>
+
+          <!--Used so that the v-card expands-->
+          <div style="clear: both;"></div>
+
+        </div>
+
+
+
     </v-card>
 
         <Question
@@ -69,7 +86,7 @@ export default {
       const question = this.questions[this.questions.length - 1];
 
       try {
-        await helpers.addQuestion(question);
+        await helpers.addQuestion(question, this.$route.params.id);
       } catch (e) {
         console.log(e);
       }
@@ -97,14 +114,11 @@ export default {
 #quiz {
   background-color: #fff;
   h1 {
-    line-height: 100px;
     text-align: center;
     color: $text-color;
   }
-
-  height: 200px !important;
+  padding-top: 20px;
   margin-top: 20px;
-  max-height: 100px;
 }
 
 #sign-in-btn {
@@ -118,6 +132,15 @@ export default {
   margin: 0 auto;
   display: block;
   margin-top: 30px;
+}
+
+.split-fields {
+  width: 50%;
+  float: left;
+}
+
+#to span {
+  text-align: center;
 }
 </style>
 

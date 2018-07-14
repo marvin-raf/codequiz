@@ -20,6 +20,12 @@ def query(sql, values=None):
     return result
 
 
+def insert_many(sql, values):
+    with connection.cursor() as cursor:
+        cursor.executemany(sql, values)
+    connection.commit()
+
+
 def insert_query(sql, values=None):
     with connection.cursor() as cursor:
         if values:

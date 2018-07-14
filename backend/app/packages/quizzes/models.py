@@ -53,3 +53,34 @@ def get_tests(questions):
         question["test_cases"] = test_cases
 
     return questions
+
+
+def add_question(quiz_id, description):
+    """
+    Adds a question to a quiz
+    """
+
+    query = """
+    INSERT INTO questions (question_quiz_id, question_description)
+    VALUES (%s, %s)
+    """
+
+    question_id = db.insert_query(query, (quiz_id, description))
+
+    return question_id
+
+
+def add_tests(question_id, test_cases):
+    """
+    Adds test cases for a specific problem
+    """
+
+    query = """
+    INSERT INTO tests (test_question_id, test_input, test_expected)
+    VALUES (%s, %s, %s)
+    """
+    tests = map(
+        lambda test: (question_id, test["test_input"], test["test_expected"]),
+        test_cases)
+
+    db.insert_many(query, tuple(tests))
