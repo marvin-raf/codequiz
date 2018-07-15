@@ -93,6 +93,9 @@ export default {
       )
         return;
 
+      this.testCaseContent = "";
+      this.testCaseExpected = "";
+
       this.$emit("new-test-case", {
         testCaseContent: this.testCaseContent,
         testCaseExpected: this.testCaseExpected,

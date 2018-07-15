@@ -32,6 +32,7 @@ html,
 body {
   font-family: "Roboto";
   height: 100%;
+  background-color: $background;
 }
 
 #app {

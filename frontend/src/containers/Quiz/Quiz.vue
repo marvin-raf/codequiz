@@ -3,21 +3,18 @@
     <v-card class="col-md-8 offset-md-2" id="quiz">
         <h1 v-if="quizName">{{ quizName }}</h1>
 
-        <div id="dates" class="col-md-8 offset-md-2">
-          <v-text-field label="Start Date" class="split-fields" color="secondary" type="date"></v-text-field>
-          <v-text-field label="Start Time" class="split-fields" color="secondary" type="time"></v-text-field>
-
-          <!--Used so that the v-card expands-->
-          <div style="clear: both;"></div>
-
-          <v-text-field label="End Date" class="split-fields" color="secondary" type="date"></v-text-field>
-          <v-text-field label="End Time" class="split-fields" color="secondary" type="time"></v-text-field>
-
-          <!--Used so that the v-card expands-->
-          <div style="clear: both;"></div>
-
-        </div>
-
+        
+        <DateTime 
+          v-if="this.quizName"
+          :startDate="startDate" 
+          :startTime="startTime"
+          :endDate="endDate"
+          :endTime="endTime"
+          :editDateTime="editDateTime"
+          v-on:save-date-time="saveDateTime"
+          v-on:toggle-edit-date-time="toggleDateTime"
+          
+        />
 
 
     </v-card>
@@ -44,10 +41,12 @@ import helpers from "./helpers";
 import teacherStore from "../../store/teacherStore.js";
 import studentStore from "../../store/studentStore.js";
 import Question from "./Question/Question.vue";
+import DateTime from "./DateTime/DateTime.vue";
 
 export default {
   components: {
-    Question
+    Question,
+    DateTime
   },
   data() {
     return {
@@ -55,14 +54,36 @@ export default {
       studentStore: studentStore.data,
       quizName: null,
       questions: null,
-      addingQuestion: false
+      addingQuestion: false,
+      editDateTime: false,
+      startDate: null,
+      startTime: null,
+      endDate: null,
+      endTime: null
     };
   },
   async mounted() {
     try {
-      const { quizName, questions } = await helpers.getQuizData(
-        this.$route.params.id
-      );
+      const {
+        quizName,
+        questions,
+        quizStartDate,
+        quizEndDate
+      } = await helpers.getQuizData(this.$route.params.id);
+
+      // Parsing timestamps into date and times
+      const startDateTime = helpers.getDateTime(quizStartDate);
+      const endDateTime = helpers.getDateTime(quizEndDate);
+
+      this.startDate = startDateTime.date;
+      this.startTime = startDateTime.time;
+
+      this.endDate = endDateTime.date;
+      this.endTime = endDateTime.time;
+
+      if (!this.startDate) {
+        this.editDateTime = true;
+      }
 
       this.quizName = quizName;
       this.questions = questions;
@@ -103,6 +124,18 @@ export default {
         test_input: testCase.testCaseContent,
         test_expected: testCase.testCaseExpected
       });
+    },
+    saveDateTime(dateTimes) {
+      const { startDate, startTime, endDate, endTime } = dateTimes;
+
+      this.startDate = startDate;
+      this.startTime = startTime;
+      this.endDate = endDate;
+      this.endTime = endTime;
+      this.toggleDateTime();
+    },
+    toggleDateTime() {
+      this.editDateTime = !this.editDateTime;
     }
   }
 };
@@ -119,6 +152,7 @@ export default {
   }
   padding-top: 20px;
   margin-top: 20px;
+  padding-bottom: 20px;
 }
 
 #sign-in-btn {
@@ -132,6 +166,7 @@ export default {
   margin: 0 auto;
   display: block;
   margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 .split-fields {

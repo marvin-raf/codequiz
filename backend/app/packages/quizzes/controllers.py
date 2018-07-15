@@ -15,14 +15,15 @@ def get_quiz(quiz_id):
     """
 
     try:
-        quiz_name = models.get_name(quiz_id)
+        quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)
         questions_with_tests = models.get_tests(questions)
+
     except Exception as e:
         print(e)
         return server_error()
 
-    return success({"quiz_name": quiz_name, "questions": questions_with_tests})
+    return success({"quiz": quiz, "questions": questions_with_tests})
 
 
 @quizzes_module.route("/<quiz_id>/questions", methods=["POST"])

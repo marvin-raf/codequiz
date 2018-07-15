@@ -4,20 +4,20 @@ Contains models for the Quizzes package
 from app.util import db
 
 
-def get_name(quiz_id):
+def get_quiz(quiz_id):
     """
     Gets name of a quiz based on the quiz_id
     """
 
     query = """
-    SELECT quiz_name 
+    SELECT *
     FROM quizzes 
     WHERE quiz_id = %s
     """
 
     quizzes = db.query(query, (quiz_id))
 
-    return quizzes[0]["quiz_name"]
+    return quizzes[0]
 
 
 def get_questions(quiz_id):
