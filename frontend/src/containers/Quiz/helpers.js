@@ -15,7 +15,7 @@ helpers.getQuizData = quizId => {
         cookieContents = cookies.get("teacher");
       } else {
         headerName = "Student-Authorization";
-        cookieContents = cookies.get("students");
+        cookieContents = cookies.get("student");
       }
 
       headers[headerName] = cookieContents;

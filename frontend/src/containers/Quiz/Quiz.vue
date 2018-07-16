@@ -1,5 +1,6 @@
 <template>
     <div>
+
     <v-card class="col-md-8 offset-md-2" id="quiz">
         <h1 v-if="quizName">{{ quizName }}</h1>
 
@@ -23,6 +24,7 @@
         v-for="(question, index) in questions"
         :question="question"
         :questionIndex="index"
+        :isTeacher="isTeacher"
         v-bind:key="question.quiz_id"
         v-on:alter-question="alterDescription"
         v-on:new-test-case="addTestCase"
@@ -30,7 +32,7 @@
 
         </Question>
 
-        <v-btn flat id="new-question" @click="addQuestion()"><v-icon v-if="!addingQuestion">add</v-icon><span v-else>Save</span></v-btn>
+        <v-btn flat id="new-question" @click="addQuestion()" v-if="isTeacher()"><v-icon v-if="!addingQuestion">add</v-icon><span v-else>Save</span></v-btn>
 
         </div>
 </template>
@@ -136,6 +138,9 @@ export default {
     },
     toggleDateTime() {
       this.editDateTime = !this.editDateTime;
+    },
+    isTeacher() {
+      return teacherStore.data.teacherId;
     }
   }
 };

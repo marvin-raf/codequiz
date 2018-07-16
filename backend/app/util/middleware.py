@@ -188,34 +188,55 @@ def teacher_owns_quiz(func):
     def wrap(*args, **kwargs):
         """Used to figure out whether to return the function or json"""
 
-        teacher_id = request.teacher_id
+        if hasattr(request, "teacher_id"):
+            teacher_id = request.teacher_id
 
-        quiz_id = request.view_args["quiz_id"]
+            quiz_id = request.view_args["quiz_id"]
 
-        query = """
-        SELECT quiz_id
-        FROM quizzes
-        WHERE quiz_id = %s
-        """
+            query = """
+            SELECT quiz_id
+            FROM quizzes
+            WHERE quiz_id = %s
+            """
 
-        quizzes = db.query(query, (quiz_id))
+            quizzes = db.query(query, (quiz_id))
 
-        if not quizzes:
-            return not_found()
+            if not quizzes:
+                return not_found()
 
-        query = """
-        SELECT quiz_id
-        FROM quizzes
-        INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
-        INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
-        WHERE quizzes.quiz_id = %s
-        AND teachers.teacher_id = %s
-        """
+            query = """
+            SELECT quiz_id
+            FROM quizzes
+            INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
+            INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
+            WHERE quizzes.quiz_id = %s
+            AND teachers.teacher_id = %s
+            """
 
-        quizzes = db.query(query, (quiz_id, teacher_id))
+            quizzes = db.query(query, (quiz_id, teacher_id))
 
-        if not quizzes:
-            return forbidden()
-        return func(*args, **kwargs)
+            if not quizzes:
+                return forbidden()
+            return func(*args, **kwargs)
+        else:
+            student_id = request.student_id
+
+            quiz_id = request.view_args["quiz_id"]
+
+            query = """
+            SELECT students_classes.sc_student_id
+            FROM quizzes
+            INNER JOIN classes_courses ON quizzes.quiz_course_id = classes_courses.cc_course_id
+            INNER JOIN courses ON classes_courses.cc_course_id = courses.course_id
+            INNER JOIN students_classes ON classes_courses.cc_class_id = students_classes.sc_class_id
+            WHERE students_classes.sc_student_id = %s AND quiz_id = %s
+            """
+
+            rows = db.query(query, (student_id, quiz_id))
+
+            if not rows:
+                return forbidden()
+
+            return func(*args, **kwargs)
 
     return wrap

@@ -39,7 +39,9 @@
 
       </v-list-tile>
     </v-list>
+
   </v-navigation-drawer>
+
 </template>
 
 <script>
@@ -94,7 +96,7 @@ export default {
           icon: "dashboard",
           signedIn: true,
           showForTeacher: true,
-          showForStudent: false
+          showForStudent: true
         },
         {
           title: "Classes",
@@ -110,7 +112,7 @@ export default {
           icon: "folder",
           signedIn: true,
           showForTeacher: true,
-          showForStudent: false
+          showForStudent: true
         }
       ]
     };

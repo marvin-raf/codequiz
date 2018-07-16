@@ -17,7 +17,7 @@ const studentStore = {
     teacherLoggedIn() {
       return studentStore.data.teacherId !== null;
     },
-    logout() {
+    signout() {
       studentStore.data.studentId = null;
       studentStore.data.studentName = null;
       studentStore.data.teacherId = null;

@@ -1,4 +1,7 @@
 import cookies from "js-cookie";
+import teacherStore from "../../store/teacherStore";
+import studentStore from "../../store/studentStore";
+
 const helpers = {};
 
 helpers.signOut = () => {
@@ -29,6 +32,12 @@ helpers.signOut = () => {
       if (res.status !== 200) {
         reject();
         return;
+      }
+
+      if (cookieName === "teacher") {
+        teacherStore.methods.signout();
+      } else {
+        studentStore.methods.signout();
       }
 
       cookies.remove(cookieName);

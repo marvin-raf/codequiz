@@ -18,7 +18,7 @@
   <v-data-table
     :headers="headers"
     :items="question.test_cases"
-    hide-actions
+s
     no-data-text="No Test Cases"
     class="elevation-1"
   >
@@ -28,7 +28,7 @@
     </template>
   </v-data-table>
 
-  <div v-if="question.edit_mode">
+  <div v-if="isTeacher() && question.edit_mode">
   <div class="split-fields">
     <v-textarea label="Test Case" color="secondary" v-model="testCaseContent" :error-messages="testCaseContentErrors"></v-textarea>
   </div>
@@ -38,9 +38,18 @@
 
   </div>
 
-  <v-btn flat v-if="question.edit_mode" class="add-test-case" @click="addTestCase()">Add Test Case</v-btn>
+  <v-btn flat v-if="isTeacher() && question.edit_mode" class="add-test-case" @click="addTestCase()">Add Test Case</v-btn>
 
+  <div class="editor">
+  </div>
 
+  <div id="check-btns">
+    <v-btn flat class="precheck-btn">Precheck</v-btn>
+
+    <v-btn flat class="check-btn">Check</v-btn>
+
+    <div style="clear: both;"></div>
+  </div>
 
     </v-card>
 </template>
@@ -49,7 +58,7 @@
 import VueMarkdown from "vue-markdown";
 
 export default {
-  props: ["question", "questionIndex"],
+  props: ["question", "questionIndex", "isTeacher"],
   components: {
     "vue-markdown": VueMarkdown
   },
@@ -73,6 +82,13 @@ export default {
       testCaseContentErrors: [],
       testCaseExpectedErrors: []
     };
+  },
+  mounted() {
+    const editor = document.getElementsByClassName("editor")[
+      this.questionIndex
+    ];
+
+    window.ace.edit(editor);
   },
   methods: {
     // Resets and checks for errors, and emits new-test-case events if no errors
@@ -141,6 +157,28 @@ export default {
 .split-fields {
   width: 50%;
   float: left;
+}
+
+.editor {
+  margin-top: 20px;
+  height: 400px;
+}
+
+#check-btns {
+  margin: 0 auto;
+  width: 300px;
+}
+
+.precheck-btn {
+  float: left;
+  background-color: $emerald !important;
+  color: #fff !important;
+}
+
+.check-btn {
+  float: right;
+  background-color: $emerald !important;
+  color: #fff !important;
 }
 </style>
 

@@ -110,7 +110,7 @@ def remove_token(user_id, is_teacher):
         """
     else:
         query = """
-        UPDATE teachers
+        UPDATE students 
         SET student_token = %s
         WHERE student_id = %s
         """

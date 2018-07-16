@@ -3,6 +3,7 @@ import App from "./containers/App.vue";
 
 import VueRouter from "vue-router";
 import Vuetify from "vuetify";
+import "ace-builds/src-min-noconflict/ace.js";
 
 import Home from "./containers/Home/Home.vue";
 import About from "./containers/About/About.vue";

@@ -10,6 +10,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "ace-builds": "^1.3.3",
     "bootstrap": "^4.1.1",
     "email-validator": "^2.0.4",
     "js-cookie": "^2.2.0",
