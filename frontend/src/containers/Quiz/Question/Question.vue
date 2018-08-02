@@ -18,9 +18,9 @@
   <v-data-table
     :headers="headers"
     :items="question.test_cases"
-s
     no-data-text="No Test Cases"
     class="elevation-1"
+    hide-actions
   >
     <template slot="items" slot-scope="props">
       <td> <pre>{{ props.item.test_input }}</pre></td>
@@ -43,10 +43,59 @@ s
   <div class="editor">
   </div>
 
-  <div id="check-btns">
-    <v-btn flat class="precheck-btn">Precheck</v-btn>
+  <v-alert
+    id="precheck-error" 
+    type="error"
+    :value="precheckError.length"
+  >
 
-    <v-btn flat class="check-btn">Check</v-btn>
+
+  <div v-for="error in precheckError" v-bind:key="error">{{ error }}</div>
+  </v-alert>
+
+   <v-alert
+      :value="precheckSuccess"
+      id="precheck-success"
+      type="success"
+    >
+      Successful Precheck
+    </v-alert>
+
+   <v-data-table
+    v-if="testCaseResults"
+    :headers="testCaseResultHeaders"
+    :items="testCaseResults"
+    no-data-text="No Test Cases"
+    class="elevation-1"
+    hide-actions
+  >
+    <template slot="items" slot-scope="props">
+      <tr v-bind:class="{'question-right' : props.item.test_expected === props.item.output, 'question-wrong': props.item.test_expected !== props.item.output}">
+      <td> <pre>{{ props.item.test_input }}</pre></td>
+      <td><pre>{{ props.item.test_expected }}</pre></td>
+      <td><pre>{{ props.item.output }}</pre></td>
+      </tr>
+    </template>
+  </v-data-table>
+ 
+
+    
+
+
+  <div id="check-btns">
+    <v-btn
+      flat
+      class="precheck-btn"
+      @click="precheck()"
+      :loading="precheckLoading"
+      >Precheck</v-btn>
+
+    <v-btn
+      flat
+      class="check-btn"
+      @click="check()"
+      :loading="checkLoading"
+      >Check</v-btn>
 
     <div style="clear: both;"></div>
   </div>
@@ -56,6 +105,8 @@ s
 
 <script>
 import VueMarkdown from "vue-markdown";
+
+import helpers from "./helpers.js";
 
 export default {
   props: ["question", "questionIndex", "isTeacher"],
@@ -80,15 +131,46 @@ export default {
       testCaseContent: "",
       testCaseExpected: "",
       testCaseContentErrors: [],
-      testCaseExpectedErrors: []
+      testCaseExpectedErrors: [],
+      editor: null,
+      precheckError: [],
+      precheckSuccess: false,
+      precheckLoading: false,
+      checkLoading: false,
+      testCaseResults: null,
+      testCaseResultHeaders: [
+        {
+          text: "Test Case",
+          sortable: false,
+          value: "testCase"
+        },
+        {
+          text: "Expected",
+          sortable: false,
+          value: "expected"
+        },
+        {
+          text: "Actual",
+          sortable: false,
+          value: "actual"
+        }
+      ]
     };
   },
   mounted() {
-    const editor = document.getElementsByClassName("editor")[
+    const editorNode = document.getElementsByClassName("editor")[
       this.questionIndex
     ];
 
-    window.ace.edit(editor);
+    const editor = window.ace.edit(editorNode);
+
+    this.editor = editor;
+
+    editor.setOptions({
+      useSoftTabs: true
+    });
+
+    editor.getSession().setMode("ace/mode/python");
   },
   methods: {
     // Resets and checks for errors, and emits new-test-case events if no errors
@@ -117,6 +199,50 @@ export default {
         testCaseExpected: this.testCaseExpected,
         questionIndex: this.questionIndex
       });
+    },
+    async precheck() {
+      // Reset success/error messages and spinner
+      this.precheckError = [];
+      this.precheckLoading = true;
+      this.precheckSuccess = false;
+
+      try {
+        const output = await helpers.precheck(
+          this.$route.params.id,
+          this.question.question_id,
+          this.editor.getValue()
+        );
+
+        if (output !== "") {
+          this.precheckError = output.split("E:").slice(1);
+        } else {
+          this.precheckSuccess = true;
+        }
+
+        this.precheckLoading = false;
+      } catch (e) {
+        console.log(e);
+        this.precheckLoading = false;
+      }
+    },
+    async check() {
+      this.precheckError = [];
+      this.precheckSuccess = false;
+      this.checkLoading = true;
+
+      try {
+        const testCases = await helpers.check(
+          this.$route.params.id,
+          this.question.question_id,
+          this.editor.getValue()
+        );
+
+        this.testCaseResults = testCases;
+
+        this.checkLoading = false;
+      } catch (e) {
+        this.checkLoading = false;
+      }
     }
   },
   watch: {
@@ -179,6 +305,14 @@ export default {
   float: right;
   background-color: $emerald !important;
   color: #fff !important;
+}
+
+#precheck-error {
+  background-color: rgba(231, 76, 60, 0.7) !important;
+}
+
+#precheck-success {
+  background-color: rgba(46, 204, 113, 0.7) !important;
 }
 </style>
 
