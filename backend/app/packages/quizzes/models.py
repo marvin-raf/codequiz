@@ -41,7 +41,7 @@ def get_questions(quiz_id):
     return questions
 
 
-def get_tests(questions):
+def get_tests(questions, student_id):
     """
     Gets question test cases based on quiz id
     """
@@ -53,8 +53,30 @@ def get_tests(questions):
         WHERE test_question_id = %s
         """
 
+        query2 = """
+        SELECT answers.answer_id, tests.test_input, tests.test_expected, answers.answer_content
+FROM answers
+INNER JOIN tests ON answers.answer_test_id = tests.test_id
+WHERE answer_attempt_id = (SELECT attempt_id 
+							FROM attempt
+							WHERE attempt_student_id = %s
+							AND attempt_question_id = %s
+							ORDER BY attempt_id
+							DESC LIMIT 1) 
+AND answer_test_id IN (SELECT test_id
+					   FROM tests
+					   WHERE test_question_id = %s
+					   )
+        """
+
         test_cases = db.query(query, (question["question_id"]))
+
+        test_case_results = db.query(
+            query2, (student_id, question["question_id"], student_id))
+
+        # Gets the latest test case results
         question["test_cases"] = test_cases
+        question["test_case_results"] = test_case_results
 
     return questions
 
