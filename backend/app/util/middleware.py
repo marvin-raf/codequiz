@@ -240,3 +240,29 @@ def teacher_owns_quiz(func):
             return func(*args, **kwargs)
 
     return wrap
+
+
+def question_exists(func):
+    """
+    Check that a question exists in a quiz
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+
+        quiz_id = request.view_args["quiz_id"]
+        question_id = request.view_args["question_id"]
+
+        query = """
+        SELECT question_id
+        FROM questions
+        WHERE question_quiz_id = %s AND question_id = %s
+        """
+        rows = db.query(query, (quiz_id, question_id))
+
+        if not rows:
+            return forbidden()
+
+        return func(*args, **kwargs)
+
+    return wrap

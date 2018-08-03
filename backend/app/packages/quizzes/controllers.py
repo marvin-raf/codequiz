@@ -1,7 +1,13 @@
+import os
 from flask import Blueprint, request, abort, jsonify
+from pylint.lint import Run
+import subprocess
 from app.packages.quizzes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, teacher_owns_quiz
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, question_exists
+
+# RUN_CODE_COMMAND = 'gtimeout 15s docker run -it --memory 4m --rm --name my-running-script -v "\$PWD":/usr/src/myapp -w /usr/src/myapp python:3 python3 {}'
+RUN_CODE_COMMAND = "python3 {}"
 
 quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
@@ -13,7 +19,6 @@ def get_quiz(quiz_id):
     """
     Gets quiz information along with questions for one quiz
     """
-
     try:
         quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)
@@ -50,3 +55,79 @@ def questions(quiz_id):
         return server_error()
 
     return created()
+
+
+@quizzes_module.route(
+    "/<quiz_id>/questions/<question_id>/precheck", methods=["POST"])
+@student_signed_in
+@teacher_owns_quiz
+@question_exists
+def precheck(quiz_id, question_id):
+    """
+    Adds one question to a quiz
+    """
+
+    try:
+        student_id = request.student_id
+        body = request.get_json()
+
+        code = body["code"]
+
+        filename = models.precheck_file_name(student_id, quiz_id, question_id)
+        filepath = os.path.join("app", "packages", "quizzes", "question_files",
+                                filename)
+
+        with open(filepath, "w") as f:
+            f.write(code)
+
+        bashCommand = "pylint --errors-only {}".format(filepath)
+        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+        process.wait()
+        output, _ = process.communicate()
+
+        os.remove(filepath)
+
+    except KeyError:
+        return bad_request()
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success({"output": output})
+
+
+@quizzes_module.route(
+    "/<quiz_id>/questions/<question_id>/check", methods=["POST"])
+@student_signed_in
+@teacher_owns_quiz
+@question_exists
+def check(quiz_id, question_id):
+    """
+    Checks students code for a particular question against test cases
+    """
+    try:
+        student_id = request.student_id
+        body = request.get_json()
+
+        code = body["code"]
+
+        filename = models.precheck_file_name(student_id, quiz_id, question_id)
+        filepath = os.path.join("app", "packages", "quizzes", "question_files",
+                                filename)
+
+        with open(filepath, "w") as f:
+            f.write(code)
+
+        test_cases = models.get_test_cases(question_id)
+
+        test_case_results = models.run_test_cases(
+            test_cases, filepath, student_id, quiz_id, question_id, code)
+
+        models.insert_test_cases(test_case_results, student_id)
+        os.remove(filepath)
+
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success(test_case_results)

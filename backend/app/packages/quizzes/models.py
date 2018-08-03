@@ -1,7 +1,11 @@
 """
 Contains models for the Quizzes package
 """
+import os
 from app.util import db
+import subprocess
+
+RUN_CODE_COMMAND = "python3 {}"
 
 
 def get_quiz(quiz_id):
@@ -84,3 +88,91 @@ def add_tests(question_id, test_cases):
         test_cases)
 
     db.insert_many(query, tuple(tests))
+
+
+def precheck_file_name(student_id, quiz_id, question_id):
+    return "code_{}_{}_{}.py".format(student_id, quiz_id, question_id)
+
+
+def run_code(filepath):
+    """
+    Runs python code for a specific filetype and language
+
+    Returns output and exit code
+    """
+    bashCommand = RUN_CODE_COMMAND.format(filepath)
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+    is_error = process.wait()
+
+    output, _ = process.communicate()
+
+    return output, is_error
+
+
+def get_test_cases(question_id):
+    """
+    Gets the test cases for a specific question in the quiz
+    """
+
+    query = """
+    SELECT test_id, test_input, test_expected
+    FROM tests 
+    WHERE test_question_id = %s
+    """
+
+    test_cases = db.query(query, (question_id))
+
+    return test_cases
+
+
+def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
+                   code):
+    """
+    Runs test cases for a specific question in a quiz. 
+
+    Returns the output of test cases
+    """
+
+    results = []
+
+    for test_case in test_cases:
+        if not test_case["test_input"]:
+            output, is_error = run_code(filepath)
+            test_case["output"] = output
+            test_case["error"] = is_error
+            results.append(test_case)
+            break
+        else:
+            filepath = os.path.join("app", "packages", "quizzes",
+                                    "question_files",
+                                    "test_case_{}_{}.py".format(
+                                        test_case["test_id"], student_id))
+
+            with open(filepath, "w") as f:
+                f.write("from code_{}_{}_{} import *\n".format(
+                    student_id, quiz_id, question_id))
+                f.write(code)
+                f.write("\n")
+                f.write(test_case["test_input"])
+
+            output, is_error = run_code(filepath)
+            test_case["output"] = output.strip()
+            test_case["error"] = is_error
+
+            results.append(test_case)
+
+    return results
+
+
+def insert_test_cases(test_case_results, student_id):
+    """
+    Inserts a users test cases into answers table 
+    """
+    query = """
+    INSERT INTO answers
+    VALUES (DEFAULT, %s, %s, %s)
+    """
+
+    for test_case in test_case_results:
+        db.query(query,
+                 (test_case["output"], student_id, test_case["test_id"]))
