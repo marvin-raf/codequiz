@@ -9,8 +9,7 @@ RUN_CODE_COMMAND = "python3 {}"
 
 
 def get_quiz(quiz_id):
-    """
-    Gets name of a quiz based on the quiz_id
+    """ Gets name of a quiz based on the quiz_id
     """
 
     query = """
@@ -41,6 +40,59 @@ def get_questions(quiz_id):
     return questions
 
 
+def get_question_worth(student_answers):
+    """
+    Returns both the question worth and total negated for a specific question in tuple form .
+    Returns None for both values if user hasn't attemped question 
+    """
+
+    attempt_dict = {}
+
+    total_left = 10
+
+    if not len(student_answers):
+        return None, None, None
+
+    for curr in student_answers:
+        if not curr["attempt_id"] in attempt_dict:
+            attempt_dict[curr["attempt_id"]] = {"test_case_wrong": False}
+
+        if curr["test_expected"] != curr["answer_content"]:
+            if not attempt_dict[curr["attempt_id"]]["test_case_wrong"]:
+                total_left -= 1
+            attempt_dict[curr["attempt_id"]]["test_case_wrong"] = True
+
+    last_attempt_id = student_answers[-1]["attempt_id"]
+
+    last_attempt_wrong = attempt_dict[last_attempt_id]["test_case_wrong"]
+
+    total_worth = 0.0 if last_attempt_wrong else total_left
+
+    return (total_worth, 10 - total_left, last_attempt_wrong)
+
+
+def get_mark_worth(question_id, student_id):
+    """
+    Returns both the marks for the submission and total negated from specific question
+    """
+
+    query = """
+         SELECT attempts.attempt_id, tests.test_id, tests.test_expected, answers.answer_content
+        FROM attempts
+        INNER JOIN answers ON attempts.attempt_id = answers.answer_attempt_id
+        INNER JOIN tests ON attempts.attempt_question_id = tests.test_question_id
+        WHERE attempts.attempt_question_id = %s AND attempts.attempt_student_id = %s
+        ORDER BY attempts.attempt_id, tests.test_id
+    """
+
+    all_tests = db.query(query, (question_id, student_id))
+
+    question_worth, total_negated, last_attempt_wrong = get_question_worth(
+        all_tests)
+
+    return question_worth, total_negated, last_attempt_wrong
+
+
 def get_tests(questions, student_id):
     """
     Gets question test cases based on quiz id
@@ -54,11 +106,11 @@ def get_tests(questions, student_id):
         """
 
         query2 = """
-        SELECT answers.answer_id, tests.test_input, tests.test_expected, answers.answer_content
+        SELECT answers.answer_id, tests.test_input, tests.test_expected, answers.answer_content AS output
 FROM answers
 INNER JOIN tests ON answers.answer_test_id = tests.test_id
 WHERE answer_attempt_id = (SELECT attempt_id 
-							FROM attempt
+							FROM attempts
 							WHERE attempt_student_id = %s
 							AND attempt_question_id = %s
 							ORDER BY attempt_id
@@ -69,6 +121,19 @@ AND answer_test_id IN (SELECT test_id
 					   )
         """
 
+        # Used to figure out mark deductions
+        query3 = """
+        SELECT attempts.attempt_id, tests.test_id, tests.test_expected, answers.answer_content
+        FROM attempts
+        INNER JOIN answers ON attempts.attempt_id = answers.answer_attempt_id
+        INNER JOIN tests ON attempts.attempt_question_id = tests.test_question_id
+        WHERE attempts.attempt_question_id = %s AND attempts.attempt_student_id = %s
+        ORDER BY attempts.attempt_id, tests.test_id
+        """
+
+        # Will return array with all users tests
+        all_tests = db.query(query3, (question["question_id"], student_id))
+
         test_cases = db.query(query, (question["question_id"]))
 
         test_case_results = db.query(
@@ -77,6 +142,13 @@ AND answer_test_id IN (SELECT test_id
         # Gets the latest test case results
         question["test_cases"] = test_cases
         question["test_case_results"] = test_case_results
+
+        question_worth, total_negated, last_attempt_wrong = get_question_worth(
+            all_tests)
+
+        question["question_worth"] = question_worth
+        question["total_negated"] = total_negated
+        question["last_attempt_wrong"] = last_attempt_wrong
 
     return questions
 
@@ -186,7 +258,22 @@ def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
     return results
 
 
-def insert_test_cases(test_case_results, student_id):
+def insert_attempt(question_id, student_id):
+    """
+    Inserts a users question attempt
+    """
+
+    query = """
+    INSERT INTO attempts
+    VALUES (DEFAULT, %s, %s)
+    """
+
+    attempt_id = db.insert_query(query, (question_id, student_id))
+
+    return attempt_id
+
+
+def insert_test_cases(test_case_results, attempt_id):
     """
     Inserts a users test cases into answers table 
     """
@@ -197,4 +284,4 @@ def insert_test_cases(test_case_results, student_id):
 
     for test_case in test_case_results:
         db.query(query,
-                 (test_case["output"], student_id, test_case["test_id"]))
+                 (test_case["output"], test_case["test_id"], attempt_id))

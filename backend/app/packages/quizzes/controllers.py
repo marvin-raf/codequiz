@@ -123,11 +123,22 @@ def check(quiz_id, question_id):
         test_case_results = models.run_test_cases(
             test_cases, filepath, student_id, quiz_id, question_id, code)
 
-        models.insert_test_cases(test_case_results, student_id)
+        attempt_id = models.insert_attempt(question_id, student_id)
+
+        models.insert_test_cases(test_case_results, attempt_id)
+
+        question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
+            question_id, student_id)
+
         os.remove(filepath)
 
     except Exception as e:
         print(e)
         return server_error()
 
-    return success(test_case_results)
+    return success({
+        "results": test_case_results,
+        "question_worth": question_worth,
+        "total_negated": total_negated,
+        "last_attempt_wrong": last_attempt_wrong
+    })

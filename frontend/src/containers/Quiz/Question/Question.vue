@@ -62,10 +62,10 @@
     </v-alert>
 
    <v-data-table
-    v-if="testCaseResults"
+    v-if="testCaseResults && testCaseResults.length"
     :headers="testCaseResultHeaders"
     :items="testCaseResults"
-    no-data-text="No Test Cases"
+    no-data-text=""
     class="elevation-1"
     hide-actions
   >
@@ -77,6 +77,14 @@
       </tr>
     </template>
   </v-data-table>
+
+  <span v-if="testCaseResults && testCaseResults.length">
+    Marks for this submission: 0.{{ question.question_worth }}
+    <br />
+    <span v-if="question.last_attempt_wrong">
+      Total Negated: 0.{{ question.total_negated }}
+    </span>
+ </span>
  
 
     
@@ -158,6 +166,8 @@ export default {
     };
   },
   mounted() {
+    this.testCaseResults = this.question.test_case_results;
+
     const editorNode = document.getElementsByClassName("editor")[
       this.questionIndex
     ];
@@ -231,13 +241,19 @@ export default {
       this.checkLoading = true;
 
       try {
-        const testCases = await helpers.check(
+        const json = await helpers.check(
           this.$route.params.id,
           this.question.question_id,
           this.editor.getValue()
         );
 
-        this.testCaseResults = testCases;
+        this.$emit("update-question-worth", {
+          questionIndex: this.questionIndex,
+          questionWorth: json.question_worth,
+          totalNegated: json.total_negated,
+          lastAttemptWrong: json.last_attempt_wrong
+        });
+        this.testCaseResults = json.results;
 
         this.checkLoading = false;
       } catch (e) {
