@@ -22,7 +22,7 @@ def get_quiz(quiz_id):
     try:
         quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)
-        questions_with_tests = models.get_tests(questions)
+        questions_with_tests = models.get_tests(questions, request.student_id)
 
     except Exception as e:
         print(e)
