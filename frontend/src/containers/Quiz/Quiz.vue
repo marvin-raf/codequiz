@@ -28,6 +28,7 @@
         v-bind:key="question.quiz_id"
         v-on:alter-question="alterDescription"
         v-on:new-test-case="addTestCase"
+        v-on:update-question-worth="updateQuestionWorth"
         >
 
         </Question>
@@ -141,6 +142,12 @@ export default {
     },
     isTeacher() {
       return teacherStore.data.teacherId;
+    },
+    updateQuestionWorth(obj) {
+      this.questions[obj.questionIndex].question_worth = obj.questionWorth;
+      this.questions[obj.questionIndex].total_negated = obj.totalNegated;
+      this.questions[obj.questionIndex].last_attempt_wrong =
+        obj.lastAttemptWrong;
     }
   }
 };
