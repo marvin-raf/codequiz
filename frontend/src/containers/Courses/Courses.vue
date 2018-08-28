@@ -13,7 +13,7 @@
                     <v-list-tile>
                         <v-list-title style="width: 100%;">
                             <div v-if="!course.input">
-                                {{course.course_name}}
+                                <a @click="$router.push('/courses/' + course.course_id)"> {{course.course_name}} </a>
                                 <v-btn @click="changeInput(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
                             </div>
                             <div v-if="course.input">
@@ -55,12 +55,12 @@ export default {
     try {
       const { courses } = await helpers.getCourses();
       this.courses = courses;
+      for (let i = 0; i < this.courses.length; i++) {
+        //this.courses[i].input = false;
+      }
     } catch (e) {
       console.log(e);
       this.$router.push("/dashboard");
-      for (let i = 0; i < this.courses.length; i++) {
-        this.courses[i].input = false;
-      }
     }
   },
   methods: {

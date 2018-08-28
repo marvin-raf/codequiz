@@ -4,13 +4,20 @@
             <h1>{{courseName}}</h1>
         </v-card>
         <v-card class="col-md-8 offset-md-2" id="course">
+            <h2>Quizzes</h2>
             <v-list>
                 <div v-for="(quiz, index) in quizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
                     <v-list-tile>
                         <v-list-title style="width: 100%;">
                             <div v-if="!quiz.input">
-                                {{quiz.quiz_name}}
+                                <a @click="$router.push('/quizzes/' + quiz.quiz_id)"> {{quiz.quiz_name}}  </a>
+                            
+                                
                                 <v-btn @click="changeInput(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
+                                <br>   
+                                {{convert(quiz.quiz_start_date)}}
+                                -
+                                {{convert(quiz.quiz_end_date)}}
                             </div>
                             <div v-if="quiz.input">
                                 <v-text-field color="secondary" maxlength="50" v-model="quizzes[index].quiz_name" style="float: left; width: 70%;"></v-text-field>
@@ -23,9 +30,33 @@
                     </v-list-tile>
                     <v-divider v-if="index != quizzes.length - 1"></v-divider>
                 </div>
-                <v-pagination color="secondary" :length="Math.ceil(courses.length / 8)" id="course-pagination" v-model="page"></v-pagination>
+                <v-pagination color="secondary" :length="Math.ceil(quizzes.length / 8)" id="course-pagination" v-model="page"></v-pagination>
             </v-list>
-        </v-card>  
+        </v-card>
+        <v-card class="col-md-8 offset-md-2" id="course">
+            <h2>Classes</h2>
+            <v-list>
+                <div v-for="(clas, index) in classes.slice((page2-1)*8, (page2 - 1) * 8 + 8)" v-bind:key="index">
+                    <v-list-tile>
+                        <v-list-title style="width: 100%;">
+                            <div v-if="!clas.input">
+                                {{clas.class_name}}
+                                <v-btn @click="changeInputC(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
+                            </div>
+                            <div v-if="clas.input">
+                                <v-text-field color="secondary" maxlength="50" v-model="classes[index].class_name" style="float: left; width: 70%;"></v-text-field>
+                                <v-btn @click="changeClass(index, clas.class_id, clas.class_name)" color="secondary" depressed style="float: right;">Save</v-btn>
+                            </div>
+                        </v-list-title>
+                        <v-list-content>
+                        </v-list-content>
+                        
+                    </v-list-tile>
+                    <v-divider v-if="index != classes.length - 1"></v-divider>
+                </div>
+                <v-pagination color="secondary" :length="Math.ceil(classes.length / 8)" id="course-pagination" v-model="page2"></v-pagination>
+            </v-list>
+        </v-card>   
     </div>
 </template>
 
@@ -39,17 +70,28 @@ export default {
     return {
       course: null,
       courseName: null,
-      quizzes: null,
-      quizName: null
+      quizzes: [],
+      classes: [],
+      quizName: null,
+      page: 1,
+      page2: 1
     };
   },
   async mounted() {
     try {
       this.course = await helpers.getCourse(this.$route.params.id);
+
       this.courseName = this.course.course.course_name;
-      this.quizzes = this.course.course.quizzes;
-      console.log(this.course);
+      this.quizzes = this.course.course.course_quizzes;
+      this.classes = this.course.course.course_classes;
+      for (let i = 0; i < this.quizzes.length; i++) {
+        //this.quizzes[i].input = false;
+      }
+      for (let i = 0; i < this.classes.length; i++) {
+        //this.classes[i].input = false;
+      }
     } catch (e) {
+      console.log();
       this.$router.push("/dashboard");
     }
   },
@@ -66,6 +108,12 @@ export default {
         console.log(e);
       }
     },
+    convert: function(date) {
+      date = date * 1000;
+      return (
+        helpers.getDateTime(date).date + " " + helpers.getDateTime(date).time
+      );
+    },
     async changeName(index, id, name) {
       try {
         await helpers.changeName(id, name);
@@ -74,8 +122,19 @@ export default {
       }
       this.$set(this.quizzes[index], "input", false);
     },
+    async changeClass(index, id, name) {
+      try {
+        await helpers.changeClass(id, name);
+      } catch (e) {
+        console.log(e);
+      }
+      this.$set(this.classes[index], "input", false);
+    },
     changeInput: function(index, value) {
       this.$set(this.quizzes[index], "input", value);
+    },
+    changeInputC: function(index, value) {
+      this.$set(this.classes[index], "input", value);
     }
   }
 };
