@@ -5,6 +5,8 @@
         </v-card>
         <v-card class="col-md-8 offset-md-2" id="course">
             <h2>Quizzes</h2>
+        </v-card>
+        <v-card class="col-md-8 offset-md-2" id="course">
             <v-list>
                 <div v-for="(quiz, index) in quizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
                     <v-list-tile>
@@ -35,6 +37,12 @@
         </v-card>
         <v-card class="col-md-8 offset-md-2" id="course">
             <h2>Classes</h2>
+            <v-text-field label="Class Name" v-model="className" color="secondary" maxlength="50" id="class-name" style="float: left; width: 70%"></v-text-field>
+            <div id="create-box">
+                <v-btn id="create-btn" color="secondary" @click="addClass()" depressed :disabled="className ? false : true" style="float: right; margin-right: 24px;">Create</v-btn> 
+            </div>
+        </v-card>
+        <v-card class="col-md-8 offset-md-2" id="course">
             <v-list>
                 <div v-for="(clas, index) in classes.slice((page2-1)*8, (page2 - 1) * 8 + 8)" v-bind:key="index">
                     <v-list-tile>
@@ -70,17 +78,19 @@ export default {
     return {
       course: null,
       courseName: null,
+      courseId: this.$route.params.id,
       quizzes: [],
       classes: [],
       quizName: null,
       page: 1,
-      page2: 1
+      page2: 1,
+      className: null
     };
   },
   async mounted() {
     try {
       this.course = await helpers.getCourse(this.$route.params.id);
-
+      this.teachClasses = await helpers.getClasses();
       this.courseName = this.course.course.course_name;
       this.quizzes = this.course.course.course_quizzes;
       this.classes = this.course.course.course_classes;
@@ -96,14 +106,17 @@ export default {
     }
   },
   methods: {
-    async addQuiz() {
+    async addClass() {
       try {
-        const { quizId } = await helpers.addCourse(this.courseName);
-        this.quizzes.push({
-          quiz_name: this.quizName,
-          quiz_id: quizId
+        const { classId } = await helpers.addClass(
+          this.className,
+          this.courseId
+        );
+        this.classes.push({
+          class_name: this.quizName,
+          class_id: classId
         });
-        this.quizName = null;
+        this.className = null;
       } catch (e) {
         console.log(e);
       }

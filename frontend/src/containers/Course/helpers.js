@@ -35,7 +35,31 @@ helpers.getCourse = courseId => {
   });
 };
 
-helpers.addQuiz = (quizName, courseId) => {
+helpers.getClasses = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`http://localhost:5000/classes`, {
+        method: "GET",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (res.status != 200) {
+        reject(res.status);
+        return;
+      }
+
+      const json = await res.json();
+      resolve(json);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+helpers.addClass = (className, courseId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await fetch(
