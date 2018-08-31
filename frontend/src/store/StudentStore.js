@@ -14,8 +14,8 @@ const studentStore = {
       studentStore.data.teacherName = teacherStore.teacher_name;
       studentStore.data.studentEmail = teacherStore.student_email;
     },
-    teacherLoggedIn() {
-      return studentStore.data.teacherId !== null;
+    studentLoggedIn() {
+      return studentStore.data.studentId !== null;
     },
     signout() {
       studentStore.data.studentId = null;

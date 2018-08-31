@@ -27,7 +27,11 @@ Vue.use(VueRouter);
 
 const routes = [
   { path: "/", component: Home, beforeEnter: authHelper.loggedInOrOut },
-  { path: "/about", component: About, beforeEnter: authHelper.loggedInOrOut },
+  {
+    path: "/about",
+    component: About,
+    beforeEnter: authHelper.loggedInOrOut
+  },
   { path: "/signup", component: Signup, beforeEnter: authHelper.loggedOut },
   { path: "/signin", component: Signin, beforeEnter: authHelper.loggedOut },
   {
@@ -46,8 +50,16 @@ const routes = [
     beforeEnter: authHelper.teacherLoggedIn
   },
   { path: "/courses", component: Courses, beforeEnter: authHelper.loggedIn },
-  { path: "/courses/:id", component: Course, beforeEnter: authHelper.loggedIn },
-  { path: "/quizzes/:id", component: Quiz, beforeEnter: authHelper.loggedIn }
+  {
+    path: "/courses/:id",
+    component: Course,
+    beforeEnter: authHelper.loggedIn
+  },
+  {
+    path: "/quizzes/:id",
+    component: Quiz,
+    beforeEnter: authHelper.loggedInOrOut
+  }
 ];
 
 const router = new VueRouter({ routes, mode: "history" });

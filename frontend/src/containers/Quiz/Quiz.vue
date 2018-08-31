@@ -4,9 +4,8 @@
     <v-card class="col-md-8 offset-md-2" id="quiz">
         <h1 v-if="quizName">{{ quizName }}</h1>
 
-        
         <DateTime 
-          v-if="this.quizName"
+          v-if="quizName && !isLoggedIn()"
           :startDate="startDate" 
           :startTime="startTime"
           :endDate="endDate"
@@ -14,6 +13,7 @@
           :editDateTime="editDateTime"
           v-on:save-date-time="saveDateTime"
           v-on:toggle-edit-date-time="toggleDateTime"
+          
           
         />
 
@@ -29,6 +29,8 @@
         v-on:alter-question="alterDescription"
         v-on:new-test-case="addTestCase"
         v-on:update-question-worth="updateQuestionWorth"
+        v-on:edit-question="editQuestion"
+        v-on:delete-question="deleteQuestion"
         >
 
         </Question>
@@ -143,11 +145,23 @@ export default {
     isTeacher() {
       return teacherStore.data.teacherId;
     },
+    isLoggedIn() {
+      return teacherStore.data.teacherId || studentStore.data.studentId;
+    },
     updateQuestionWorth(obj) {
       this.questions[obj.questionIndex].question_worth = obj.questionWorth;
       this.questions[obj.questionIndex].total_negated = obj.totalNegated;
       this.questions[obj.questionIndex].last_attempt_wrong =
         obj.lastAttemptWrong;
+    },
+    editQuestion(obj) {
+      console.log(obj.questionIndex);
+      console.log("I am setting edit mode to true");
+      this.questions[obj.questionIndex].edit_mode = true;
+      // this.questions[obj.questionIndex].edit_mode = true;
+    },
+    deleteQuestion(obj) {
+      this.questions.splice(obj.questionIndex, 1);
     }
   }
 };

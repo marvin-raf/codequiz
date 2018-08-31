@@ -6,6 +6,7 @@ from app.util import db
 import subprocess
 
 RUN_CODE_COMMAND = "python3 {}"
+TIME_LIMIT_EXCEEDED = "ERROR: Time Limit Exceeded"
 
 
 def get_quiz(quiz_id):
@@ -99,12 +100,22 @@ def get_tests(questions, student_id):
     """
 
     for question in questions:
+        # Gets all the test cases
         query = """
         SELECT test_id, test_input, test_expected
         FROM tests
         WHERE test_question_id = %s
         """
 
+        test_cases = db.query(query, (question["question_id"]))
+
+        question["test_cases"] = test_cases
+
+        # If user is not student, then don't get answers (because teachers and free trials can't get answers)
+        if not student_id:
+            continue
+
+        # Gets students answers
         query2 = """
         SELECT answers.answer_id, tests.test_input, tests.test_expected, answers.answer_content AS output
 FROM answers
@@ -134,13 +145,10 @@ AND answer_test_id IN (SELECT test_id
         # Will return array with all users tests
         all_tests = db.query(query3, (question["question_id"], student_id))
 
-        test_cases = db.query(query, (question["question_id"]))
-
         test_case_results = db.query(
             query2, (student_id, question["question_id"], student_id))
 
         # Gets the latest test case results
-        question["test_cases"] = test_cases
         question["test_case_results"] = test_case_results
 
         question_worth, total_negated, last_attempt_wrong = get_question_worth(
@@ -192,15 +200,24 @@ def run_code(filepath):
     """
     Runs python code for a specific filetype and language
 
+    Returns a tuple in format (output, is_error)
+
     Returns output and exit code
     """
     bashCommand = RUN_CODE_COMMAND.format(filepath)
-    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-    is_error = process.wait()
 
-    output, _ = process.communicate()
+    try:
+        output = subprocess.check_output(
+            bashCommand.split(), stderr=subprocess.STDOUT, timeout=3)
 
-    return output, is_error
+        return output.decode(), False
+    # Gets called if python program returns an error code
+    except subprocess.CalledProcessError as e:
+        return "\n".join(e.output.decode().split("\n")[1:]), True
+
+    # Gets called if timeout expires
+    except subprocess.TimeoutExpired as e:
+        return TIME_LIMIT_EXCEEDED, True
 
 
 def get_test_cases(question_id):
@@ -285,3 +302,11 @@ def insert_test_cases(test_case_results, attempt_id):
     for test_case in test_case_results:
         db.query(query,
                  (test_case["output"], test_case["test_id"], attempt_id))
+
+
+def delete_question(quiz_id, question_id):
+    """
+    Deletes a question from the quiz
+    """
+
+    pass

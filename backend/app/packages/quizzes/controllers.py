@@ -2,9 +2,10 @@ import os
 from flask import Blueprint, request, abort, jsonify
 from pylint.lint import Run
 import subprocess
+import uuid
 from app.packages.quizzes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, question_exists
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, question_exists, signed_in_or_out
 
 # RUN_CODE_COMMAND = 'gtimeout 15s docker run -it --memory 4m --rm --name my-running-script -v "\$PWD":/usr/src/myapp -w /usr/src/myapp python:3 python3 {}'
 RUN_CODE_COMMAND = "python3 {}"
@@ -13,17 +14,21 @@ quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
 
 @quizzes_module.route("/<quiz_id>", methods=["GET"])
-@teacher_student_logged_in
+@signed_in_or_out
 @teacher_owns_quiz
 def get_quiz(quiz_id):
     """
     Gets quiz information along with questions for one quiz
     """
+
     try:
         quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)
-        questions_with_tests = models.get_tests(questions, request.student_id)
 
+        questions_with_tests = models.get_tests(questions, request.student_id
+                                                if hasattr(
+                                                    request, "student_id") else
+                                                None)
     except Exception as e:
         print(e)
         return server_error()
@@ -59,7 +64,7 @@ def questions(quiz_id):
 
 @quizzes_module.route(
     "/<quiz_id>/questions/<question_id>/precheck", methods=["POST"])
-@student_signed_in
+@signed_in_or_out
 @teacher_owns_quiz
 @question_exists
 def precheck(quiz_id, question_id):
@@ -68,7 +73,10 @@ def precheck(quiz_id, question_id):
     """
 
     try:
-        student_id = request.student_id
+        student_id = request.student_id if hasattr(request,
+                                                   "student_id") else str(
+                                                       uuid.uuid4().hex)
+
         body = request.get_json()
 
         code = body["code"]
@@ -98,7 +106,7 @@ def precheck(quiz_id, question_id):
 
 @quizzes_module.route(
     "/<quiz_id>/questions/<question_id>/check", methods=["POST"])
-@student_signed_in
+@signed_in_or_out
 @teacher_owns_quiz
 @question_exists
 def check(quiz_id, question_id):
@@ -106,7 +114,9 @@ def check(quiz_id, question_id):
     Checks students code for a particular question against test cases
     """
     try:
-        student_id = request.student_id
+        student_id = request.student_id if hasattr(request,
+                                                   "student_id") else str(
+                                                       uuid.uuid4().hex)
         body = request.get_json()
 
         code = body["code"]
@@ -123,6 +133,10 @@ def check(quiz_id, question_id):
         test_case_results = models.run_test_cases(
             test_cases, filepath, student_id, quiz_id, question_id, code)
 
+        # If user is not student, then don't save their attempt
+        if not hasattr(request, "student_id"):
+            return success({"results": test_case_results})
+
         attempt_id = models.insert_attempt(question_id, student_id)
 
         models.insert_test_cases(test_case_results, attempt_id)
@@ -130,7 +144,8 @@ def check(quiz_id, question_id):
         question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
             question_id, student_id)
 
-        os.remove(filepath)
+        # os.remove(filepath)
+        print(filepath)
 
     except Exception as e:
         print(e)
@@ -142,3 +157,18 @@ def check(quiz_id, question_id):
         "total_negated": total_negated,
         "last_attempt_wrong": last_attempt_wrong
     })
+
+
+@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+def delete_question(quiz_id, question_id):
+    """
+    Deletes a question from a quiz
+    """
+
+    try:
+        models.delete_question(quiz_id, question_id)
+    except Exception as e:
+        return server_error()

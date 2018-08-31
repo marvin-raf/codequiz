@@ -37,6 +37,49 @@ def student_signed_in(func):
     return wrap
 
 
+def signed_in_or_out(func):
+    """
+    Checks if a teacher or student is signed in or out and saves the student or
+    teacher in context if they are signed in
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        """
+        Checks if the user is signed in as either a student or a teacher
+        """
+
+        print("Did I make it here?")
+
+        if "Teacher-Authorization" in request.headers:
+            query = """
+            SELECT teacher_id 
+            FROM teachers 
+            WHERE teacher_token = %s
+            """
+
+            rows = db.query(query, (request.headers["Teacher-Authorization"]))
+
+            if rows:
+                request.teacher_id = rows[0]["teacher_id"]
+
+        elif "Student-Authorization" in request.headers:
+            query = """
+            SELECT student_id 
+            FROM students 
+            WHERE student_token = %s
+            """
+
+            rows = db.query(query, (request.headers["Student-Authorization"]))
+
+            if rows:
+                request.student_id = rows[0]["student_id"]
+
+        return func(*args, **kwargs)
+
+    return wrap
+
+
 def teacher_signed_in(func):
     """
     Checks to see if the teacher is authenticated or not.
@@ -186,24 +229,33 @@ def teacher_owns_quiz(func):
 
     @wraps(func)
     def wrap(*args, **kwargs):
-        """Used to figure out whether to return the function or json"""
+        """Checks to see if either quiz is of type preview quiz. 
+
+           If a student is logged in, check whether their teacher owns the quiz
+           If a teacher is logged in, wheck whether they own the course for that quiz
+        """
+        quiz_id = request.view_args["quiz_id"]
+
+        # Check that the quiz exists
+        query = """
+        SELECT quiz_id, quiz_course_id
+        FROM quizzes
+        WHERE quiz_id = %s
+        """
+
+        quizzes = db.query(query, (quiz_id))
+
+        if not quizzes:
+            return not_found()
+
+        # IMPORTANT: If the course_id is null for the quiz, that means anyone can view the quiz
+        if not quizzes[0]["quiz_course_id"]:
+            return func(*args, **kwargs)
 
         if hasattr(request, "teacher_id"):
             teacher_id = request.teacher_id
 
-            quiz_id = request.view_args["quiz_id"]
-
-            query = """
-            SELECT quiz_id
-            FROM quizzes
-            WHERE quiz_id = %s
-            """
-
-            quizzes = db.query(query, (quiz_id))
-
-            if not quizzes:
-                return not_found()
-
+            # Check that teacher owns the course
             query = """
             SELECT quiz_id
             FROM quizzes
@@ -218,11 +270,12 @@ def teacher_owns_quiz(func):
             if not quizzes:
                 return forbidden()
             return func(*args, **kwargs)
-        else:
+        elif hasattr(request, "student_id"):
             student_id = request.student_id
 
             quiz_id = request.view_args["quiz_id"]
 
+            # Check that students teacher owns the quiz
             query = """
             SELECT students_classes.sc_student_id
             FROM quizzes
@@ -238,6 +291,8 @@ def teacher_owns_quiz(func):
                 return forbidden()
 
             return func(*args, **kwargs)
+
+        return unauthorized()
 
     return wrap
 
