@@ -35,7 +35,31 @@ helpers.getCourse = courseId => {
   });
 };
 
-helpers.addQuiz = (quizName, courseId) => {
+helpers.getClasses = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`http://localhost:5000/classes`, {
+        method: "GET",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (res.status != 200) {
+        reject(res.status);
+        return;
+      }
+
+      const json = await res.json();
+      resolve(json);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+helpers.addClass = (className, courseId) => {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await fetch(
@@ -71,7 +95,7 @@ helpers.addQuiz = (quizName, courseId) => {
 helpers.changeName = (id, name) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/courses/` + id, {
+      const res = await fetch(`http://localhost:5000/quizzes/` + id, {
         method: "PATCH",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
@@ -92,6 +116,53 @@ helpers.changeName = (id, name) => {
       reject(e);
     }
   });
+};
+
+helpers.changeClass = (id, name) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`http://localhost:5000/classes/` + id, {
+        method: "PATCH",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: name
+        })
+      });
+
+      if (res.status !== 200) {
+        reject(res.status);
+        return;
+      }
+      const json = await res.json();
+      resolve({});
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+// Returns both the date and time from a timestamp
+// Returns both the date and time from a timestamp
+helpers.getDateTime = timestamp => {
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  const fullDate = `${year}-${month < 10 ? `0${month}` : month}-${
+    day < 10 ? `0${day}` : day
+  }`;
+  const time = `${hours < 10 ? `0${hours}` : hours}:${
+    minutes < 10 ? `0${minutes}` : minutes
+  }`;
+
+  return { date: fullDate, time };
 };
 
 export default helpers;
