@@ -10,7 +10,7 @@ def response(status_code, data=None):
     Generic response with status code
     """
 
-    if data:
+    if data != None:
         return (jsonify(data), status_code)
 
     return ("", status_code)

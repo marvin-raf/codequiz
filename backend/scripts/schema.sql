@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-07-09 22:09:48 +0000
+# Generation Time: 2018-09-01 03:31:22 +0000
 # ************************************************************
 
 
@@ -27,11 +27,28 @@ DROP TABLE IF EXISTS `answers`;
 
 CREATE TABLE `answers` (
   `answer_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `answer_question_id` int(11) unsigned NOT NULL,
   `answer_content` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`answer_id`),
-  KEY `answer_question_id` (`answer_question_id`),
-  CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`answer_question_id`) REFERENCES `questions` (`question_id`)
+  `answer_test_id` int(11) unsigned NOT NULL,
+  `answer_attempt_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`answer_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table attempts
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `attempts`;
+
+CREATE TABLE `attempts` (
+  `attempt_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `attempt_question_id` int(11) unsigned NOT NULL,
+  `attempt_student_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`attempt_id`),
+  KEY `attempt_question_id` (`attempt_question_id`),
+  KEY `attempt_student_id` (`attempt_student_id`),
+  CONSTRAINT `attempts_ibfk_1` FOREIGN KEY (`attempt_question_id`) REFERENCES `questions` (`question_id`),
+  CONSTRAINT `attempts_ibfk_2` FOREIGN KEY (`attempt_student_id`) REFERENCES `students` (`student_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -80,6 +97,19 @@ CREATE TABLE `courses` (
 
 
 
+# Dump of table languages
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `languages`;
+
+CREATE TABLE `languages` (
+  `language_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `language_name` varchar(30) DEFAULT NULL,
+  PRIMARY KEY (`language_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
 # Dump of table questions
 # ------------------------------------------------------------
 
@@ -103,13 +133,17 @@ DROP TABLE IF EXISTS `quizzes`;
 
 CREATE TABLE `quizzes` (
   `quiz_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `quiz_course_id` int(11) unsigned NOT NULL,
+  `quiz_course_id` int(11) unsigned DEFAULT NULL,
   `quiz_name` varchar(50) NOT NULL DEFAULT '',
-  `quiz_start_date` bigint(11) unsigned NOT NULL,
-  `quiz_end_date` bigint(11) unsigned NOT NULL,
+  `quiz_start_date` bigint(11) unsigned DEFAULT NULL,
+  `quiz_end_date` bigint(11) unsigned DEFAULT NULL,
+  `quiz_language_id` int(11) unsigned DEFAULT NULL,
+  `quiz_short_desc` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`quiz_id`),
   KEY `quiz_course_id` (`quiz_course_id`),
-  CONSTRAINT `quizzes_ibfk_1` FOREIGN KEY (`quiz_course_id`) REFERENCES `courses` (`course_id`)
+  KEY `quiz_language_id` (`quiz_language_id`),
+  CONSTRAINT `quizzes_ibfk_1` FOREIGN KEY (`quiz_course_id`) REFERENCES `courses` (`course_id`),
+  CONSTRAINT `quizzes_ibfk_2` FOREIGN KEY (`quiz_language_id`) REFERENCES `languages` (`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

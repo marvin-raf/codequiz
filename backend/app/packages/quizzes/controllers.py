@@ -13,6 +13,19 @@ RUN_CODE_COMMAND = "python3 {}"
 quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
 
+@quizzes_module.route("/free", methods=["GET"])
+def free_quizzes():
+    """
+    Gets all the free quizzes
+    """
+
+    try:
+        free_quizzes = models.get_free_quizzes()
+        return success(free_quizzes)
+    except Exception:
+        return server_error()
+
+
 @quizzes_module.route("/<quiz_id>", methods=["GET"])
 @signed_in_or_out
 @teacher_owns_quiz

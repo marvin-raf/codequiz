@@ -310,3 +310,20 @@ def delete_question(quiz_id, question_id):
     """
 
     pass
+
+
+def get_free_quizzes():
+    """
+    Gets all the free quizzes
+    """
+
+    query = """
+    SELECT quizzes.quiz_id, quizzes.quiz_name, languages.language_name, quizzes.quiz_short_desc
+    FROM quizzes
+    INNER JOIN languages ON quizzes.quiz_language_id = languages.language_id
+    WHERE quizzes.quiz_course_id IS NULL
+    """
+
+    free_quizzes = db.query(query)
+
+    return free_quizzes
