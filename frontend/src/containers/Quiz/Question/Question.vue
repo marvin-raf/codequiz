@@ -4,6 +4,7 @@
 
 
     <v-card class="question col-md-8 offset-md-2">
+      
 
 <div class="text-xs-center">
     <v-dialog
@@ -45,8 +46,8 @@
 
 
         <div v-if="teacherStore.teacherId && !question.edit_mode" >
-          <v-btn flat class="delete-btn" @click="deleteModal = true;">Delete</v-btn>
-          <v-btn flat class="edit-btn" @click="setEditMode()">Edit</v-btn>
+          <v-btn flat class="delete-btn" @click="deleteModal = true;"><v-icon>delete</v-icon></v-btn>
+          <v-btn flat class="edit-btn" @click="setEditMode()"><v-icon>edit</v-icon></v-btn>
           <br>
           <br>
         </div>
@@ -336,14 +337,14 @@ export default {
       if (this.question.edit_mode) {
         try {
           await helpers.updateQuestion(this.question);
-          this.qusetion.edit_mode = false;
+          this.$emit("toggle-edit-question", {
+            questionIndex: this.questionIndex
+          });
         } catch (e) {}
       } else {
-        this.$emit("edit-question", {
+        this.$emit("toggle-edit-question", {
           questionIndex: this.questionIndex
         });
-
-        this.question.edit_mode = true;
       }
     },
     async deleteQuestion() {

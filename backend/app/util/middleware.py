@@ -93,18 +93,20 @@ def teacher_signed_in(func):
             return unauthorized()
 
         query = """
-        SELECT teacher_id 
+        SELECT teacher_is_admin, teacher_id
         FROM teachers 
         WHERE teacher_token = %s
         """
-
-        print(request.headers["Teacher-Authorization"])
 
         rows = db.query(query, (request.headers["Teacher-Authorization"]))
 
         if not rows:
             return unauthorized()
 
+        if rows[0]["teacher_is_admin"]:
+            request.teacher_is_admin = True
+
+        print(rows)
         request.teacher_id = rows[0]["teacher_id"]
         return func(*args, **kwargs)
 
@@ -225,11 +227,62 @@ def teacher_student_logged_in(func):
 
 
 def teacher_owns_quiz(func):
+    """
+    Decorator
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        """
+        Checks to see if teacher actually owns the quiz, or if 
+        a teacher is an admin and the quiz is a free quiz
+        """
+
+        quiz_id = request.view_args["quiz_id"]
+
+        query = """
+        SELECT quiz_course_id
+        FROM quizzes
+        WHERE quiz_id = %s
+        """
+
+        quizzes = db.query(query, (quiz_id))
+
+        # Checks if the quiz does not exist
+        if not quizzes:
+            return not_found()
+
+        #If the course_id is null, check if teacher is an admin (Passed down from teacher_signed_in middleware)
+        if quizzes[0]["quiz_course_id"] == None and hasattr(
+                request, "teacher_is_admin"):
+            return func(*args, **kwargs)
+
+        # Check that teacher owns the course
+        query = """
+        SELECT quiz_id
+        FROM quizzes
+        INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
+        INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
+        WHERE quizzes.quiz_id = %s
+        AND teachers.teacher_id = %s
+        """
+
+        quizzes = db.query(query, (quiz_id, request.teacher_id))
+
+        if not quizzes:
+            return forbidden()
+        return func(*args, **kwargs)
+
+    return wrap
+
+
+def can_access_quiz(func):
     """Decorator"""
 
     @wraps(func)
     def wrap(*args, **kwargs):
-        """Checks to see if either quiz is of type preview quiz. 
+        """Checks to see if either a teacher, student or unauthorized user
+        can access the quiz
 
            If a student is logged in, check whether their teacher owns the quiz
            If a teacher is logged in, wheck whether they own the course for that quiz

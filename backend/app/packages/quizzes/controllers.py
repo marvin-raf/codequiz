@@ -5,7 +5,7 @@ import subprocess
 import uuid
 from app.packages.quizzes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, question_exists, signed_in_or_out
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out
 
 # RUN_CODE_COMMAND = 'gtimeout 15s docker run -it --memory 4m --rm --name my-running-script -v "\$PWD":/usr/src/myapp -w /usr/src/myapp python:3 python3 {}'
 RUN_CODE_COMMAND = "python3 {}"
@@ -55,7 +55,7 @@ def create_free_quizzes():
 
 @quizzes_module.route("/<quiz_id>", methods=["GET"])
 @signed_in_or_out
-@teacher_owns_quiz
+@can_access_quiz
 def get_quiz(quiz_id):
     """
     Gets quiz information along with questions for one quiz
@@ -105,7 +105,7 @@ def questions(quiz_id):
 @quizzes_module.route(
     "/<quiz_id>/questions/<question_id>/precheck", methods=["POST"])
 @signed_in_or_out
-@teacher_owns_quiz
+@can_access_quiz
 @question_exists
 def precheck(quiz_id, question_id):
     """
@@ -147,7 +147,7 @@ def precheck(quiz_id, question_id):
 @quizzes_module.route(
     "/<quiz_id>/questions/<question_id>/check", methods=["POST"])
 @signed_in_or_out
-@teacher_owns_quiz
+@can_access_quiz
 @question_exists
 def check(quiz_id, question_id):
     """
@@ -197,6 +197,33 @@ def check(quiz_id, question_id):
         "total_negated": total_negated,
         "last_attempt_wrong": last_attempt_wrong
     })
+
+
+@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["PUT"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+def update_question(quiz_id, question_id):
+    """
+    Updates a question from a quiz
+    """
+
+    try:
+        json = request.get_json()
+
+        question_description = json["question_description"]
+        test_cases = json["test_cases"]
+
+        if models.update_question_errors(question_id, question_description,
+                                         test_cases):
+            raise ValueError("Error in request body")
+
+        return success()
+        # models.delete_question(quiz_id, question_id)
+    except (KeyError, ValueError):
+        return bad_request()
+    except Exception:
+        return server_error()
 
 
 @quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])

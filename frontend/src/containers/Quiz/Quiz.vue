@@ -29,7 +29,7 @@
         v-on:alter-question="alterDescription"
         v-on:new-test-case="addTestCase"
         v-on:update-question-worth="updateQuestionWorth"
-        v-on:edit-question="editQuestion"
+        v-on:toggle-edit-question="toggleEditQuestion"
         v-on:delete-question="deleteQuestion"
         >
 
@@ -159,11 +159,12 @@ export default {
       this.questions[obj.questionIndex].last_attempt_wrong =
         obj.lastAttemptWrong;
     },
-    editQuestion(obj) {
-      console.log(obj.questionIndex);
-      console.log("I am setting edit mode to true");
-      this.questions[obj.questionIndex].edit_mode = true;
-      // this.questions[obj.questionIndex].edit_mode = true;
+    toggleEditQuestion(obj) {
+      this.$set(
+        this.questions[obj.questionIndex],
+        "edit_mode",
+        !this.questions[obj.questionIndex].edit_mode
+      );
     },
     deleteQuestion(obj) {
       this.questions.splice(obj.questionIndex, 1);
@@ -176,10 +177,11 @@ export default {
 @import "../../styles/_mixins.scss";
 @import "../../styles/_variables.scss";
 #quiz {
-  background-color: #fff;
+  background-color: $wet-asphalt;
+
   h1 {
     text-align: center;
-    color: $text-color;
+    color: #fff;
   }
   padding-top: 20px;
   margin-top: 20px;

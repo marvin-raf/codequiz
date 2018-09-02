@@ -69,7 +69,7 @@ helpers.deleteQuestion = (quizId, questionId) => {
                 {
                     method : "DELETE",
                     headers :
-                        {"Student-Authorization" : cookies.get("teacher")},
+                        {"Student-Authorization" : cookies.get("teacher")}
                 });
 
             if (res.status !== 200) {
@@ -86,11 +86,34 @@ helpers.deleteQuestion = (quizId, questionId) => {
     });
 };
 
-helpers.updateQuestion = (question) => {
-    return new Promise((resolve, reject) => {
+helpers.updateQuestion = question => {
+    return new Promise(async (resolve, reject) => {
         try {
+            console.log("am I over here?");
+            const res = await fetch(
+                `http://localhost:5000/quizzes/${
+                    question.question_quiz_id}/questions/${
+                    question.question_id}`,
+                {
+                    method : "PUT",
+                    headers : {
+                        "Content-Type" : "application/json",
+                        "Teacher-Authorization" : cookies.get("teacher")
+                    },
+                    body : JSON.stringify({
+                        question_description : question.question_description,
+                        test_cases : question.test_cases
+                    })
+                });
 
+            if (res.status !== 200) {
+                reject(e);
+                return;
+            }
+
+            resolve();
         } catch (e) {
+            console.log(e);
             reject(e);
         }
     });

@@ -353,6 +353,12 @@ def create_free_quiz(quiz_name, quiz_language_id, quiz_short_desc):
     if not quiz_name or not quiz_language_id or not quiz_short_desc:
         raise ValueError("Property in body is empty")
 
+    # Check types
+    if type(quiz_name) != str or type(quiz_language_id) != int or type(
+            quiz_short_desc) != str:
+        raise ValueError("Types in body are incorrect")
+
+    if len(quiz_name) > 20 or len(quiz_short_desc) > 20:
         raise ValueError("One field in body is too long")
 
     # Also check that the language_id actually exists
@@ -374,3 +380,18 @@ def create_free_quiz(quiz_name, quiz_language_id, quiz_short_desc):
     """
 
     db.insert_query(query, (quiz_name, quiz_language_id, quiz_short_desc))
+
+
+def update_question_errors(question_id, question_description, test_cases):
+    """
+    Checks for errors with updating the questions
+    """
+
+    if not question_description or type(question_description) != str or type(
+            test_cases) != list:
+        return True
+
+    if len(question_description) > 500:
+        return True
+
+    return False
