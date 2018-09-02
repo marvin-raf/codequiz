@@ -57,7 +57,7 @@ def get_teacher_data(teacher_id):
     """
 
     query = """
-    SELECT teacher_id, teacher_name, teacher_email
+    SELECT teacher_id, teacher_name, teacher_email, teacher_is_admin
     FROM teachers
     WHERE teacher_id = %s
     """

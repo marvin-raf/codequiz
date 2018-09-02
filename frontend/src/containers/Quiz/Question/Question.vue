@@ -261,14 +261,14 @@ export default {
       )
         return;
 
-      this.testCaseContent = "";
-      this.testCaseExpected = "";
-
       this.$emit("new-test-case", {
         testCaseContent: this.testCaseContent,
         testCaseExpected: this.testCaseExpected,
         questionIndex: this.questionIndex
       });
+
+      this.testCaseContent = "";
+      this.testCaseExpected = "";
     },
     async precheck() {
       // Reset success/error messages and spinner

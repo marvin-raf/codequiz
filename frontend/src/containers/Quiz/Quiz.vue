@@ -125,10 +125,15 @@ export default {
         question.questionDescription;
     },
     addTestCase(testCase) {
+      console.log("Test case added");
+      console.log(testCase.testCaseContent);
+      console.log(testCase.testCaseExpected);
       this.questions[testCase.questionIndex].test_cases.push({
         test_input: testCase.testCaseContent,
         test_expected: testCase.testCaseExpected
       });
+
+      console.log(this.questions[testCase.questionIndex]);
     },
     saveDateTime(dateTimes) {
       const { startDate, startTime, endDate, endTime } = dateTimes;

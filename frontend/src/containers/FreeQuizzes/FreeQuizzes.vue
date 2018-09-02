@@ -1,6 +1,14 @@
 <template>
     <v-card class="col-sm-10 offset-sm-1" id="free-quizzes">
-        <h1>Free Quizzes</h1>
+
+              <v-card-title
+          class="headline"
+          id="new-quiz-header"
+          primary-title
+        >
+        Free Quizzes
+        </v-card-title>
+
 
 
     <v-progress-circular
@@ -13,13 +21,12 @@
     <v-else>
       <v-list>
       <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
-      <div v-for="(course, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
+      <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
           <v-divider v-if="index === 0"></v-divider>
-          <v-list-tile @click="">
+          <v-list-tile @click="$router.push(`/quizzes/${quiz.quiz_id}`)">
               <v-list-title>
                 <div class="quiz-name-language">
-                <a @click="" href="#">{{ course.quiz_name }}</a>
-
+                <a @click="$router.push(`/quizzes/${quiz.quiz_id}`)" href="#">{{ quiz.quiz_name }}</a>
 
 
 
@@ -30,7 +37,7 @@
               <v-list-content style="width: 100%;">
                 <div class="quiz-short-description">
 
-                  {{ course.quiz_short_desc }}
+                  {{ quiz.quiz_short_desc }}
 
 
 
@@ -47,8 +54,83 @@
           </v-list-tile>
           <v-divider></v-divider>
       </div>
+      <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin"><v-icon>add</v-icon></v-btn>
+
       <v-pagination color="secondary" :length="Math.ceil(freeQuizzes.length / 8)" id="free-quizzes-pagination" v-model="page"></v-pagination>
   </v-list>
+
+
+       <v-dialog
+      v-model="newQuizDialog"
+      width="600"
+    >
+      
+      <v-card >
+        <v-card-title
+          class="headline"
+          id="new-quiz-header"
+          primary-title
+        >
+          Create New Free Quiz
+        </v-card-title>
+
+        <v-card-text>
+
+        <v-alert
+          :value="createQuizError"
+          type="error"
+        >
+        There was an error creating the quiz
+        </v-alert>
+
+
+          <v-text-field
+            type="text" 
+            label="Quiz Name"
+            color="secondary"
+            :error-messages="quizNameErrors"
+            maxlength="30"
+            v-model="newQuizName" 
+          >
+              
+          </v-text-field>
+
+          <v-select
+          :items="languages"
+          label="Quiz Language"
+          item-value="language_id"
+          item-text="language_name"
+          :error-messages="quizLanguageErrors"
+          v-model="newQuizLanguage"
+        ></v-select>
+
+        <v-textarea
+          name="input-7-1"
+          label="Short Description"
+          color="secondary"
+          v-model="newShortDescription"
+          maxlength="50"
+          :error-messages="shortDescriptionErrors"
+        ></v-textarea>
+
+
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="secondary"
+            flat
+            @click="createFreeQuiz()"
+            :loading="newQuizLoading"
+          >
+          Create
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog> 
 
     </v-else>
 
@@ -57,12 +139,24 @@
 
 <script>
 import helpers from "./helpers";
+import teacherStore from "../../store/teacherStore";
 
 export default {
   data() {
     return {
       freeQuizzes: null,
-      page: 1 // Referring to the current page of pagination
+      page: 1, // Referring to the current page of pagination
+      teacherStore: teacherStore.data,
+      newQuizDialog: false,
+      newQuizName: "",
+      newQuizLanguage: null,
+      newShortDescription: "",
+      languages: null,
+      quizNameErrors: [],
+      quizLanguageErrors: [],
+      shortDescriptionErrors: [],
+      newQuizLoading: false,
+      createQuizError: false
     };
   },
   async mounted() {
@@ -70,11 +164,72 @@ export default {
       const freeQuizzes = await helpers.getFreeQuizzes();
 
       this.freeQuizzes = freeQuizzes;
+
+      // If user is an admin, then get all languages
+      if (teacherStore.data.teacherIsAdmin) {
+        const languages = await helpers.getLanguages();
+
+        this.languages = languages;
+      }
     } catch (e) {
       console.log(e);
     }
   },
-  methods: {}
+  methods: {
+    async createFreeQuiz() {
+      this.quizNameErrors = [];
+      this.quizLanguageErrors = [];
+      this.shortDescriptionErrors = [];
+      this.createQuizError = false;
+
+      if (!this.newQuizName) {
+        this.quizNameErrors.push("Field Required");
+      }
+
+      if (!this.newQuizLanguage) {
+        this.quizLanguageErrors.push("Field Required");
+      }
+
+      if (!this.newShortDescription) {
+        this.shortDescriptionErrors.push("Field Required");
+      }
+
+      if (
+        this.quizNameErrors.length ||
+        this.quizLanguageErrors.length ||
+        this.shortDescriptionErrors.length
+      ) {
+        return;
+      }
+
+      try {
+        this.newQuizLoading = true;
+        await helpers.createFreeQuiz(
+          this.newQuizName,
+          this.newQuizLanguage,
+          this.newShortDescription
+        );
+
+        this.newQuizLoading = false;
+
+        this.freeQuizzes.push({
+          quiz_name: this.newQuizName,
+          quiz_language: "Python",
+          quiz_short_desc: this.newShortDescription
+        });
+
+        // Reset all form fields incase admin wants to create a second free quiz
+        this.newQuizName = "";
+        this.newQuizLanguage = null;
+        this.newShortDescription = "";
+
+        this.newQuizDialog = false;
+      } catch (e) {
+        this.newQuizLoading = false;
+        this.createQuizError = true;
+      }
+    }
+  }
 };
 </script>
 
@@ -86,6 +241,7 @@ export default {
 #free-quizzes {
   background-color: #fff;
   @include card();
+  padding: 0px 0px 0px 0px !important;
 
   h1 {
     text-align: center;
@@ -127,6 +283,18 @@ export default {
     left: 0;
     right: 0;
   }
+
+  #new-free-quiz-btn {
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 50px;
+  }
+}
+
+#new-quiz-header {
+  background-color: $wet-asphalt;
+  color: #fff;
 }
 </style>
 

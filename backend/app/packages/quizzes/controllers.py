@@ -14,7 +14,7 @@ quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
 
 @quizzes_module.route("/free", methods=["GET"])
-def free_quizzes():
+def get_free_quizzes():
     """
     Gets all the free quizzes
     """
@@ -24,6 +24,33 @@ def free_quizzes():
         return success(free_quizzes)
     except Exception:
         return server_error()
+
+
+@quizzes_module.route("/free", methods=["POST"])
+def create_free_quizzes():
+    """
+    Creates a free quiz
+    """
+
+    try:
+        json = request.get_json()
+
+        quiz_name = json["quiz_name"]
+        quiz_language_id = json["quiz_language_id"]
+        quiz_short_desc = json["quiz_short_desc"]
+
+        models.create_free_quiz(quiz_name, quiz_language_id, quiz_short_desc)
+    except KeyError as e:
+        print(e)
+        return bad_request()
+    # Error checking will be done in create_free_quiz route and will return ValueError if so
+    except ValueError as e:
+        print(e)
+        return bad_request()
+    except Exception:
+        return server_error()
+
+    return created()
 
 
 @quizzes_module.route("/<quiz_id>", methods=["GET"])
@@ -184,4 +211,17 @@ def delete_question(quiz_id, question_id):
     try:
         models.delete_question(quiz_id, question_id)
     except Exception as e:
+        return server_error()
+
+
+@quizzes_module.route("/languages", methods=["GET"])
+def get_languages():
+    """
+    Gets all supported programming languages
+    """
+
+    try:
+        languages = models.get_languages()
+        return success(languages)
+    except Exception:
         return server_error()

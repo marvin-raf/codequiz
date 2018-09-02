@@ -327,3 +327,50 @@ def get_free_quizzes():
     free_quizzes = db.query(query)
 
     return free_quizzes
+
+
+def get_languages():
+    """
+    Gets all supported programming languages
+    """
+
+    query = """
+    SELECT *
+    FROM languages
+    """
+
+    languages = db.query(query, ())
+
+    return languages
+
+
+def create_free_quiz(quiz_name, quiz_language_id, quiz_short_desc):
+    """
+    Checks for errors and creates a free quiz if no errors found
+    """
+
+    # Check for errors
+    if not quiz_name or not quiz_language_id or not quiz_short_desc:
+        raise ValueError("Property in body is empty")
+
+        raise ValueError("One field in body is too long")
+
+    # Also check that the language_id actually exists
+    query = """
+    SELECT language_id
+    FROM languages
+    WHERE language_id = %s
+    """
+
+    languages = db.query(query, (quiz_language_id))
+    print(quiz_language_id)
+
+    if not languages:
+        raise ValueError("Language ID does not exist")
+
+    query = """
+    INSERT INTO quizzes (quiz_name, quiz_language_id, quiz_short_desc)
+    VALUES (%s, %s, %s)
+    """
+
+    db.insert_query(query, (quiz_name, quiz_language_id, quiz_short_desc))
