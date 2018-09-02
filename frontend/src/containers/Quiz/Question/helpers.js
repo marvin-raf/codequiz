@@ -86,4 +86,14 @@ helpers.deleteQuestion = (quizId, questionId) => {
     });
 };
 
+helpers.updateQuestion = (question) => {
+    return new Promise((resolve, reject) => {
+        try {
+
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
 export default helpers;

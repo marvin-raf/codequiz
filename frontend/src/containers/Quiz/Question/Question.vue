@@ -51,6 +51,16 @@
           <br>
         </div>
 
+        <div v-if="teacherStore.teacherId && question.edit_mode">
+          <v-btn flat class="save-btn" @click="setEditMode()">Save</v-btn>
+          <br>
+          <br>
+
+        </div>
+        
+
+        
+
         
 
 
@@ -322,12 +332,19 @@ export default {
         this.checkLoading = false;
       }
     },
-    setEditMode() {
-      this.$emit("edit-question", {
-        questionIndex: this.questionIndex
-      });
+    async setEditMode() {
+      if (this.question.edit_mode) {
+        try {
+          await helpers.updateQuestion(this.question);
+          this.qusetion.edit_mode = false;
+        } catch (e) {}
+      } else {
+        this.$emit("edit-question", {
+          questionIndex: this.questionIndex
+        });
 
-      this.question.edit_mode = true;
+        this.question.edit_mode = true;
+      }
     },
     async deleteQuestion() {
       try {
@@ -404,6 +421,12 @@ export default {
 }
 
 .edit-btn {
+  float: right;
+  background-color: $emerald !important;
+  color: #fff !important;
+}
+
+.save-btn {
   float: right;
   background-color: $emerald !important;
   color: #fff !important;

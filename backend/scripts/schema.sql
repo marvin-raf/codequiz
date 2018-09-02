@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-09-01 03:31:22 +0000
+# Generation Time: 2018-09-02 07:57:39 +0000
 # ************************************************************
 
 
@@ -23,8 +23,6 @@
 # Dump of table answers
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `answers`;
-
 CREATE TABLE `answers` (
   `answer_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `answer_content` varchar(256) DEFAULT NULL,
@@ -37,8 +35,6 @@ CREATE TABLE `answers` (
 
 # Dump of table attempts
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `attempts`;
 
 CREATE TABLE `attempts` (
   `attempt_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -56,8 +52,6 @@ CREATE TABLE `attempts` (
 # Dump of table classes
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `classes`;
-
 CREATE TABLE `classes` (
   `class_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `class_name` varchar(50) NOT NULL DEFAULT '',
@@ -70,8 +64,6 @@ CREATE TABLE `classes` (
 # Dump of table classes_courses
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `classes_courses`;
-
 CREATE TABLE `classes_courses` (
   `cc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `cc_class_id` int(11) NOT NULL,
@@ -83,8 +75,6 @@ CREATE TABLE `classes_courses` (
 
 # Dump of table courses
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `courses`;
 
 CREATE TABLE `courses` (
   `course_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -100,8 +90,6 @@ CREATE TABLE `courses` (
 # Dump of table languages
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `languages`;
-
 CREATE TABLE `languages` (
   `language_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `language_name` varchar(30) DEFAULT NULL,
@@ -112,8 +100,6 @@ CREATE TABLE `languages` (
 
 # Dump of table questions
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `questions`;
 
 CREATE TABLE `questions` (
   `question_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -129,12 +115,10 @@ CREATE TABLE `questions` (
 # Dump of table quizzes
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `quizzes`;
-
 CREATE TABLE `quizzes` (
   `quiz_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `quiz_course_id` int(11) unsigned DEFAULT NULL,
-  `quiz_name` varchar(50) NOT NULL DEFAULT '',
+  `quiz_name` varchar(30) NOT NULL DEFAULT '',
   `quiz_start_date` bigint(11) unsigned DEFAULT NULL,
   `quiz_end_date` bigint(11) unsigned DEFAULT NULL,
   `quiz_language_id` int(11) unsigned DEFAULT NULL,
@@ -150,8 +134,6 @@ CREATE TABLE `quizzes` (
 
 # Dump of table students
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `students`;
 
 CREATE TABLE `students` (
   `student_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -174,8 +156,6 @@ CREATE TABLE `students` (
 # Dump of table students_classes
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `students_classes`;
-
 CREATE TABLE `students_classes` (
   `sc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `sc_student_id` int(11) NOT NULL,
@@ -188,14 +168,13 @@ CREATE TABLE `students_classes` (
 # Dump of table teachers
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `teachers`;
-
 CREATE TABLE `teachers` (
   `teacher_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `teacher_name` varchar(50) NOT NULL DEFAULT '',
   `teacher_email` varchar(128) NOT NULL DEFAULT '',
   `teacher_hash` varchar(128) NOT NULL DEFAULT '',
   `teacher_token` varchar(128) DEFAULT NULL,
+  `teacher_is_admin` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`teacher_id`),
   UNIQUE KEY `teacher_email` (`teacher_email`),
   UNIQUE KEY `teacher_hash` (`teacher_hash`),
@@ -206,8 +185,6 @@ CREATE TABLE `teachers` (
 
 # Dump of table tests
 # ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `tests`;
 
 CREATE TABLE `tests` (
   `test_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
