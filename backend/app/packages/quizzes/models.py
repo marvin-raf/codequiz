@@ -395,3 +395,24 @@ def update_question_errors(question_id, question_description, test_cases):
         return True
 
     return False
+
+
+def create_test_case(question_id, test_input, test_expected):
+    """
+    Creates a test case
+    """
+
+    if not test_input or not test_expected:
+        raise ValueError("Property in body is empty")
+
+    if type(test_input) != str or type(test_expected) != str:
+        raise ValueError("test_input or test_expected were not a string")
+    if len(test_input) > 500 or len(test_expected) > 500:
+        raise ValueError("Length of property was too long")
+
+    query = """
+    INSERT INTO tests (test_question_id, test_input, test_expected)
+    VALUES (%s, %s, %s)
+    """
+
+    db.query(query, (question_id, test_input, test_expected))

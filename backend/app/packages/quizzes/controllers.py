@@ -219,7 +219,6 @@ def update_question(quiz_id, question_id):
             raise ValueError("Error in request body")
 
         return success()
-        # models.delete_question(quiz_id, question_id)
     except (KeyError, ValueError):
         return bad_request()
     except Exception:
@@ -237,8 +236,10 @@ def delete_question(quiz_id, question_id):
 
     try:
         models.delete_question(quiz_id, question_id)
-    except Exception as e:
+    except Exception:
         return server_error()
+
+    return success()
 
 
 @quizzes_module.route("/languages", methods=["GET"])
@@ -252,3 +253,29 @@ def get_languages():
         return success(languages)
     except Exception:
         return server_error()
+
+
+@quizzes_module.route(
+    "/<quiz_id>/questions/<question_id>/testcase", methods=["POST"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+def create_test_case(quiz_id, question_id):
+    """
+    Creates a test case
+    """
+
+    try:
+        json = request.get_json()
+
+        test_input = json["test_input"]
+        test_expected = json["test_expected"]
+
+        models.create_test_case(question_id, test_input, test_expected)
+    except (KeyError, ValueError):
+        return bad_request()
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return created()

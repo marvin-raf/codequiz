@@ -93,17 +93,75 @@
     </template>
   </v-data-table>
 
-  <div v-if="isTeacher() && question.edit_mode">
-  <div class="split-fields">
-    <v-textarea label="Test Case" color="secondary" v-model="testCaseContent" :error-messages="testCaseContentErrors"></v-textarea>
-  </div>
-  <div class="split-fields">
-    <v-textarea label="Expected" color="secondary" v-model="testCaseExpected" :error-messages="testCaseExpectedErrors"></v-textarea>
-  </div>
+  
+    <v-dialog
+      v-model="testCaseModal"
+      width="800"
+    >
 
-  </div>
+      <v-card>
+        <v-card-title
+          class="headline justify-center wet-asphalt"
+          primary-title
+        >
+          <span style="color: #fff;">Add Test Case</span>
+        </v-card-title>
 
-  <v-btn flat v-if="isTeacher() && question.edit_mode" class="add-test-case" @click="addTestCase()">Add Test Case</v-btn>
+        <v-divider></v-divider>
+
+    <div style="padding: 10px;">
+         <v-alert
+          :value="testCaseError"
+          type="error"
+         >
+         {{ testCaseError }}
+        </v-alert>
+
+    <div class="split-fields">
+      <h3 style="text-align: center;">Test Case</h3>
+    </div>
+
+    <div class="split-fields">
+      <h3 style="text-align: center;">Expected Result</h3>
+    </div>
+
+
+
+    <div class="split-fields">
+      <div class="test-case-editor"></div>
+    </div>
+    <div class="split-fields">
+      <div class="expected-editor"></div>
+    </div>
+
+
+
+    </div>
+
+        
+         
+        <v-card-actions style="width: 200px;margin: 0 auto;">
+          <v-btn
+            color="primary"
+            flat
+            @click="testCaseModal = false"
+          >
+          Go Back
+          </v-btn>
+
+          <v-btn
+            color="secondary"
+            flat
+            @click="addTestCase();"
+          >
+          Create
+          </v-btn>
+ 
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
 
   <div class="editor" v-if="!question.edit_mode">
   </div>
@@ -173,6 +231,9 @@
       >Check</v-btn>
 
     <div style="clear: both;"></div>
+
+  <v-btn flat v-if="isTeacher()" class="add-test-case" @click="testCaseModal = true;">Add Test Case</v-btn>
+
   </div>
 
     </v-card>
@@ -207,9 +268,10 @@ export default {
       questionDescription: this.question.question_description,
       testCaseContent: "",
       testCaseExpected: "",
-      testCaseContentErrors: [],
-      testCaseExpectedErrors: [],
+      testCaseError: false,
       editor: null,
+      testCaseEditor: null,
+      expectedEditor: null,
       precheckError: [],
       precheckSuccess: false,
       precheckLoading: false,
@@ -233,53 +295,80 @@ export default {
         }
       ],
       deleteModal: false,
-      teacherStore: teacherStore.data
+      teacherStore: teacherStore.data,
+      testCaseModal: false
     };
   },
   mounted() {
     this.testCaseResults = this.question.test_case_results;
 
+    // Setup all the ace editors
     const editorNode = document.getElementsByClassName("editor")[
       this.questionIndex
     ];
 
-    const editor = window.ace.edit(editorNode);
+    const testCaseEditorNode = document.getElementsByClassName(
+      "test-case-editor"
+    )[this.questionIndex];
 
-    this.editor = editor;
+    const expectedEditorNode = document.getElementsByClassName(
+      "expected-editor"
+    )[this.questionIndex];
+
+    console.log(expectedEditorNode);
+
+    const editor = window.ace.edit(editorNode);
+    const testCaseEditor = window.ace.edit(testCaseEditorNode);
+    const expectedEditor = window.ace.edit(expectedEditorNode);
+
+    console.log(testCaseEditor);
+    console.log(expectedEditor);
 
     editor.setOptions({
       useSoftTabs: true
     });
 
+    testCaseEditor.setOptions({
+      useSoftTabs: true
+    });
+
+    expectedEditor.setOptions({
+      useSoftTabs: true
+    });
+
     editor.getSession().setMode("ace/mode/python");
+    testCaseEditor.getSession().setMode("ace/mode/python");
+
+    this.editor = editor;
+    this.testCaseEditor = testCaseEditor;
+    this.expectedEditor = expectedEditor;
   },
   methods: {
-    // Resets and checks for errors, and emits new-test-case events if no errors
-    addTestCase() {
-      this.testCaseContentErrors = [];
-      this.testCaseExpectedErrors = [];
-
-      if (!this.testCaseContent) {
-        this.testCaseContentErrors.push("Field Required");
-      }
-      if (!this.testCaseExpected) {
-        this.testCaseExpectedErrors.push("Field Required");
+    async addTestCase() {
+      this.testCaseError = false;
+      if (!this.testCaseEditor.getValue() || !this.expectedEditor.getValue()) {
+        this.testCaseError = "Test input and Test expected fields required";
       }
 
-      if (
-        this.testCaseContentErrors.length ||
-        this.testCaseExpectedErrors.length
-      )
-        return;
+      if (this.testCaseError) return;
 
-      this.$emit("new-test-case", {
-        testCaseContent: this.testCaseContent,
-        testCaseExpected: this.testCaseExpected,
-        questionIndex: this.questionIndex
-      });
+      try {
+        const quizId = this.$route.params.id;
+        const questionId = this.question.question_id;
+        const testInput = this.testCaseEditor.getValue();
+        const testExpected = this.expectedEditor.getValue();
+        await helpers.addTestCase(quizId, questionId, testInput, testExpected);
 
-      this.testCaseContent = "";
-      this.testCaseExpected = "";
+        this.$emit("new-test-case", {
+          testCaseContent: this.testCaseEditor.getValue(),
+          testCaseExpected: this.expectedEditor.getValue(),
+          questionIndex: this.questionIndex
+        });
+
+        this.testCaseModal = false;
+      } catch (e) {
+        this.testCaseError = "Server Error";
+      }
     },
     async precheck() {
       // Reset success/error messages and spinner
@@ -386,6 +475,10 @@ export default {
   background-color: rgba(231, 76, 60, 0.5);
 }
 
+.wet-asphalt {
+  background-color: $wet-asphalt;
+}
+
 .add-test-case {
   background-color: $emerald !important;
   color: #fff !important;
@@ -401,6 +494,14 @@ export default {
 
 .editor {
   margin-top: 20px;
+  height: 400px;
+}
+
+.test-case-editor {
+  height: 400px;
+}
+
+.expected-editor {
   height: 400px;
 }
 
