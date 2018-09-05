@@ -4,14 +4,15 @@
             <h1>Courses</h1>
             <v-text-field label="Course Name" v-model="courseName" color="secondary" maxlength="50" id="course-name" style="float: left; width: 70%"></v-text-field>
             <div id="create-box">
-                <v-btn id="create-btn" color="secondary" @click="addCourse()" depressed :disabled="courseName ? false : true" style="float: right;">Create</v-btn> 
+                <v-btn id="create-btn" color="secondary" @click="addCourse()" depressed :disabled="courseName ? false : true" style="float: right;">Create</v-btn>
             </div>
         </v-card>
+
         <v-card class="col-md-8 offset-md-2" id="courses">
             <v-list>
                 <div v-for="(course, index) in courses.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
-                    <v-list-tile>
-                        <v-list-title style="width: 100%;">
+                    <v-list-tile style="height: 50px;">
+                        <v-list-tile-title style="width: 100%; height: 45px;">
                             <div v-if="!course.input">
                                 <a @click="$router.push('/courses/' + course.course_id)"> {{course.course_name}} </a>
                                 <v-btn @click="changeInput(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
@@ -20,20 +21,18 @@
                                 <v-text-field color="secondary" maxlength="50" v-model="courses[index].course_name" style="float: left; width: 70%;"></v-text-field>
                                 <v-btn @click="changeName(index, course.course_id, course.course_name)" color="secondary" depressed style="float: right;">Save</v-btn>
                             </div>
-                        </v-list-title>
-                        <v-list-content>
-                        </v-list-content>
-                        
+                        </v-list-tile-title>
+                        <v-list-tile-content>
+                        </v-list-tile-content>
+
                     </v-list-tile>
                     <v-divider v-if="index != courses.length - 1"></v-divider>
                 </div>
                 <v-pagination color="secondary" :length="Math.ceil(courses.length / 8)" id="courses-pagination" v-model="page"></v-pagination>
             </v-list>
-            
+
         </v-card>
 
-       
-       
     </div>
 </template>
 
@@ -66,10 +65,10 @@ export default {
   methods: {
     async addCourse() {
       try {
-        const { courseId } = await helpers.addCourse(this.courseName);
+        const courseId = await helpers.addCourse(this.courseName);
         this.courses.push({
           course_name: this.courseName,
-          course_id: courseId
+          course_id: courseId.course_id
         });
         this.courseName = null;
       } catch (e) {
