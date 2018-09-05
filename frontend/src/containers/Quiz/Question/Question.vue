@@ -1,242 +1,147 @@
 <template>
 
+  <v-card class="question col-lg-10 offset-lg-1">
 
+    <div class="text-xs-center">
+      <v-dialog v-model="deleteModal" width="500">
 
+        <v-card>
+          <v-card-title class="headline red lighten-1 justify-center" primary-title>
+            <span style="color: #fff;">Are you sure?</span>
+          </v-card-title>
 
-    <v-card class="question col-md-8 offset-md-2">
-      
+          <v-divider></v-divider>
 
-<div class="text-xs-center">
-    <v-dialog
-      v-model="deleteModal"
-      width="500"
-    >
+          <v-card-actions style="width: 200px;margin: 0 auto;">
+            <v-btn color="primary" flat @click="deleteModal = false">
+              Go Back
+            </v-btn>
 
-      <v-card>
-        <v-card-title
-          class="headline red lighten-1 justify-center"
-          primary-title
-        >
-          <span style="color: #fff;">Are you sure?</span>
-        </v-card-title>
+            <v-btn color="red lighten-1" flat @click="deleteQuestion();">
+              Delete
+            </v-btn>
 
-        <v-divider></v-divider>
-         
-        <v-card-actions style="width: 200px;margin: 0 auto;">
-          <v-btn
-            color="primary"
-            flat
-            @click="deleteModal = false"
-          >
-          Go Back
-          </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
-          <v-btn
-            color="red lighten-1"
-            flat
-            @click="deleteQuestion();"
-          >
-          Delete 
-          </v-btn>
- 
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+      <v-dialog v-model="deleteTestCaseModal" width="500">
 
+        <v-card>
+          <v-card-title class="headline red lighten-1 justify-center" primary-title>
+            <span style="color: #fff;">Are you sure?</span>
+          </v-card-title>
 
-        <div v-if="teacherStore.teacherId && !question.edit_mode" >
-          <v-btn flat class="delete-btn" @click="deleteModal = true;"><v-icon>delete</v-icon></v-btn>
-          <v-btn flat class="edit-btn" @click="setEditMode()"><v-icon>edit</v-icon></v-btn>
-          <br>
-          <br>
-        </div>
+          <v-divider></v-divider>
 
-        <div v-if="teacherStore.teacherId && question.edit_mode">
-          <v-btn flat class="save-btn" @click="setEditMode()">Save</v-btn>
-          <br>
-          <br>
+          <v-card-actions style="width: 200px;margin: 0 auto;">
+            <v-btn color="primary" flat @click="deleteTestCaseModal = false">
+              Go Back
+            </v-btn>
 
-        </div>
-        
+            <v-btn color="red lighten-1" flat @click="deleteTestCase();">
+              Delete
+            </v-btn>
 
-        
-
-        
-
-
-        <h3>Question {{ questionIndex + 1 }}</h3>
-
-
-        <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
-
-
-       <v-textarea
-          v-else
-          hint="Question Description"
-          auto-grow
-          color="secondary"
-          v-model="questionDescription"
-        ></v-textarea>
-
-
-  <v-data-table
-    :headers="headers"
-    :items="question.test_cases"
-    no-data-text="No Test Cases"
-    class="elevation-1"
-    hide-actions
-  >
-    <template slot="items" slot-scope="props">
-      <td> <pre>{{ props.item.test_input }}</pre></td>
-      <td><pre>{{ props.item.test_expected }}</pre></td>
-    </template>
-  </v-data-table>
-
-  
-    <v-dialog
-      v-model="testCaseModal"
-      width="800"
-    >
-
-      <v-card>
-        <v-card-title
-          class="headline justify-center wet-asphalt"
-          primary-title
-        >
-          <span style="color: #fff;">Add Test Case</span>
-        </v-card-title>
-
-        <v-divider></v-divider>
-
-    <div style="padding: 10px;">
-         <v-alert
-          :value="testCaseError"
-          type="error"
-         >
-         {{ testCaseError }}
-        </v-alert>
-
-    <div class="split-fields">
-      <h3 style="text-align: center;">Test Case</h3>
-    </div>
-
-    <div class="split-fields">
-      <h3 style="text-align: center;">Expected Result</h3>
-    </div>
-
-
-
-    <div class="split-fields">
-      <div class="test-case-editor"></div>
-    </div>
-    <div class="split-fields">
-      <div class="expected-editor"></div>
-    </div>
-
-
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
     </div>
 
-        
-         
-        <v-card-actions style="width: 200px;margin: 0 auto;">
-          <v-btn
-            color="primary"
-            flat
-            @click="testCaseModal = false"
-          >
-          Go Back
-          </v-btn>
+    <div v-if="teacherStore.teacherId && !question.edit_mode">
+      <v-btn flat class="delete-btn" @click="deleteModal = true;">
+        <v-icon>delete</v-icon>
+      </v-btn>
+      <v-btn flat class="edit-btn" @click="setEditMode()">
+        <v-icon>edit</v-icon>
+      </v-btn>
+      <br>
+      <br>
+    </div>
 
-          <v-btn
-            color="secondary"
-            flat
-            @click="addTestCase();"
-          >
-          Create
-          </v-btn>
- 
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <div v-if="teacherStore.teacherId && question.edit_mode">
+      <v-btn flat class="save-btn" @click="setEditMode()">Save</v-btn>
+      <br>
+      <br>
 
+    </div>
 
+    <h3>Question {{ questionIndex + 1 }}</h3>
 
-  <div class="editor" v-if="!question.edit_mode">
-  </div>
+    <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
 
-  <v-alert
-    id="precheck-error" 
-    type="error"
-    :value="precheckError.length"
-  >
+    <v-textarea v-else hint="Question Description" auto-grow color="secondary" v-model="questionDescription"></v-textarea>
 
+    <v-data-table :headers="headers" :items="question.test_cases" no-data-text="No Test Cases" class="elevation-1" hide-actions>
+      <template slot="items" slot-scope="props">
+        <td>
+          <pre>{{ props.item.test_input }}</pre>
+        </td>
+        <td>
+          <pre>{{ props.item.test_expected }}</pre>
+        </td>
+        <td class="text-xs-right">
 
-  <div v-for="error in precheckError" v-bind:key="error">{{ error }}</div>
-  </v-alert>
+          <v-icon class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.item_id; testCaseModal = true;">
+            edit
+          </v-icon>
 
-   <v-alert
-      :value="precheckSuccess"
-      id="precheck-success"
-      type="success"
-    >
+          <v-icon class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.item_id; deleteTestCaseModal = true;">
+            delete
+          </v-icon>
+        </td>
+      </template>
+    </v-data-table>
+
+    <v-btn flat v-if="isTeacher()" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
+
+    <div class="editor" v-if="!question.edit_mode">
+    </div>
+
+    <v-alert id="precheck-error" type="error" :value="precheckError.length">
+
+      <div v-for="error in precheckError" v-bind:key="error">{{ error }}</div>
+    </v-alert>
+
+    <v-alert :value="precheckSuccess" id="precheck-success" type="success">
       Successful Precheck
     </v-alert>
 
-   <v-data-table
-    v-if="testCaseResults && testCaseResults.length"
-    :headers="testCaseResultHeaders"
-    :items="testCaseResults"
-    no-data-text=""
-    class="elevation-1"
-    hide-actions
-  >
-    <template slot="items" slot-scope="props">
-      <tr v-bind:class="{'question-right' : props.item.test_expected === props.item.output, 'question-wrong': props.item.test_expected !== props.item.output}">
-      <td> <pre>{{ props.item.test_input }}</pre></td>
-      <td><pre>{{ props.item.test_expected }}</pre></td>
-      <td><pre>{{ props.item.output }}</pre></td>
-      </tr>
-    </template>
-  </v-data-table>
+    <v-data-table v-if="testCaseResults && testCaseResults.length" :headers="testCaseResultHeaders" :items="testCaseResults" no-data-text="" class="elevation-1" hide-actions>
+      <template slot="items" slot-scope="props">
+        <tr v-bind:class="{'question-right' : props.item.test_expected === props.item.output, 'question-wrong': props.item.test_expected !== props.item.output}">
+          <td>
+            <pre>{{ props.item.test_input }}</pre>
+          </td>
+          <td>
+            <pre>{{ props.item.test_expected }}</pre>
+          </td>
+          <td>
+            <pre>{{ props.item.output }}</pre>
+          </td>
+        </tr>
+      </template>
+    </v-data-table>
 
-  <span v-if="testCaseResults && testCaseResults.length">
-    Marks for this submission: 0.{{ question.question_worth }}
-    <br />
-    <span v-if="question.last_attempt_wrong">
-      Total Negated: 0.{{ question.total_negated }}
+    <span v-if="testCaseResults && testCaseResults.length">
+      Marks for this submission: 0.{{ question.question_worth }}
+      <br />
+      <span v-if="question.last_attempt_wrong">
+        Total Negated: 0.{{ question.total_negated }}
+      </span>
     </span>
- </span>
- 
 
-    
+    <div id="check-btns">
+      <v-btn flat class="precheck-btn" @click="precheck()" :loading="precheckLoading" v-if="!question.edit_mode">Precheck</v-btn>
 
+      <v-btn flat class="check-btn" @click="check()" :loading="checkLoading" v-if="!question.edit_mode">Check</v-btn>
 
-  <div id="check-btns">
-    <v-btn
-      flat
-      class="precheck-btn"
-      @click="precheck()"
-      :loading="precheckLoading"
-      v-if="!question.edit_mode"
-      >Precheck</v-btn>
+      <div style="clear: both;"></div>
 
-    <v-btn
-      flat
-      class="check-btn"
-      @click="check()"
-      :loading="checkLoading"
-      v-if="!question.edit_mode"
-      >Check</v-btn>
+    </div>
 
-    <div style="clear: both;"></div>
-
-  <v-btn flat v-if="isTeacher()" class="add-test-case" @click="testCaseModal = true;">Add Test Case</v-btn>
-
-  </div>
-
-    </v-card>
+  </v-card>
 </template>
 
 <script>
@@ -263,6 +168,12 @@ export default {
           text: "Expected",
           sortable: false,
           value: "expected"
+        },
+        {
+          text: "Actions",
+          sortable: false,
+          value: "actions",
+          align: "right"
         }
       ],
       questionDescription: this.question.question_description,
@@ -270,8 +181,6 @@ export default {
       testCaseExpected: "",
       testCaseError: false,
       editor: null,
-      testCaseEditor: null,
-      expectedEditor: null,
       precheckError: [],
       precheckSuccess: false,
       precheckLoading: false,
@@ -296,7 +205,10 @@ export default {
       ],
       deleteModal: false,
       teacherStore: teacherStore.data,
-      testCaseModal: false
+      testCaseModal: false,
+      testCaseIdEdit: null,
+      testCaseDeleteId: null,
+      deleteTestCaseModal: false,
     };
   },
   mounted() {
@@ -315,33 +227,16 @@ export default {
       "expected-editor"
     )[this.questionIndex];
 
-    console.log(expectedEditorNode);
 
     const editor = window.ace.edit(editorNode);
-    const testCaseEditor = window.ace.edit(testCaseEditorNode);
-    const expectedEditor = window.ace.edit(expectedEditorNode);
-
-    console.log(testCaseEditor);
-    console.log(expectedEditor);
 
     editor.setOptions({
       useSoftTabs: true
     });
 
-    testCaseEditor.setOptions({
-      useSoftTabs: true
-    });
-
-    expectedEditor.setOptions({
-      useSoftTabs: true
-    });
-
     editor.getSession().setMode("ace/mode/python");
-    testCaseEditor.getSession().setMode("ace/mode/python");
 
     this.editor = editor;
-    this.testCaseEditor = testCaseEditor;
-    this.expectedEditor = expectedEditor;
   },
   methods: {
     async addTestCase() {
@@ -438,16 +333,35 @@ export default {
     },
     async deleteQuestion() {
       try {
-        await helpers.deleteQuestion();
-      } catch (e) {}
+        const quizId = this.$route.params.id;
+        const questionId = this.question.question_id;
+        await helpers.deleteQuestion(this.$route.params.id, questionId);
+      } catch (e) {
+        console.log(e);
+      }
 
-      this.deleteModal = true;
+      this.deleteModal = false;
 
       this.$emit("delete-question", {
         questionIndex: this.questionIndex
       });
+    },
+    async deleteTestCase() {
+      try {
+        const quizId = this.$route.params.id;
+        const questionId = this.question.question_id;
+        const testId = this.testCaseDeleteId;
+        await helpers.deleteTestCase(quizid, questionId, testId);
+      this.deleteTestCaseModal = false;
+        this.deleteTestCaseModal = false;
+
+      } catch (e) {
+
+      }
+
     }
   },
+
   watch: {
     questionDescription(newVal, oldVal) {
       this.$emit("alter-question", {
@@ -497,14 +411,6 @@ export default {
   height: 400px;
 }
 
-.test-case-editor {
-  height: 400px;
-}
-
-.expected-editor {
-  height: 400px;
-}
-
 #check-btns {
   margin: 0 auto;
   width: 300px;
@@ -546,6 +452,22 @@ export default {
 
 #precheck-success {
   background-color: rgba(46, 204, 113, 0.7) !important;
+}
+
+.delete-test-case-btn {
+  cursor: pointer;
+
+  &:hover {
+    color: #e74c3c !important;
+  }
+}
+
+.edit-test-case-btn {
+  cursor: pointer;
+
+  &:hover {
+    color: $emerald !important;
+  }
 }
 </style>
 

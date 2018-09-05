@@ -1,43 +1,24 @@
 <template>
-    <div>
+  <div>
+    <TestCaseModal :quizId="$route.params.id" :testCaseModal="testCaseModal" :testCaseModalData="testCaseModalData" v-on:new-test-case="addTestCase" v-on:close-test-case-modal="testCaseModal = false"></TestCaseModal>
 
-    <v-card class="col-md-8 offset-md-2" id="quiz">
-        <h1 v-if="quizName">{{ quizName }}</h1>
+    <v-card class="col-lg-10 offset-lg-1" id="quiz">
+      <h1 v-if="quizName">{{ quizName }}</h1>
 
-        <DateTime 
-          v-if="quizName && !isLoggedIn()"
-          :startDate="startDate" 
-          :startTime="startTime"
-          :endDate="endDate"
-          :endTime="endTime"
-          :editDateTime="editDateTime"
-          v-on:save-date-time="saveDateTime"
-          v-on:toggle-edit-date-time="toggleDateTime"
-          
-          
-        />
-
+      <DateTime v-if="quizName && !isLoggedIn()" :startDate="startDate" :startTime="startTime" :endDate="endDate" :endTime="endTime" :editDateTime="editDateTime" v-on:save-date-time="saveDateTime" v-on:toggle-edit-date-time="toggleDateTime" />
 
     </v-card>
 
-        <Question
-        v-for="(question, index) in questions"
-        :question="question"
-        :questionIndex="index"
-        :isTeacher="isTeacher"
-        v-bind:key="question.quiz_id"
-        v-on:alter-question="alterDescription"
-        v-on:new-test-case="addTestCase"
-        v-on:update-question-worth="updateQuestionWorth"
-        v-on:toggle-edit-question="toggleEditQuestion"
-        v-on:delete-question="deleteQuestion"
-        >
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal">
 
-        </Question>
+    </Question>
 
-        <v-btn flat id="new-question" @click="addQuestion()" v-if="isTeacher()"><v-icon v-if="!addingQuestion">add</v-icon><span v-else>Save</span></v-btn>
+    <v-btn flat id="new-question" @click="addQuestion()" v-if="isTeacher()">
+      <v-icon v-if="!addingQuestion">add</v-icon>
+      <span v-else>Save</span>
+    </v-btn>
 
-        </div>
+  </div>
 </template>
 
 <script>
@@ -47,11 +28,13 @@ import teacherStore from "../../store/teacherStore.js";
 import studentStore from "../../store/studentStore.js";
 import Question from "./Question/Question.vue";
 import DateTime from "./DateTime/DateTime.vue";
+import TestCaseModal from "./TestCaseModal/TestCaseModal.vue";
 
 export default {
   components: {
     Question,
-    DateTime
+    DateTime,
+    TestCaseModal
   },
   data() {
     return {
@@ -64,7 +47,9 @@ export default {
       startDate: null,
       startTime: null,
       endDate: null,
-      endTime: null
+      endTime: null,
+      testCaseModal: false,
+      testCaseModalData: null
     };
   },
   async mounted() {
@@ -125,15 +110,11 @@ export default {
         question.questionDescription;
     },
     addTestCase(testCase) {
-      console.log("Test case added");
-      console.log(testCase.testCaseContent);
-      console.log(testCase.testCaseExpected);
-      this.questions[testCase.questionIndex].test_cases.push({
+      this.questions[testCase.testCaseModalData.questionIndex].test_cases.push({
         test_input: testCase.testCaseContent,
         test_expected: testCase.testCaseExpected
       });
 
-      console.log(this.questions[testCase.questionIndex]);
     },
     saveDateTime(dateTimes) {
       const { startDate, startTime, endDate, endTime } = dateTimes;
@@ -168,6 +149,10 @@ export default {
     },
     deleteQuestion(obj) {
       this.questions.splice(obj.questionIndex, 1);
+    },
+    openTestCaseModal(obj) {
+      this.testCaseModalData = obj;
+      this.testCaseModal = true;
     }
   }
 };

@@ -236,7 +236,8 @@ def delete_question(quiz_id, question_id):
 
     try:
         models.delete_question(quiz_id, question_id)
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
 
     return success()

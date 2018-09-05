@@ -309,7 +309,15 @@ def delete_question(quiz_id, question_id):
     Deletes a question from the quiz
     """
 
-    pass
+    query = """
+    DELETE FROM questions
+    WHERE question_quiz_id = %s AND question_id = %s
+    """
+
+    rowcount = db.query_rowcount(query, (quiz_id, question_id))
+
+    if rowcount != 1:
+        raise ValueError("Database did not alter required field")
 
 
 def get_free_quizzes():
