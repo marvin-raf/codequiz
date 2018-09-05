@@ -9,7 +9,7 @@
 
     </v-card>
 
-    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal">
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase">
 
     </Question>
 
@@ -153,6 +153,10 @@ export default {
     openTestCaseModal(obj) {
       this.testCaseModalData = obj;
       this.testCaseModal = true;
+    },
+    deleteTestCase(obj) {
+      console.log("Did I make it here");
+      delete this.questions[obj.questionIndex].test_cases[obj.testCaseIndex];
     }
   }
 };

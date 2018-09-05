@@ -424,3 +424,19 @@ def create_test_case(question_id, test_input, test_expected):
     """
 
     db.query(query, (question_id, test_input, test_expected))
+
+
+def delete_test_case(test_id):
+    """
+    Deletes a test case
+    """
+
+    query = """
+    DELETE FROM tests
+    WHERE test_id = %s
+    """
+
+    rowcount = db.query_rowcount(query, (test_id))
+
+    if rowcount != 1:
+        raise ValueError("Less or more then 1 row was deleted")

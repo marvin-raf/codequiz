@@ -5,7 +5,7 @@ import subprocess
 import uuid
 from app.packages.quizzes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out, test_case_exists
 
 # RUN_CODE_COMMAND = 'gtimeout 15s docker run -it --memory 4m --rm --name my-running-script -v "\$PWD":/usr/src/myapp -w /usr/src/myapp python:3 python3 {}'
 RUN_CODE_COMMAND = "python3 {}"
@@ -280,3 +280,23 @@ def create_test_case(quiz_id, question_id):
         return server_error()
 
     return created()
+
+
+@quizzes_module.route(
+    "/<quiz_id>/questions/<question_id>/testcase/<test_id>",
+    methods=["DELETE"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+@test_case_exists
+def delete_test_case(quiz_id, question_id, test_id):
+    """
+    Creates a test case
+    """
+
+    try:
+        models.delete_test_case(test_id)
+    except Exception:
+        return server_error()
+
+    return success()

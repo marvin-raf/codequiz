@@ -1,5 +1,4 @@
 <template>
-
   <v-card class="question col-lg-10 offset-lg-1">
 
     <div class="text-xs-center">
@@ -82,12 +81,10 @@
           <pre>{{ props.item.test_expected }}</pre>
         </td>
         <td class="text-xs-right">
-
-          <v-icon class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.item_id; testCaseModal = true;">
+          <v-icon class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
             edit
           </v-icon>
-
-          <v-icon class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.item_id; deleteTestCaseModal = true;">
+          <v-icon class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
             delete
           </v-icon>
         </td>
@@ -208,7 +205,9 @@ export default {
       testCaseModal: false,
       testCaseIdEdit: null,
       testCaseDeleteId: null,
+      testCaseDeleteIndex: null,
       deleteTestCaseModal: false,
+      
     };
   },
   mounted() {
@@ -351,12 +350,15 @@ export default {
         const quizId = this.$route.params.id;
         const questionId = this.question.question_id;
         const testId = this.testCaseDeleteId;
-        await helpers.deleteTestCase(quizid, questionId, testId);
-      this.deleteTestCaseModal = false;
+        await helpers.deleteTestCase(quizId, questionId, testId);
         this.deleteTestCaseModal = false;
-
+        
+        this.$emit("delete-test-case", {
+          questionIndex: this.questionIndex,
+          testCaseIndex: this.testCaseDeleteIndex
+        });
       } catch (e) {
-
+        console.log(e);
       }
 
     }

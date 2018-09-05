@@ -374,3 +374,28 @@ def question_exists(func):
         return func(*args, **kwargs)
 
     return wrap
+
+
+def test_case_exists(func):
+    """
+    Checks that a test case exists in a question 
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        test_id = request.view_args["test_id"]
+        question_id = request.view_args["question_id"]
+
+        query = """
+        SELECT test_id
+        FROM tests
+        WHERE test_id = %s AND test_question_id = %s
+        """
+
+        test_cases = db.query(query, (test_id, question_id))
+
+        if not test_cases:
+            return forbidden()
+        return func(*args, **kwargs)
+
+    return wrap
