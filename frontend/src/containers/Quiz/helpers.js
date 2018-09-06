@@ -1,4 +1,5 @@
 import cookies from "js-cookie";
+import {endpoint} from "../../helpers/routeHelpers";
 const helpers = {};
 
 // Get quiz name, id and questions
@@ -20,8 +21,7 @@ helpers.getQuizData = quizId => {
 
             headers[headerName] = cookieContents;
 
-            const res = await fetch(`http://localhost:5000/quizzes/${quizId}`,
-                                    {headers});
+            const res = await fetch(endpoint(`/quizzes/${quizId}`), {headers});
 
             if (res.status !== 200) {
                 reject(res.status);
@@ -41,7 +41,6 @@ helpers.getQuizData = quizId => {
         }
     });
 };
-
 
 // Returns both the date and time from a timestamp
 helpers.getDateTime = timestamp => {

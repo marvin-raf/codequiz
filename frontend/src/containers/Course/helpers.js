@@ -1,4 +1,6 @@
 import cookies from "js-cookie";
+import { endpoint } from "../../helpers/routeHelpers";
+
 const helpers = {};
 
 helpers.getCourse = courseId => {
@@ -17,7 +19,7 @@ helpers.getCourse = courseId => {
       }
 
       headers[headerName] = cookieContents;
-      const res = await fetch(`http://localhost:5000/courses/` + courseId, {
+      const res = await fetch(endpoint(`/courses${courseId}`), {
         headers,
       });
 
@@ -38,7 +40,7 @@ helpers.getCourse = courseId => {
 helpers.getClasses = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/classes`, {
+      const res = await fetch(endpoint("/classes"), {
         method: "GET",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
@@ -62,7 +64,7 @@ helpers.getClasses = () => {
 helpers.addClass = (className, courseId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/courses` + courseId + `quizzes`, {
+      const res = await fetch(endpoint(`/courses/${courseId}/quizzes`), {
         method: "POST",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
@@ -92,7 +94,7 @@ helpers.addClass = (className, courseId) => {
 helpers.changeName = (id, name) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/quizzes/` + id, {
+      const res = await fetch(endpoint(`/quizzes/${id}`), {
         method: "PATCH",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
@@ -118,7 +120,7 @@ helpers.changeName = (id, name) => {
 helpers.changeClass = (id, name) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/classes/` + id, {
+      const res = await fetch(endpoint(`/classes/${id}`), {
         method: "PATCH",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
@@ -144,7 +146,7 @@ helpers.changeClass = (id, name) => {
 helpers.getLanguages = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/quizzes/languages`, {
+      const res = await fetch(endpoint("/quizzes/languages"), {
         method: "GET",
       });
       const json = await res.json();
@@ -158,7 +160,7 @@ helpers.getLanguages = () => {
 helpers.createQuiz = (id, name, start_date, end_date, language, description) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(`http://localhost:5000/courses/` + id + `/quizzes`, {
+      const res = await fetch(endpoint(`/courses/${id}/quizzes`), {
         method: "POST",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),

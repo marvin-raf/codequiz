@@ -1,51 +1,50 @@
 import cookies from "js-cookie";
-import teacherStore from "../../store/teacherStore";
+import {endpoint} from "../../helpers/routeHelpers";
 import studentStore from "../../store/studentStore";
+import teacherStore from "../../store/teacherStore";
 
 const helpers = {};
 
 helpers.signOut = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let cookieHeader;
-      let cookieContent;
-      let cookieName;
-      if (cookies.get("teacher")) {
-        cookieHeader = "Teacher-Authorization";
-        cookieContent = cookies.get("teacher");
-        cookieName = "teacher";
-      } else {
-        cookieHeader = "Student-Authorization";
-        cookieContent = cookies.get("student");
-        cookieName = "student";
-      }
+    return new Promise(async (resolve, reject) => {
+        try {
+            let cookieHeader;
+            let cookieContent;
+            let cookieName;
+            if (cookies.get("teacher")) {
+                cookieHeader = "Teacher-Authorization";
+                cookieContent = cookies.get("teacher");
+                cookieName = "teacher";
+            } else {
+                cookieHeader = "Student-Authorization";
+                cookieContent = cookies.get("student");
+                cookieName = "student";
+            }
 
-      const headers = {};
+            const headers = {};
 
-      headers[cookieHeader] = cookieContent;
+            headers[cookieHeader] = cookieContent;
 
-      const res = await fetch("http://localhost:5000/auth/signout", {
-        method: "POST",
-        headers
-      });
+            const res = await fetch(endpoint("/auth/signout"),
+                                    {method : "POST", headers});
 
-      if (res.status !== 200) {
-        reject();
-        return;
-      }
+            if (res.status !== 200) {
+                reject();
+                return;
+            }
 
-      if (cookieName === "teacher") {
-        teacherStore.methods.signout();
-      } else {
-        studentStore.methods.signout();
-      }
+            if (cookieName === "teacher") {
+                teacherStore.methods.signout();
+            } else {
+                studentStore.methods.signout();
+            }
 
-      cookies.remove(cookieName);
-      resolve();
-    } catch (e) {
-      reject(e);
-    }
-  });
+            cookies.remove(cookieName);
+            resolve();
+        } catch (e) {
+            reject(e);
+        }
+    });
 };
 
 export default helpers;

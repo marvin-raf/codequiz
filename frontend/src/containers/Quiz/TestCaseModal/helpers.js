@@ -1,4 +1,5 @@
 import cookies from "js-cookie";
+import {endpoint} from "../../../helpers/routeHelpers";
 
 const helpers = {};
 
@@ -6,8 +7,7 @@ helpers.addTestCase = (quizId, questionId, testInput, testExpected) => {
     return new Promise(async (resolve, reject) => {
         try {
             const res = await fetch(
-                `http://localhost:5000/quizzes/${quizId}/questions/${
-                    questionId}/testcase`,
+                endpoint(`/quizzes/${quizId}/questions/${questionId}/testcase`),
                 {
                     method : "POST",
                     headers : {

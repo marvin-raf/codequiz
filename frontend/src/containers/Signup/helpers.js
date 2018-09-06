@@ -26,11 +26,7 @@ helpers.formHasErrors = data => {
     data.errors.confirmPassword.push("Required Field");
   }
 
-  if (
-    data.password &&
-    data.confirmPassword &&
-    data.password !== data.confirmPassword
-  ) {
+  if (data.password && data.confirmPassword && data.password !== data.confirmPassword) {
     data.errors.password.push("Passwords do not match");
     data.errors.confirmPassword.push("Passwords do not match");
   }
@@ -45,16 +41,14 @@ helpers.formHasErrors = data => {
 helpers.signUp = data => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch("http://localhost:5000/teachers/signup", {
+      const res = await fetch(endpoint("/teachers/signup"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: data.name,
           email: data.email,
-          password: data.password
-        })
+          password: data.password,
+        }),
       });
 
       if (res.status !== 201) {
@@ -76,15 +70,10 @@ helpers.signUp = data => {
 helpers.signIn = data => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch("http://localhost:5000/auth/signin", {
+      const res = await fetch(endpoint("/auth/signin"), {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
       });
 
       if (res.status !== 200) {
