@@ -423,7 +423,9 @@ def create_test_case(question_id, test_input, test_expected):
     VALUES (%s, %s, %s)
     """
 
-    db.query(query, (question_id, test_input, test_expected))
+    test_id = db.insert_query(query, (question_id, test_input, test_expected))
+
+    return test_id
 
 
 def delete_test_case(test_id):
@@ -440,3 +442,20 @@ def delete_test_case(test_id):
 
     if rowcount != 1:
         raise ValueError("Less or more then 1 row was deleted")
+
+
+def update_description(question_description, question_id):
+    """
+    Updates a description of a question 
+    """
+
+    query = """
+    UPDATE questions
+    SET question_description = %s
+    WHERE question_id = %s
+    """
+
+    rowcount = db.query_rowcount(query, (question_description, question_id))
+
+    if rowcount != 1:
+        raise ValueError("Less or more then 1 row was updated")

@@ -48,25 +48,21 @@
 
     </div>
 
-    <div v-if="teacherStore.teacherId && !question.edit_mode">
+    <div v-if="teacherStore.teacherId">
       <v-btn flat class="delete-btn" @click="deleteModal = true;">
         <v-icon>delete</v-icon>
       </v-btn>
-      <v-btn flat class="edit-btn" @click="setEditMode()">
-        <v-icon>edit</v-icon>
+      <br>
+      <br>
+    </div>
+
+    <h3>Question {{ questionIndex + 1 }}
+      <v-btn class="save-btn" v-if="question.edit_mode" color="secondary" @click="setEditMode()">Save</v-btn>
+
+      <v-btn v-else flat class="edit-btn" color="primary">
+        <v-icon @click="setEditMode()" color="primary">edit</v-icon>
       </v-btn>
-      <br>
-      <br>
-    </div>
-
-    <div v-if="teacherStore.teacherId && question.edit_mode">
-      <v-btn flat class="save-btn" @click="setEditMode()">Save</v-btn>
-      <br>
-      <br>
-
-    </div>
-
-    <h3>Question {{ questionIndex + 1 }}</h3>
+    </h3>
 
     <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
 
@@ -238,32 +234,6 @@ export default {
     this.editor = editor;
   },
   methods: {
-    async addTestCase() {
-      this.testCaseError = false;
-      if (!this.testCaseEditor.getValue() || !this.expectedEditor.getValue()) {
-        this.testCaseError = "Test input and Test expected fields required";
-      }
-
-      if (this.testCaseError) return;
-
-      try {
-        const quizId = this.$route.params.id;
-        const questionId = this.question.question_id;
-        const testInput = this.testCaseEditor.getValue();
-        const testExpected = this.expectedEditor.getValue();
-        await helpers.addTestCase(quizId, questionId, testInput, testExpected);
-
-        this.$emit("new-test-case", {
-          testCaseContent: this.testCaseEditor.getValue(),
-          testCaseExpected: this.expectedEditor.getValue(),
-          questionIndex: this.questionIndex
-        });
-
-        this.testCaseModal = false;
-      } catch (e) {
-        this.testCaseError = "Server Error";
-      }
-    },
     async precheck() {
       // Reset success/error messages and spinner
       this.precheckError = [];
@@ -319,11 +289,25 @@ export default {
     async setEditMode() {
       if (this.question.edit_mode) {
         try {
-          await helpers.updateQuestion(this.question);
-          this.$emit("toggle-edit-question", {
-            questionIndex: this.questionIndex
-          });
-        } catch (e) {}
+          if (this.question.question_id) { // If the question has been made, then edit it
+            await helpers.updateQuestion(this.question);
+            this.$emit("toggle-edit-question", {
+              questionIndex: this.questionIndex
+            });
+          } else { // If question is not made, then make it
+            console.log("Did I make it here");
+            const questionId = await helpers.addQuestion(this.questionDescription, this.$route.params.id);
+
+            this.$emit("save-question", {
+              questionIndex: this.questionIndex,
+              questionId
+            });
+
+            
+          }
+         } catch (e) {
+           console.log(e);
+         }
       } else {
         this.$emit("toggle-edit-question", {
           questionIndex: this.questionIndex
@@ -351,6 +335,7 @@ export default {
         const questionId = this.question.question_id;
         const testId = this.testCaseDeleteId;
         await helpers.deleteTestCase(quizId, questionId, testId);
+
         this.deleteTestCaseModal = false;
         
         this.$emit("delete-test-case", {
@@ -430,18 +415,6 @@ export default {
   color: #fff !important;
 }
 
-.edit-btn {
-  float: right;
-  background-color: $emerald !important;
-  color: #fff !important;
-}
-
-.save-btn {
-  float: right;
-  background-color: $emerald !important;
-  color: #fff !important;
-}
-
 .delete-btn {
   float: right;
   background-color: #e74c3c !important;
@@ -470,6 +443,16 @@ export default {
   &:hover {
     color: $emerald !important;
   }
+}
+
+.edit-btn {
+  width: 50px !important;
+  min-width: 50px !important;
+}
+
+.save-btn {
+  width: 50px !important;
+  min-width: 50px !important;
 }
 </style>
 

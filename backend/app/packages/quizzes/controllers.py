@@ -88,18 +88,14 @@ def questions(quiz_id):
         json = request.get_json()
 
         description = json["description"]
-        test_cases = json["test_cases"]
 
         question_id = models.add_question(quiz_id, description)
-        models.add_tests(question_id, test_cases)
-
     except KeyError:
         return bad_request()
     except Exception as e:
-        print(e)
         return server_error()
 
-    return created()
+    return created({"question_id": question_id})
 
 
 @quizzes_module.route(
@@ -212,17 +208,15 @@ def update_question(quiz_id, question_id):
         json = request.get_json()
 
         question_description = json["question_description"]
-        test_cases = json["test_cases"]
 
-        if models.update_question_errors(question_id, question_description,
-                                         test_cases):
-            raise ValueError("Error in request body")
+        models.update_description(question_description, question_id)
 
-        return success()
     except (KeyError, ValueError):
         return bad_request()
-    except Exception:
+    except Exception as e:
         return server_error()
+
+    return success()
 
 
 @quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])
@@ -272,14 +266,15 @@ def create_test_case(quiz_id, question_id):
         test_input = json["test_input"]
         test_expected = json["test_expected"]
 
-        models.create_test_case(question_id, test_input, test_expected)
+        test_id = models.create_test_case(question_id, test_input,
+                                          test_expected)
     except (KeyError, ValueError):
         return bad_request()
     except Exception as e:
         print(e)
         return server_error()
 
-    return created()
+    return created({"test_id": test_id})
 
 
 @quizzes_module.route(
