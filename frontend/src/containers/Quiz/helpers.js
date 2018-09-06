@@ -42,32 +42,6 @@ helpers.getQuizData = quizId => {
     });
 };
 
-helpers.addQuestion = (description, quizId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const res = await fetch(
-                `http://localhost:5000/quizzes/${quizId}/questions`, {
-                    method : "POST",
-                    headers : {
-                        "Teacher-Authorization" : cookies.get("teacher"),
-                        "Content-Type" : "application/json"
-                    },
-                    body : JSON.stringify({
-                        description,
-                    })
-                });
-
-            if (res.status !== 201) {
-                reject(res.status);
-                return;
-            }
-
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
-    });
-};
 
 // Returns both the date and time from a timestamp
 helpers.getDateTime = timestamp => {
