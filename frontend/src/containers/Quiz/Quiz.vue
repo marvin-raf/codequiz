@@ -9,13 +9,12 @@
 
     </v-card>
 
-    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase">
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion">
 
     </Question>
 
     <v-btn flat id="new-question" @click="addQuestion()" v-if="isTeacher()">
-      <v-icon v-if="!addingQuestion">add</v-icon>
-      <span v-else>Save</span>
+      <v-icon>add</v-icon>
     </v-btn>
 
   </div>
@@ -83,27 +82,12 @@ export default {
   },
   methods: {
     async addQuestion() {
-      if (!this.addingQuestion) {
         this.questions.push({
+          question_quiz_id: this.$route.params.id,
           question_description: "",
           edit_mode: true,
           test_cases: []
         });
-
-        this.addingQuestion = true;
-        return;
-      }
-
-      const question = this.questions[this.questions.length - 1];
-
-      try {
-        await helpers.addQuestion(question, this.$route.params.id);
-      } catch (e) {
-        console.log(e);
-      }
-
-      question.edit_mode = false;
-      this.addingQuestion = false;
     },
     alterDescription(question) {
       this.questions[question.questionIndex].question_description =
@@ -111,6 +95,7 @@ export default {
     },
     addTestCase(testCase) {
       this.questions[testCase.testCaseModalData.questionIndex].test_cases.push({
+        test_id: testCase.testId,
         test_input: testCase.testCaseContent,
         test_expected: testCase.testCaseExpected
       });
@@ -155,8 +140,14 @@ export default {
       this.testCaseModal = true;
     },
     deleteTestCase(obj) {
-      console.log("Did I make it here");
-      delete this.questions[obj.questionIndex].test_cases[obj.testCaseIndex];
+      this.questions[obj.questionIndex].test_cases.splice(obj.testCaseIndex, 1);
+    },
+    saveQuestion(obj) {
+      const question = this.questions[obj.questionIndex];
+      
+      question.edit_mode = false;
+      question.question_id = obj.questionId
+
     }
   }
 };

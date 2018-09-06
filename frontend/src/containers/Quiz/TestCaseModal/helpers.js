@@ -25,7 +25,9 @@ helpers.addTestCase = (quizId, questionId, testInput, testExpected) => {
                 return;
             }
 
-            resolve();
+            const json = await res.json();
+
+            resolve(json.test_id);
         } catch (e) {
             reject(e);
         }

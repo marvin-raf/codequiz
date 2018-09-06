@@ -100,12 +100,13 @@ export default {
             const questionId = this.testCaseModalData.questionId;
             const testInput = this.testCaseEditor.getValue();
             const testExpected = this.expectedEditor.getValue();
-            await helpers.addTestCase(quizId, questionId, testInput, testExpected);
+            const testId = await helpers.addTestCase(quizId, questionId, testInput, testExpected);
 
             this.$emit("new-test-case", {
-            testCaseContent: this.testCaseEditor.getValue(),
-            testCaseExpected: this.expectedEditor.getValue(),
-            testCaseModalData: this.testCaseModalData
+                testId,
+                testCaseContent: this.testCaseEditor.getValue(),
+                testCaseExpected: this.expectedEditor.getValue(),
+                testCaseModalData: this.testCaseModalData
             });
 
             this.$emit("close-test-case-modal");
