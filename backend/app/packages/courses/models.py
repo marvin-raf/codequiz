@@ -127,18 +127,37 @@ def check_dates(start_date, end_date):
     return False
 
 
-def insert_quiz(course_id, name, start_date, end_date):
+def check_languages(language):
+    """
+    Returns true if the language exists in the database
+    """
+
+    query = """
+    SELECT * FROM languages
+    """
+
+    languages = db.query(query)
+
+    exists = False
+    for lang in languages:
+        if lang.language_id == language:
+            exists = True
+    return exists
+
+
+def insert_quiz(course_id, name, start_date, end_date, description, language):
     """
     Inserts a quiz and returns its id
     """
 
     query = """
     INSERT INTO quizzes 
-    (quiz_course_id, quiz_name, quiz_start_date, quiz_end_date)
-    VALUES (%s, %s, %s, %s)
+    (quiz_course_id, quiz_name, quiz_start_date, quiz_end_date, quiz_language_id, quiz_short_desc)
+    VALUES (%s, %s, %s, %s, %s, %s)
     """
 
-    quiz_id = db.insert_query(query, (course_id, name, start_date, end_date))
+    quiz_id = db.insert_query(
+        query, (course_id, name, start_date, end_date, language, description))
     return quiz_id
 
 

@@ -141,7 +141,21 @@ helpers.changeClass = (id, name) => {
   });
 };
 
-helpers.createQuiz = (id, name, start_date, end_date) => {
+helpers.getLanguages = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`http://localhost:5000/quizzes/languages`, {
+        method: "GET",
+      });
+      const json = await res.json();
+      resolve(json);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+helpers.createQuiz = (id, name, start_date, end_date, language, description) => {
   return new Promise(async (resolve, reject) => {
     try {
       const res = await fetch(`http://localhost:5000/courses/` + id + `/quizzes`, {
@@ -154,6 +168,8 @@ helpers.createQuiz = (id, name, start_date, end_date) => {
           name: name,
           start_date: start_date,
           end_date: end_date,
+          language: language,
+          description: description,
         }),
       });
       if (res.status !== 201) {
