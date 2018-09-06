@@ -1,10 +1,11 @@
 import pymysql.cursors
+from config import config
 
 connection = pymysql.connect(
-    host='localhost',
-    user='root',
-    password='',
-    db='quiz_server',
+    host=config["HOSTNAME"],
+    user=config["USER"],
+    password=config["DB_PASSWORD"],
+    db=config["DB_NAME"],
     charset='utf8mb4',
     cursorclass=pymysql.cursors.DictCursor)
 

@@ -246,7 +246,8 @@ def get_languages():
     try:
         languages = models.get_languages()
         return success(languages)
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
 
 

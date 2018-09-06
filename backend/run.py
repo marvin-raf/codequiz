@@ -10,4 +10,5 @@ def run_server():
     app.run(host="0.0.0.0", port=config["PORT"], debug=True, threaded=True)
 
 
-run_server()
+if __name__ == "__main__":
+    run_server()
