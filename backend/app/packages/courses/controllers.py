@@ -120,11 +120,15 @@ def create_quiz(course_id):
         name = body["name"]
         start_date = body["start_date"]
         end_date = body["end_date"]
+        description = body["description"]
+        language = body["language"]
 
-        if not models.check_dates(start_date, end_date):
+        if not models.check_dates(
+                start_date, end_date) and not models.check_languages(language):
             return bad_request()
 
-        quiz_id = models.insert_quiz(course_id, name, start_date, end_date)
+        quiz_id = models.insert_quiz(course_id, name, start_date, end_date,
+                                     description, language)
 
     except KeyError:
         return bad_request()

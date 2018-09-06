@@ -291,11 +291,11 @@ Status Code (500)
 **Request Body**
 
     {
-
         "name": "string",
         "start_date": 1,
-        "end_date": 1
-
+        "end_date": 1,
+        "description": "",
+        "language": 1
     }
 
 **Responses**
@@ -313,8 +313,9 @@ Status Code (400)
 
 Bad Request indicates that
 
-- `name`, `start_date` or `end_date` do not exist in request body
+- `name`, `start_date`, `end_date`, `description` or `language` do not exist in request body
 - `start_date` is after `end_date` or the current date is after `start_date`
+- `language` doesn't exist in the database
 
 ---
 

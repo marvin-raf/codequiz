@@ -2,9 +2,15 @@
     <div>
         <v-card class="col-md-8 offset-md-2" id="courses">
             <h1>Courses</h1>
-            <v-text-field label="Course Name" v-model="courseName" color="secondary" maxlength="50" id="course-name" style="float: left; width: 70%"></v-text-field>
-            <div id="create-box">
-                <v-btn id="create-btn" color="secondary" @click="addCourse()" depressed :disabled="courseName ? false : true" style="float: right;">Create</v-btn>
+            <div class="row">
+                <div class="col-sm-10">
+                    <v-text-field prepend-icon="title" label="Course Name" v-model="courseName" color="secondary" maxlength="50" id="course-name"></v-text-field>
+                </div>
+                <div class="col-sm-2">
+                    <div id="create-box">
+                        <v-btn id="create-btn" color="secondary" @click="addCourse()" depressed :disabled="courseName ? false : true">Create</v-btn>
+                    </div>
+                </div>
             </div>
         </v-card>
 
@@ -15,11 +21,13 @@
                         <v-list-tile-title style="width: 100%; height: 45px;">
                             <div v-if="!course.input">
                                 <a @click="$router.push('/courses/' + course.course_id)"> {{course.course_name}} </a>
-                                <v-btn @click="changeInput(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
+                                <v-btn @click="changeInput(index, true)" flat style="min-width: 50px; width: 50px; float: right;">
+                                    <v-icon>edit</v-icon>
+                                </v-btn>
                             </div>
                             <div v-if="course.input">
                                 <v-text-field color="secondary" maxlength="50" v-model="courses[index].course_name" style="float: left; width: 70%;"></v-text-field>
-                                <v-btn @click="changeName(index, course.course_id, course.course_name)" color="secondary" depressed style="float: right;">Save</v-btn>
+                                <v-btn @click="changeName(index, course.course_id, course.course_name)" color="secondary" depressed style="min-width: 50px; width: 50px; float: right;">Save</v-btn>
                             </div>
                         </v-list-tile-title>
                         <v-list-tile-content>
