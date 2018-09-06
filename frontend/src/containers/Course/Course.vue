@@ -1,9 +1,49 @@
 <template>
     <div>
         <v-card class="col-md-8 offset-md-2" id="course">
-            <h1>{{courseName}}</h1>
+            <h1>{{courseName}}: Quizzes</h1>
+            <div class="row">
+                <div class="col-sm-12">
+                    <v-text-field prepend-icon="title" label="Quiz Name" v-model="quizName" color="secondary" maxlength="50" id="quiz-name"></v-text-field>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <v-menu color="secondary" ref="menu" :close-on-content-click="false" v-model="menu" :nudge-right="40" :return-value.sync="start_date" lazy transition="scale-transition" offset-y full-width min-width="290px">
+                        <v-text-field color="secondary" slot="activator" v-model="start_date" label="Start Date" prepend-icon="event" readonly></v-text-field>
+                        <v-date-picker color="secondary" v-model="start_date" @input="$refs.menu.save(start_date)"></v-date-picker>
+                    </v-menu>
+                </div>
+                <div class="col-sm-6">
+                    <v-menu color="secondary" ref="menu2" :close-on-content-click="false" v-model="menu2" :nudge-right="40" :return-value.sync="start_time" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px">
+                        <v-text-field color="secondary" slot="activator" v-model="start_time" label="Start Time" prepend-icon="access_time" readonly></v-text-field>
+                        <v-time-picker color="secondary" v-if="menu2" v-model="start_time" @change="$refs.menu2.save(start_time)"></v-time-picker>
+                    </v-menu>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <v-menu color="secondary" ref="menu3" :close-on-content-click="false" v-model="menu3" :nudge-right="40" :return-value.sync="end_date" lazy transition="scale-transition" offset-y full-width min-width="290px">
+                        <v-text-field color="secondary" slot="activator" v-model="end_date" label="End Date" prepend-icon="event" readonly></v-text-field>
+                        <v-date-picker color="secondary" v-model="end_date" @input="$refs.menu3.save(end_date)"></v-date-picker>
+                    </v-menu>
+                </div>
+                <div class="col-sm-6">
+                    <v-menu color="secondary" ref="menu4" :close-on-content-click="false" v-model="menu4" :nudge-right="40" :return-value.sync="end_time" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px">
+                        <v-text-field color="secondary" slot="activator" v-model="end_time" label="End Time" prepend-icon="access_time" readonly></v-text-field>
+                        <v-time-picker color="secondary" v-if="menu4" v-model="end_time" @change="$refs.menu4.save(end_time)"></v-time-picker>
+                    </v-menu>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="text-align: center;">
+                    <v-btn v-if="quizName && start_date && start_time && end_date && end_time" @click="createQuiz" color="secondary" depressed>Create</v-btn>
+                    <v-btn v-if="!quizName || !start_date || !start_time || !end_date || !end_time" color="secondary" depressed disabled>Create</v-btn>
+                </div>
+            </div>
+
         </v-card>
-        <v-card class="col-md-8 offset-md-2" id="course">
+        <!--<v-card class="col-md-8 offset-md-2" id="course">
             <h2>Quizzes</h2>
             <div class="row">
                 <div class="col-sm-5">
@@ -21,25 +61,27 @@
 
                 </div>
             </div>
-        </v-card>
+        </v-card>-->
         <v-card class="col-md-8 offset-md-2" id="course">
             <v-list>
                 <div v-for="(quiz, index) in quizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
-                    <v-list-tile>
-                        <v-list-title style="width: 100%;">
+                    <v-list-tile style="height: 50px;">
+                        <v-list-tile-title style="width: 100%; height: 45px;">
                             <div v-if="!quiz.input">
                                 <a @click="$router.push('/quizzes/' + quiz.quiz_id)"> {{quiz.quiz_name}} </a>
 
-                                <v-btn @click="changeInput(index, true)" color="secondary" depressed style="float: right;">Edit</v-btn>
+                                <v-btn @click="changeInput(index, true)" flat style="min-width: 50px; width: 50px; float: right;">
+                                    <v-icon>edit</v-icon>
+                                </v-btn>
                                 <br> {{convert(quiz.quiz_start_date)}} - {{convert(quiz.quiz_end_date)}}
                             </div>
                             <div v-if="quiz.input">
                                 <v-text-field color="secondary" maxlength="50" v-model="quizzes[index].quiz_name" style="float: left; width: 70%;"></v-text-field>
-                                <v-btn @click="changeName(index, quiz.quiz_id, quiz.quiz_name)" color="secondary" depressed style="float: right;">Save</v-btn>
+                                <v-btn @click="changeName(index, quiz.quiz_id, quiz.quiz_name)" color="secondary" depressed style="min-width: 50px; width: 50px; float: right;">Save</v-btn>
                             </div>
-                        </v-list-title>
-                        <v-list-content>
-                        </v-list-content>
+                        </v-list-tile-title>
+                        <v-list-tile-content>
+                        </v-list-tile-content>
 
                     </v-list-tile>
                     <v-divider v-if="index != quizzes.length - 1"></v-divider>
@@ -47,12 +89,12 @@
                 <v-pagination color="secondary" :length="Math.ceil(quizzes.length / 8)" id="course-pagination" v-model="page"></v-pagination>
             </v-list>
         </v-card>
-        <v-card class="col-md-8 offset-md-2" id="course">
+        <!--<v-card class="col-md-8 offset-md-2" id="course">
             <h2>Classes</h2>
-            <!--<v-select
+            <v-select
             :items="teachClasses"
             label="Standard"
-            ></v-select>-->
+            ></v-select>
             <div id="create-box">
                 <v-btn id="create-btn" color="secondary" @click="addClass()" depressed :disabled="className ? false : true" style="float: right; margin-right: 24px;">Add</v-btn>
             </div>
@@ -79,7 +121,7 @@
                 </div>
                 <v-pagination color="secondary" :length="Math.ceil(classes.length / 8)" id="course-pagination" v-model="page2"></v-pagination>
             </v-list>
-        </v-card>
+        </v-card>-->
     </div>
 </template>
 
@@ -102,7 +144,13 @@ export default {
       className: null,
       teachClasses: [],
       menu: null,
-      date: null
+      menu2: null,
+      menu3: null,
+      menu4: null,
+      start_date: null,
+      start_time: null,
+      end_date: null,
+      end_time: null
     };
   },
   async mounted() {
@@ -161,6 +209,19 @@ export default {
         console.log(e);
       }
       this.$set(this.classes[index], "input", false);
+    },
+    async createQuiz() {
+        let start_date = new Date(this.start_date).getTime() / 1000;
+        let end_date = new Date(this.end_date).getTime() / 1000;
+
+        let start_time = this.start_time.split(':');
+        start_time = parseInt(start_time[0]) * 60 * 60 + parseInt(start_time[1]) * 60; 
+
+        let end_time = this.end_time.split(':');
+        end_time = parseInt(end_time[0]) * 60 * 60 + parseInt(end_time[1]) * 60;        
+
+        let quizId = await helpers.createQuiz(this.courseId, this.quizName, start_date+start_time, end_date+end_time);
+        console.log(quizId);
     },
     changeInput: function(index, value) {
       this.$set(this.quizzes[index], "input", value);

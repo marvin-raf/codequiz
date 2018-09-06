@@ -18,7 +18,7 @@ helpers.getCourse = courseId => {
 
       headers[headerName] = cookieContents;
       const res = await fetch(`http://localhost:5000/courses/` + courseId, {
-        headers
+        headers,
       });
 
       if (res.status !== 200) {
@@ -42,8 +42,8 @@ helpers.getClasses = () => {
         method: "GET",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (res.status != 200) {
@@ -62,21 +62,18 @@ helpers.getClasses = () => {
 helpers.addClass = (className, courseId) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/courses` + courseId + `quizzes`,
-        {
-          method: "POST",
-          headers: {
-            "Teacher-Authorization": cookies.get("teacher"),
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            name: courseName,
-            start_date: 1543548472,
-            end_date: 1553548472
-          })
-        }
-      );
+      const res = await fetch(`http://localhost:5000/courses` + courseId + `quizzes`, {
+        method: "POST",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: courseName,
+          start_date: 1543548472,
+          end_date: 1553548472,
+        }),
+      });
 
       if (res.status !== 201) {
         reject(res.status);
@@ -84,7 +81,7 @@ helpers.addClass = (className, courseId) => {
       }
       const json = await res.json();
       resolve({
-        quiz_id: json.quiz_id
+        quiz_id: json.quiz_id,
       });
     } catch (e) {
       reject(e);
@@ -99,11 +96,11 @@ helpers.changeName = (id, name) => {
         method: "PATCH",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: name
-        })
+          name: name,
+        }),
       });
 
       if (res.status !== 200) {
@@ -125,11 +122,11 @@ helpers.changeClass = (id, name) => {
         method: "PATCH",
         headers: {
           "Teacher-Authorization": cookies.get("teacher"),
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: name
-        })
+          name: name,
+        }),
       });
 
       if (res.status !== 200) {
@@ -138,6 +135,33 @@ helpers.changeClass = (id, name) => {
       }
       const json = await res.json();
       resolve({});
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+helpers.createQuiz = (id, name, start_date, end_date) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(`http://localhost:5000/courses/` + id + `/quizzes`, {
+        method: "POST",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          start_date: start_date,
+          end_date: end_date,
+        }),
+      });
+      if (res.status !== 201) {
+        reject(res.status);
+        return;
+      }
+      const json = await res.json();
+      resolve({ quiz_id: json.quiz_id });
     } catch (e) {
       reject(e);
     }
@@ -155,12 +179,8 @@ helpers.getDateTime = timestamp => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
 
-  const fullDate = `${year}-${month < 10 ? `0${month}` : month}-${
-    day < 10 ? `0${day}` : day
-  }`;
-  const time = `${hours < 10 ? `0${hours}` : hours}:${
-    minutes < 10 ? `0${minutes}` : minutes
-  }`;
+  const fullDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+  const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}`;
 
   return { date: fullDate, time };
 };
