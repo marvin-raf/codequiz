@@ -1,140 +1,84 @@
 <template>
-    <v-card class="col-sm-10 offset-sm-1" id="free-quizzes">
+  <v-card class="col-sm-10 offset-sm-1" id="free-quizzes">
 
-              <v-card-title
-          class="headline"
-          id="new-quiz-header"
-          primary-title
-        >
-        Free Quizzes
-        </v-card-title>
+    <v-card-title class="headline" id="new-quiz-header" primary-title>
+      Free Quizzes
+    </v-card-title>
 
-
-
-    <v-progress-circular
-      indeterminate
-      color="secondary"
-      id="free-quizzes-spinner"
-      v-if="freeQuizzes === null"
-    ></v-progress-circular>
+    <v-progress-circular indeterminate color="secondary" id="free-quizzes-spinner" v-if="freeQuizzes === null"></v-progress-circular>
 
     <v-else>
       <v-list>
-      <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
-      <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
+        <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
+        <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
           <v-divider v-if="index === 0"></v-divider>
           <v-list-tile @click="$router.push(`/quizzes/${quiz.quiz_id}`)">
-              <v-list-title>
-                <div class="quiz-name-language">
+            <v-list-title>
+              <div class="quiz-name-language">
                 <a @click="$router.push(`/quizzes/${quiz.quiz_id}`)" href="#">{{ quiz.quiz_name }}</a>
 
+              </div>
 
+            </v-list-title>
 
-                </div>
+            <v-list-content style="width: 100%;">
+              <div class="quiz-short-description">
 
-              </v-list-title>
+                {{ quiz.quiz_short_desc }}
 
-              <v-list-content style="width: 100%;">
-                <div class="quiz-short-description">
+              </div>
 
-                  {{ quiz.quiz_short_desc }}
+              <i class="fab fa-python" id="quiz-icon"></i>
 
+            </v-list-content>
 
-
-                </div>
-
-                <i class="fab fa-python" id="quiz-icon"></i>
-
-
-
-
-
-              </v-list-content>
-                        
           </v-list-tile>
           <v-divider></v-divider>
-      </div>
-      <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin"><v-icon>add</v-icon></v-btn>
+        </div>
+        <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin">
+          <v-icon>add</v-icon>
+        </v-btn>
 
-      <v-pagination color="secondary" :length="Math.ceil(freeQuizzes.length / 8)" id="free-quizzes-pagination" v-model="page"></v-pagination>
-  </v-list>
+        <v-pagination color="secondary" :length="Math.ceil(freeQuizzes.length / 8)" id="free-quizzes-pagination" v-model="page"></v-pagination>
+      </v-list>
 
+      <v-dialog v-model="newQuizDialog" width="600">
 
-       <v-dialog
-      v-model="newQuizDialog"
-      width="600"
-    >
-      
-      <v-card >
-        <v-card-title
-          class="headline"
-          id="new-quiz-header"
-          primary-title
-        >
-          Create New Free Quiz
-        </v-card-title>
+        <v-card>
+          <v-card-title class="headline" id="new-quiz-header" primary-title>
+            Create New Free Quiz
+          </v-card-title>
 
-        <v-card-text>
+          <v-card-text>
 
-        <v-alert
-          :value="createQuizError"
-          type="error"
-        >
-        There was an error creating the quiz
-        </v-alert>
+            <v-alert :value="createQuizError" type="error">
+              There was an error creating the quiz
+            </v-alert>
 
+            <v-text-field type="text" label="Quiz Name" color="secondary" :error-messages="quizNameErrors" maxlength="30" v-model="newQuizName">
 
-          <v-text-field
-            type="text" 
-            label="Quiz Name"
-            color="secondary"
-            :error-messages="quizNameErrors"
-            maxlength="30"
-            v-model="newQuizName" 
-          >
-              
-          </v-text-field>
+            </v-text-field>
 
-          <v-select
-          :items="languages"
-          label="Quiz Language"
-          item-value="language_id"
-          item-text="language_name"
-          :error-messages="quizLanguageErrors"
-          v-model="newQuizLanguage"
-        ></v-select>
+            <v-select :items="languages" label="Quiz Language" item-value="language_id" item-text="language_name" :error-messages="quizLanguageErrors" v-model="newQuizLanguage"></v-select>
 
-        <v-textarea
-          name="input-7-1"
-          label="Short Description"
-          color="secondary"
-          v-model="newShortDescription"
-          maxlength="50"
-          :error-messages="shortDescriptionErrors"
-        ></v-textarea>
+            <v-textarea name="input-7-1" label="Short Description" color="secondary" v-model="newShortDescription" maxlength="50" :error-messages="shortDescriptionErrors"></v-textarea>
 
+          </v-card-text>
 
-        </v-card-text>
+          <v-divider></v-divider>
 
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="secondary"
-            flat
-            @click="createFreeQuiz()"
-            :loading="newQuizLoading"
-          >
-          Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog> 
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="secondary" flat @click="createFreeQuiz()" :loading="newQuizLoading">
+              Create
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
     </v-else>
 
-    </v-card>
+  </v-card>
 </template>
 
 <script>
@@ -277,7 +221,6 @@ export default {
     display: flex;
     justify-content: center;
     bottom: 10px;
-    position: absolute;
     margin-left: auto;
     margin-right: auto;
     left: 0;

@@ -1,17 +1,10 @@
 <template>
-    <v-navigation-drawer
-    id="sidebar"
-    dark
-    permanent
-  >
+  <v-navigation-drawer id="sidebar" dark permanent>
     <v-list>
-      <v-list-tile
-        v-if="checkShowItem(item)"
-        v-for="item in appItems"
-        :key="item.title"
-        @click="$router.push(item.url)"
-        
-      >
+      <v-list-tile>
+        <v-list-tile-title>Quiz Server</v-list-tile-title>
+      </v-list-tile>
+      <v-list-tile v-if="checkShowItem(item)" v-for="item in appItems" :key="item.title" @click="$router.push(item.url)">
         <v-list-tile-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-tile-action>
@@ -22,13 +15,7 @@
 
       </v-list-tile>
       <v-divider></v-divider>
-      <v-list-tile
-        v-if="checkShowItem(item)"
-        v-for="item in authItems"
-        :key="item.title"
-        @click="authClick(item)"
-        
-      >
+      <v-list-tile v-if="checkShowItem(item)" v-for="item in authItems" :key="item.title" @click="authClick(item)">
         <v-list-tile-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-tile-action>
@@ -65,16 +52,16 @@ export default {
           showForStudent: true
         },
         {
-          title: "Sign In",
-          url: "/signin",
+          title: "Sign Up",
+          url: "/signup",
           icon: "lock",
           signedIn: false,
           showForTeacher: true,
           showForStudent: true
         },
         {
-          title: "Sign Up",
-          url: "/signup",
+          title: "Sign In",
+          url: "/signin",
           icon: "lock",
           signedIn: false,
           showForTeacher: true,
@@ -101,7 +88,7 @@ export default {
         {
           title: "Classes",
           url: "/classes",
-          icon: "classes",
+          icon: "book",
           signedIn: true,
           showForTeacher: true,
           showForStudent: false
@@ -111,6 +98,14 @@ export default {
           url: "/courses",
           icon: "folder",
           signedIn: true,
+          showForTeacher: true,
+          showForStudent: true
+        },
+        {
+          title: "Free Quizzes",
+          url: "/freequizzes",
+          icon: "assignment",
+          signedIn: null,
           showForTeacher: true,
           showForStudent: true
         }
