@@ -19,7 +19,7 @@ helpers.getCourse = courseId => {
       }
 
       headers[headerName] = cookieContents;
-      const res = await fetch(endpoint(`/courses${courseId}`), {
+      const res = await fetch(endpoint(`/courses/${courseId}`), {
         headers,
       });
 
@@ -190,14 +190,14 @@ helpers.createQuiz = (id, name, start_date, end_date, language, description) => 
 // Returns both the date and time from a timestamp
 helpers.getDateTime = timestamp => {
   const date = new Date(timestamp);
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
   const hours = date.getHours();
   const minutes = date.getMinutes();
 
-  const fullDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+  const fullDate = `${day < 10 ? `0${day}` : day} ${monthNames[date.getMonth()]}`;
   const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}`;
 
   return { date: fullDate, time };

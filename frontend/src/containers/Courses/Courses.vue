@@ -74,7 +74,7 @@ export default {
     async addCourse() {
       try {
         const courseId = await helpers.addCourse(this.courseName);
-        this.courses.push({
+        this.courses.push({ 
           course_name: this.courseName,
           course_id: courseId.course_id
         });
