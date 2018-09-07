@@ -54,7 +54,7 @@ def get_quizzes(course_id):
     """
 
     query = """
-    SELECT quiz_id, quiz_name, quiz_start_date, quiz_end_date
+    SELECT quiz_id, quiz_name, quiz_start_date, quiz_end_date, quiz_short_desc, quiz_language_id
     FROM quizzes
     WHERE quiz_course_id = %s
     """

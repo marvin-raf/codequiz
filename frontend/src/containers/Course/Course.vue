@@ -49,6 +49,9 @@
                     <v-btn v-if="!quizName || !start_date || !start_time || !end_date || !end_time || !language" color="secondary" depressed disabled>Create</v-btn>
                 </div>
             </div>
+            <v-alert :value="showAlert" type="error">
+                Dates order must be: Current Date
+                < Start Date < End date </v-alert>
 
         </v-card>
         <!--<v-card class="col-md-8 offset-md-2" id="course">
@@ -78,10 +81,11 @@
                             <div v-if="!quiz.input">
                                 <a @click="$router.push('/quizzes/' + quiz.quiz_id)"> {{quiz.quiz_name}} </a>
 
-                                <v-btn @click="changeInput(index, true)" flat style="min-width: 50px; width: 50px; float: right;">
+                                <v-btn @click="setupEdit(index)" flat style="min-width: 50px; width: 50px; float: right;">
                                     <v-icon>edit</v-icon>
                                 </v-btn>
-                                <br> {{convert(quiz.quiz_start_date)}} - {{convert(quiz.quiz_end_date)}}
+                                <br>
+                                <div style="font-size: 14px; color: grey;">{{convert(quiz.quiz_start_date)}} - {{convert(quiz.quiz_end_date)}}</div>
                             </div>
                             <div v-if="quiz.input">
                                 <v-text-field color="secondary" maxlength="50" v-model="quizzes[index].quiz_name" style="float: left; width: 70%;"></v-text-field>
@@ -161,7 +165,8 @@ export default {
       end_time: null,
       languages: [],
       language: null,
-      description: ""
+      description: "",
+      showAlert: false
     };
   },
   async mounted() {
@@ -207,6 +212,16 @@ export default {
         helpers.getDateTime(date).date + " " + helpers.getDateTime(date).time
       );
     },
+    convertBack: function(date) {
+        return "yeet lmao"
+    },
+    setupEdit: function(i) {
+        this.quizName = this.quizzes[i].quiz_name;
+        this.description = this.quizzes[i].quiz_short_desc;
+        this.language = this.quizzes[i].quiz_language_id;
+        this.start_date = this.quizzes[i].quiz_start_date;
+        
+    },
     async changeName(index, id, name) {
       try {
         await helpers.changeName(id, name);
@@ -224,18 +239,32 @@ export default {
       this.$set(this.classes[index], "input", false);
     },
     async createQuiz() {
+        this.showAlert = false;
         console.log(this.language);
-        let start_date = new Date(this.start_date).getTime() / 1000;
-        let end_date = new Date(this.end_date).getTime() / 1000;
+        let start_date = new Date(this.start_date).getTime() / 1000 - 43200;
+        let end_date = new Date(this.end_date).getTime() / 1000 - 43200;
 
         let start_time = this.start_time.split(':');
         start_time = parseInt(start_time[0]) * 60 * 60 + parseInt(start_time[1]) * 60; 
 
         let end_time = this.end_time.split(':');
         end_time = parseInt(end_time[0]) * 60 * 60 + parseInt(end_time[1]) * 60;        
+        try {
+            let quizId = await helpers.createQuiz(this.courseId, this.quizName, start_date+start_time, end_date+end_time, this.language, this.description);
+            this.quizzes.push({
+                quiz_name: this.quizName,
+                quiz_id: quizId.quiz_id,
+                quiz_start_date: start_date+start_time,
+                quiz_end_date: end_date+end_time,
+                quiz_language_id: this.language,
+                quiz_short_desc: this.description
 
-        let quizId = await helpers.createQuiz(this.courseId, this.quizName, start_date+start_time, end_date+end_time, this.language, this.description);
-        console.log(quizId);
+            });
+        } catch (e) {
+            console.log(e);
+            this.showAlert = true;
+        }
+        
     },
     changeInput: function(index, value) {
       this.$set(this.quizzes[index], "input", value);
