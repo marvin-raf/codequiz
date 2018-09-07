@@ -88,7 +88,7 @@ import teacherStore from "../../store/teacherStore";
 export default {
   data() {
     return {
-      freeQuizzes: null,
+      freeQuizzes: [],
       page: 1, // Referring to the current page of pagination
       teacherStore: teacherStore.data,
       newQuizDialog: false,

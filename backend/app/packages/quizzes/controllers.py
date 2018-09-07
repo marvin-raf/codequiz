@@ -180,8 +180,7 @@ def check(quiz_id, question_id):
         question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
             question_id, student_id)
 
-        # os.remove(filepath)
-        print(filepath)
+        os.remove(filepath)
 
     except Exception as e:
         print(e)
