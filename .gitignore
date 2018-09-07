@@ -31,7 +31,6 @@ _mailinglist
 .pytest_cache/
 .idea/
 docs/_build/
-backend/app/packages/quizzes/question_files/*
 *.xlsx
 
 # Coverage reports
