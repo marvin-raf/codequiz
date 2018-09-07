@@ -7,30 +7,29 @@
 
     <v-progress-circular indeterminate color="secondary" id="free-quizzes-spinner" v-if="freeQuizzes === null"></v-progress-circular>
 
-    <v-else>
+    <div v-else>
       <v-list>
         <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
         <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
           <v-divider v-if="index === 0"></v-divider>
           <v-list-tile @click="$router.push(`/quizzes/${quiz.quiz_id}`)">
-            <v-list-title>
+            <span>
               <div class="quiz-name-language">
                 <a @click="$router.push(`/quizzes/${quiz.quiz_id}`)" href="#">{{ quiz.quiz_name }}</a>
 
               </div>
 
-            </v-list-title>
+            </span>
 
-            <v-list-content style="width: 100%;">
+            <v-list-tile-content style="width: 100%;">
               <div class="quiz-short-description">
 
                 {{ quiz.quiz_short_desc }}
 
               </div>
 
-              <i class="fab fa-python" id="quiz-icon"></i>
-
-            </v-list-content>
+            </v-list-tile-content>
+            <font-awesome-icon :icon="['fab', 'python']" id="quiz-icon" />
 
           </v-list-tile>
           <v-divider></v-divider>
@@ -76,7 +75,7 @@
         </v-card>
       </v-dialog>
 
-    </v-else>
+    </div>
 
   </v-card>
 </template>
@@ -95,7 +94,7 @@ export default {
       newQuizName: "",
       newQuizLanguage: null,
       newShortDescription: "",
-      languages: null,
+      languages: [],
       quizNameErrors: [],
       quizLanguageErrors: [],
       shortDescriptionErrors: [],
@@ -214,7 +213,7 @@ export default {
   #quiz-icon {
     font-size: 20px;
     color: $wet-asphalt;
-    float: right;
+    float: right !important;
   }
 
   #free-quizzes-pagination {

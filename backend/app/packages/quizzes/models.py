@@ -14,9 +14,11 @@ def get_quiz(quiz_id):
     """
 
     query = """
-    SELECT *
-    FROM quizzes 
-    WHERE quiz_id = %s
+    SELECT quizzes.quiz_id, quizzes.quiz_course_id, quizzes.quiz_name, quizzes.quiz_start_date, quizzes.quiz_end_date, quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
+    FROM quizzes
+    LEFT JOIN courses ON quizzes.quiz_course_id = courses.course_id
+    LEFT JOIN teachers ON teachers.teacher_id = courses.course_teacher_id
+    WHERE quizzes.quiz_id = %s
     """
 
     quizzes = db.query(query, (quiz_id))
