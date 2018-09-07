@@ -169,6 +169,8 @@ def check(quiz_id, question_id):
         test_case_results = models.run_test_cases(
             test_cases, filepath, student_id, quiz_id, question_id, code)
 
+        os.remove(filepath)
+
         # If user is not student, then don't save their attempt
         if not hasattr(request, "student_id"):
             return success({"results": test_case_results})
@@ -179,8 +181,6 @@ def check(quiz_id, question_id):
 
         question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
             question_id, student_id)
-
-        os.remove(filepath)
 
     except Exception as e:
         print(e)

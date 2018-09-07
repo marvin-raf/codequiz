@@ -267,6 +267,8 @@ def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
                 f.write(test_case["test_input"])
 
             output, is_error = run_code(filepath)
+            os.remove(filepath)
+
             test_case["output"] = output.strip()
             test_case["error"] = is_error
 
