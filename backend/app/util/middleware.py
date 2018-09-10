@@ -49,8 +49,6 @@ def signed_in_or_out(func):
         Checks if the user is signed in as either a student or a teacher
         """
 
-        print("Did I make it here?")
-
         if "Teacher-Authorization" in request.headers:
             query = """
             SELECT teacher_id 
@@ -75,6 +73,7 @@ def signed_in_or_out(func):
             if rows:
                 request.student_id = rows[0]["student_id"]
 
+        # If no user is authenticated, then go to next middleware
         return func(*args, **kwargs)
 
     return wrap

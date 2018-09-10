@@ -4,7 +4,6 @@ Contains models for the Quizzes package
 import os
 from app.util import db
 import subprocess
-
 RUN_CODE_COMMAND = "python3 {}"
 TIME_LIMIT_EXCEEDED = "ERROR: Time Limit Exceeded"
 
@@ -207,7 +206,6 @@ def run_code(filepath):
     Returns output and exit code
     """
     bashCommand = RUN_CODE_COMMAND.format(filepath)
-
     try:
         output = subprocess.check_output(
             bashCommand.split(), stderr=subprocess.STDOUT, timeout=3)
@@ -215,6 +213,7 @@ def run_code(filepath):
         return output.decode(), False
     # Gets called if python program returns an error code
     except subprocess.CalledProcessError as e:
+        print(e)
         return "\n".join(e.output.decode().split("\n")[1:]), True
 
     # Gets called if timeout expires
