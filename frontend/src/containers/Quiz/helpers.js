@@ -34,7 +34,9 @@ helpers.getQuizData = quizId => {
                 quizName : json.quiz.quiz_name,
                 questions : json.questions,
                 quizStartDate : json.quiz.quiz_start_date,
-                quizEndDate : json.quiz.quiz_end_date
+                quizEndDate : json.quiz.quiz_end_date,
+                quizCourseId : json.quiz_course_id,
+                quizTeacherId : json.teacher_id
             });
         } catch (e) {
             reject(e);

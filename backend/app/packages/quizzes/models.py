@@ -15,9 +15,11 @@ def get_quiz(quiz_id):
     """
 
     query = """
-    SELECT *
-    FROM quizzes 
-    WHERE quiz_id = %s
+    SELECT quizzes.quiz_id, quizzes.quiz_course_id, quizzes.quiz_name, quizzes.quiz_start_date, quizzes.quiz_end_date, quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
+    FROM quizzes
+    LEFT JOIN courses ON quizzes.quiz_course_id = courses.course_id
+    LEFT JOIN teachers ON teachers.teacher_id = courses.course_teacher_id
+    WHERE quizzes.quiz_id = %s
     """
 
     quizzes = db.query(query, (quiz_id))
@@ -257,7 +259,6 @@ def run_code(filepath):
     Returns output and exit code
     """
     bashCommand = RUN_CODE_COMMAND.format(filepath)
-
     try:
         output = subprocess.check_output(
             bashCommand.split(), stderr=subprocess.STDOUT, timeout=3)
@@ -265,6 +266,7 @@ def run_code(filepath):
         return output.decode(), False
     # Gets called if python program returns an error code
     except subprocess.CalledProcessError as e:
+        print(e)
         return "\n".join(e.output.decode().split("\n")[1:]), True
 
     # Gets called if timeout expires

@@ -128,6 +128,48 @@ def questions(quiz_id):
     return created({"question_id": question_id})
 
 
+@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["PUT"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+def update_question(quiz_id, question_id):
+    """
+    Updates a question from a quiz
+    """
+
+    try:
+        json = request.get_json()
+
+        question_description = json["question_description"]
+
+        models.update_description(question_description, question_id)
+
+    except (KeyError, ValueError):
+        return bad_request()
+    except Exception as e:
+        return server_error()
+
+    return success()
+
+
+@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])
+@teacher_signed_in
+@teacher_owns_quiz
+@question_exists
+def delete_question(quiz_id, question_id):
+    """
+    Deletes a question from a quiz
+    """
+
+    try:
+        models.delete_question(quiz_id, question_id)
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success()
+
+
 @quizzes_module.route(
     "/<quiz_id>/questions/<question_id>/precheck", methods=["POST"])
 @signed_in_or_out
@@ -199,7 +241,7 @@ def check(quiz_id, question_id):
 
         os.remove(filepath)
 
-        # If user is not student, then don't save their attempt
+        # If user is not student or the quiz is a free quiz, then don't save their attempt
         if not hasattr(request, "student_id"):
             return success({"results": test_case_results})
 
@@ -220,48 +262,6 @@ def check(quiz_id, question_id):
         "total_negated": total_negated,
         "last_attempt_wrong": last_attempt_wrong
     })
-
-
-@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["PUT"])
-@teacher_signed_in
-@teacher_owns_quiz
-@question_exists
-def update_question(quiz_id, question_id):
-    """
-    Updates a question from a quiz
-    """
-
-    try:
-        json = request.get_json()
-
-        question_description = json["question_description"]
-
-        models.update_description(question_description, question_id)
-
-    except (KeyError, ValueError):
-        return bad_request()
-    except Exception as e:
-        return server_error()
-
-    return success()
-
-
-@quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])
-@teacher_signed_in
-@teacher_owns_quiz
-@question_exists
-def delete_question(quiz_id, question_id):
-    """
-    Deletes a question from a quiz
-    """
-
-    try:
-        models.delete_question(quiz_id, question_id)
-    except Exception as e:
-        print(e)
-        return server_error()
-
-    return success()
 
 
 @quizzes_module.route("/languages", methods=["GET"])

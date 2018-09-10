@@ -2,8 +2,47 @@
 
 [Back to main wiki](../../../wiki.md)
 
+- ["/quizzes/free"](#markdown-header-quizzes-free)
 - ["/quizzes/<id>"](#markdown-header-quizzes-id)
-- ["/courses/<id>/questions"](#markdown-header-quizzes-id-questions)
+- ["/quizzes/<id>/questions"](#markdown-header-quizzes-id)
+- ["/quizzes/<id>/questions/<id>"](#markdown-header-quizzes-id-questions)
+- ["/quizzes/<id>/questions/<id>/precheck"](#markdown-header-quizzes-id-questions-id-precheck)
+- ["/quizzes/<id>/questions/<id>/check"](#markdown-header-quizzes-id-questions-id-precheck)
+
+## `quizzes free`
+
+### GET
+
+**URL** `/quizzies/free`
+
+**Description** This endpoint gets all the free quizzes that are available to everyone
+
+**Authentication** None
+
+**Request Body**
+
+**Responses**
+Status Code (200)
+
+Success response indicates free quizzes have been successfully retrieved.
+
+    [
+        {
+        "language_name": "string",
+        "quiz_id": 1,
+        "quiz_name": "string",
+        "quiz_short_desc": "string"
+        },
+        ...
+    ]
+
+---
+
+Status Code (500)
+
+- Server Error indicates anything else that is unexpected and mysql errors
+
+---
 
 ## `quizzes id`
 
@@ -13,38 +52,33 @@
 
 **Description** This endpoint gets quiz name, start and end dates and all questions
 
-**Authentication** Teacher
+**Authentication** Teacher, Student or no authentication 
 
 **Request Body**
 
 **Responses**
 Status Code (200)
 
-Success response indicates the quiz have been successfully retrieved
+Unauthenticated response
 
-    {
-        "questions": [
-            {
-                "question_description": "string",
-                "question_id": 1,
-                "question_quiz_id": 1,
-                "test_cases": [
-                    {
-                        "test_expected": "string",
-                        "test_id": 1,
-                        "test_input": "string"
-                    }
-                ]
-            },
-        ],
-        "quiz": {
-            "quiz_course_id": 1,
-            "quiz_end_date": 1,
-            "quiz_id": 1,
-            "quiz_name": "string",
-            "quiz_start_date": 1
-        }
-    }
+Success response indicates the quiz details have been successfully retrieved
+
+   {
+    "questions": [
+        {
+            "question_description": "string",
+            "question_id": 1,
+            "question_quiz_id": 1,
+            "test_cases": [
+                {
+                    "test_expected": "Hello World!",
+                    "test_id": 3,
+                    "test_input": "print(hello_world())"
+                }
+            ]
+        },
+        ...
+   }
 
 ---
 

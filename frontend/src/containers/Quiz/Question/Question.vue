@@ -48,7 +48,7 @@
 
     </div>
 
-    <div v-if="teacherStore.teacherId">
+    <div v-if="isTeacher()">
       <v-btn flat class="delete-btn" @click="deleteModal = true;">
         <v-icon>delete</v-icon>
       </v-btn>
@@ -59,7 +59,7 @@
     <h3>Question {{ questionIndex + 1 }}
       <v-btn class="save-btn" v-if="question.edit_mode" color="secondary" @click="setEditMode()">Save</v-btn>
 
-      <v-btn v-else flat class="edit-btn" color="primary">
+      <v-btn v-if="!question.edit_mode && isTeacher()" flat class="edit-btn" color="primary">
         <v-icon @click="setEditMode()" color="primary">edit</v-icon>
       </v-btn>
     </h3>
@@ -77,10 +77,10 @@
           <pre>{{ props.item.test_expected }}</pre>
         </td>
         <td class="text-xs-right">
-          <v-icon class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
+          <v-icon v-if="isTeacher()" class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
             edit
           </v-icon>
-          <v-icon class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
+          <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
             delete
           </v-icon>
         </td>
@@ -203,7 +203,6 @@ export default {
       testCaseDeleteId: null,
       testCaseDeleteIndex: null,
       deleteTestCaseModal: false,
-      
     };
   },
   mounted() {
@@ -272,6 +271,8 @@ export default {
         );
 
         this.testCaseResults = json.results;
+        console.log(json.results);
+        
         this.checkLoading = false;
 
         if (!studentStore.methods.studentLoggedIn()) return;

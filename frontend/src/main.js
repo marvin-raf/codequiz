@@ -4,18 +4,17 @@ import "ace-builds/src-min-noconflict/mode-python.js";
 import "bootstrap/dist/css/bootstrap-grid.min.css";
 import "vuetify/dist/vuetify.min.css"; // Ensure you are using css-loader
 
-import fontawesome from "@fortawesome/fontawesome";
-import brands from "@fortawesome/fontawesome-free-brands";
-import regular from "@fortawesome/fontawesome-free-regular";
-
-import solid from "@fortawesome/fontawesome-free-solid";
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Vuetify from "vuetify";
 
-fontawesome.library.add(regular);
-fontawesome.library.add(solid);
-fontawesome.library.add(brands);
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPython } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(faPython);
+
+Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 import About from "./containers/About/About.vue";
 import App from "./containers/App.vue";

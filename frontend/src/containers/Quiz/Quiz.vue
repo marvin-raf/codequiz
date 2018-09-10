@@ -48,7 +48,9 @@ export default {
       endDate: null,
       endTime: null,
       testCaseModal: false,
-      testCaseModalData: null
+      testCaseModalData: null,
+      quizCourseId: null,
+      quizTeacherId: null
     };
   },
   async mounted() {
@@ -57,7 +59,9 @@ export default {
         quizName,
         questions,
         quizStartDate,
-        quizEndDate
+        quizEndDate,
+        quizCourseId,
+        quizTeacherId 
       } = await helpers.getQuizData(this.$route.params.id);
 
       // Parsing timestamps into date and times
@@ -70,12 +74,17 @@ export default {
       this.endDate = endDateTime.date;
       this.endTime = endDateTime.time;
 
+      this.quizCourseId = quizCourseId;
+      this.quizTeacherId = quizTeacherId;
+      
+
       if (!this.startDate) {
         this.editDateTime = true;
       }
 
       this.quizName = quizName;
       this.questions = questions;
+
     } catch (e) {
       this.$router.push("/dashboard");
     }
@@ -114,7 +123,10 @@ export default {
       this.editDateTime = !this.editDateTime;
     },
     isTeacher() {
-      return teacherStore.data.teacherId;
+      console.log(this.quizCourseId);
+      console.log(teacherStore.data.teacherIsAdmin);
+      return this.quizCourseId === null && teacherStore.data.teacherIsAdmin ||
+             teacherStore.data.teacherId === this.quizTeacherId
     },
     isLoggedIn() {
       return teacherStore.data.teacherId || studentStore.data.studentId;
