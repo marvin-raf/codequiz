@@ -186,6 +186,35 @@ helpers.createQuiz = (id, name, start_date, end_date, language, description) => 
   });
 };
 
+helpers.editQuiz = (id, name, start_date, end_date, language, description) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(endpoint(`/quizzes/${id}`), {
+        method: "PATCH",
+        headers: {
+          "Teacher-Authorization": cookies.get("teacher"),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: name,
+          start_date: start_date,
+          end_date: end_date,
+          language: language,
+          description: description,
+        }),
+      });
+      if (res.status !== 200) {
+        reject(res.status);
+        return;
+      }
+
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 // Returns both the date and time from a timestamp
 // Returns both the date and time from a timestamp
 helpers.getDateTime = timestamp => {
@@ -201,6 +230,20 @@ helpers.getDateTime = timestamp => {
   const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}`;
 
   return { date: fullDate, time };
+};
+
+helpers.convertDate = timestamp => {
+  const date = new Date(timestamp * 1000);
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  const fullDate = `${year}-${month < 10 ? `0${month}` : month}-${day < 10 ? `0${day}` : day}`;
+  const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}`;
+  return [fullDate, time];
 };
 
 export default helpers;

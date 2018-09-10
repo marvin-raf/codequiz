@@ -45,8 +45,10 @@
             </div>
             <div class="row">
                 <div class="col-sm-12" style="text-align: center;">
-                    <v-btn v-if="quizName && start_date && start_time && end_date && end_time && language" @click="createQuiz" color="secondary" depressed>Create</v-btn>
-                    <v-btn v-if="!quizName || !start_date || !start_time || !end_date || !end_time || !language" color="secondary" depressed disabled>Create</v-btn>
+                    <v-btn v-if="!editMode && quizName && start_date && start_time && end_date && end_time && language" @click="createQuiz" color="secondary" depressed>Create</v-btn>
+                    <v-btn v-if="!editMode && !quizName || !start_date || !start_time || !end_date || !end_time || !language" color="secondary" depressed disabled>Create</v-btn>
+                    <v-btn v-if="editMode && quizName && start_date && start_time && end_date && end_time && language" @click="editQuiz" color="secondary" depressed>Save</v-btn>
+                    <v-btn v-if="editMode" @click="cancelEdit" color="error" depressed>Cancel</v-btn>
                 </div>
             </div>
             <v-alert :value="showAlert" type="error">
@@ -78,19 +80,16 @@
                 <div v-for="(quiz, index) in quizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
                     <v-list-tile style="height: 50px;">
                         <v-list-tile-title style="width: 100%; height: 45px;">
-                            <div v-if="!quiz.input">
+                            <div>
                                 <a @click="$router.push('/quizzes/' + quiz.quiz_id)"> {{quiz.quiz_name}} </a>
 
-                                <v-btn @click="setupEdit(index)" flat style="min-width: 50px; width: 50px; float: right;">
+                                <v-btn v-if="!quiz.input" @click="setupEdit(index)" flat style="min-width: 50px; width: 50px; float: right;">
                                     <v-icon>edit</v-icon>
                                 </v-btn>
                                 <br>
                                 <div style="font-size: 14px; color: grey;">{{convert(quiz.quiz_start_date)}} - {{convert(quiz.quiz_end_date)}}</div>
                             </div>
-                            <div v-if="quiz.input">
-                                <v-text-field color="secondary" maxlength="50" v-model="quizzes[index].quiz_name" style="float: left; width: 70%;"></v-text-field>
-                                <v-btn @click="changeName(index, quiz.quiz_id, quiz.quiz_name)" color="secondary" depressed style="min-width: 50px; width: 50px; float: right;">Save</v-btn>
-                            </div>
+
                         </v-list-tile-title>
                         <v-list-tile-content>
                         </v-list-tile-content>
@@ -166,7 +165,9 @@ export default {
       languages: [],
       language: null,
       description: "",
-      showAlert: false
+      showAlert: false,
+      editMode: false,
+      editIndex: null
     };
   },
   async mounted() {
@@ -212,15 +213,24 @@ export default {
         helpers.getDateTime(date).date + " " + helpers.getDateTime(date).time
       );
     },
-    convertBack: function(date) {
-        return "yeet lmao"
-    },
     setupEdit: function(i) {
+        if (this.editIndex != null) {
+            this.quizzes[this.editIndex].input = false;
+        }
         this.quizName = this.quizzes[i].quiz_name;
         this.description = this.quizzes[i].quiz_short_desc;
         this.language = this.quizzes[i].quiz_language_id;
-        this.start_date = this.quizzes[i].quiz_start_date;
-        
+        [this.start_date, this.start_time] = helpers.convertDate(this.quizzes[i].quiz_start_date);
+        [this.end_date, this.end_time] = helpers.convertDate(this.quizzes[i].quiz_end_date);
+        this.editMode = true;
+        this.quizzes[i].input = true;
+        this.editIndex = i;
+    },
+    cancelEdit: function() {
+        this.quizName = this.description = this.language = this.start_date = this.end_date = this.start_time = this.end_time = "";
+        this.editMode = false;
+        this.quizzes[this.editIndex].input = false;
+        this.editIndex = null;
     },
     async changeName(index, id, name) {
       try {
@@ -240,13 +250,10 @@ export default {
     },
     async createQuiz() {
         this.showAlert = false;
-        console.log(this.language);
         let start_date = new Date(this.start_date).getTime() / 1000 - 43200;
         let end_date = new Date(this.end_date).getTime() / 1000 - 43200;
-
         let start_time = this.start_time.split(':');
         start_time = parseInt(start_time[0]) * 60 * 60 + parseInt(start_time[1]) * 60; 
-
         let end_time = this.end_time.split(':');
         end_time = parseInt(end_time[0]) * 60 * 60 + parseInt(end_time[1]) * 60;        
         try {
@@ -258,13 +265,38 @@ export default {
                 quiz_end_date: end_date+end_time,
                 quiz_language_id: this.language,
                 quiz_short_desc: this.description
-
             });
+            this.quizName = this.start_date = this.start_time = this.end_date = this.end_time = this.language = this.description = null;
         } catch (e) {
             console.log(e);
             this.showAlert = true;
-        }
-        
+        }  
+    },
+    async editQuiz() {
+        this.showAlert = false;
+        let start_date = new Date(this.start_date).getTime() / 1000 - 43200;
+        let end_date = new Date(this.end_date).getTime() / 1000 - 43200;
+        let start_time = this.start_time.split(':');
+        start_time = parseInt(start_time[0]) * 60 * 60 + parseInt(start_time[1]) * 60; 
+        let end_time = this.end_time.split(':');
+        end_time = parseInt(end_time[0]) * 60 * 60 + parseInt(end_time[1]) * 60;        
+        try {
+            helpers.editQuiz(this.quizzes[this.editIndex].quiz_id, this.quizName, start_date+start_time, end_date+end_time, this.language, this.description);
+            this.quizzes[this.editIndex] = {
+                quiz_name: this.quizName,
+                quiz_id: this.quizzes[this.editIndex].quiz_id,
+                quiz_start_date: start_date+start_time,
+                quiz_end_date: end_date+end_time,
+                quiz_language_id: this.language,
+                quiz_short_desc: this.description
+            };
+            this.quizName = this.start_date = this.start_time = this.end_date = this.end_time = this.language = this.description = null
+            this.editIndex = null;
+            this.editMode = false;
+        } catch (e) {
+            console.log(e);
+            this.showAlert = true;
+        } 
     },
     changeInput: function(index, value) {
       this.$set(this.quizzes[index], "input", value);

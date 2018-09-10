@@ -4,6 +4,7 @@ Contains models for the Quizzes package
 import os
 from app.util import db
 import subprocess
+import time
 
 RUN_CODE_COMMAND = "python3 {}"
 TIME_LIMIT_EXCEEDED = "ERROR: Time Limit Exceeded"
@@ -22,6 +23,57 @@ def get_quiz(quiz_id):
     quizzes = db.query(query, (quiz_id))
 
     return quizzes[0]
+
+
+def check_dates(start_date, end_date):
+    """
+    Returns true if dates are in the right order
+    """
+
+    current_date = int(time.time())
+
+    if current_date <= start_date and start_date <= end_date:
+        return True
+    return False
+
+
+def check_languages(language):
+    """
+    Returns true if the language exists in the database
+    """
+
+    query = """
+    SELECT * FROM languages
+    """
+
+    languages = db.query(query)
+
+    exists = False
+    for lang in languages:
+        if lang.language_id == language:
+            exists = True
+    return exists
+
+
+def edit_quiz(quiz_id, name, start_date, end_date, description, language):
+    """
+    Edits a quiz
+    """
+
+    query = """
+    UPDATE quizzes
+    SET 
+    quiz_name = %s,
+    quiz_start_date = %s,
+    quiz_end_date = %s,
+    quiz_short_desc = %s,
+    quiz_language_id = %s
+    WHERE quiz_id = %s
+    """
+
+    db.query(query,
+             (name, start_date, end_date, description, language, quiz_id))
+    return
 
 
 def get_questions(quiz_id):
@@ -254,10 +306,9 @@ def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
             results.append(test_case)
             break
         else:
-            filepath = os.path.join("app", "packages", "quizzes",
-                                    "question_files",
-                                    "test_case_{}_{}.py".format(
-                                        test_case["test_id"], student_id))
+            filepath = os.path.join(
+                "app", "packages", "quizzes", "question_files",
+                "test_case_{}_{}.py".format(test_case["test_id"], student_id))
 
             with open(filepath, "w") as f:
                 f.write("from code_{}_{}_{} import *\n".format(
