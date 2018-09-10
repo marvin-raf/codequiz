@@ -9,7 +9,7 @@ def connect_db():
     return PersistentDB(
         creator=pymysql,  # the rest keyword arguments belong to pymysql
         user='root',
-        password='',
+        password=config["DB_PASSWORD"],
         database='quiz_server',
         autocommit=True,
         charset='utf8mb4',
