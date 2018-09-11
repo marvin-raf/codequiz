@@ -40,7 +40,8 @@ htmlcov/
 *,cover
 
 
-
+#Other
+.vscode
 
 
 
