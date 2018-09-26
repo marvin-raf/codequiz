@@ -18,6 +18,7 @@
     "email-validator": "^2.0.4",
     "js-cookie": "^2.2.0",
     "material-design-icons-iconfont": "^3.0.3",
+    "npm": "^6.4.1",
     "vue": "^2.5.11",
     "vue-markdown": "^2.2.4",
     "vue-router": "^3.0.1",

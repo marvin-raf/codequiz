@@ -1,90 +1,59 @@
 <template>
     <div>
-        <v-card class="col-md-8 offset-md-2" id="courses">
-            <h1>Courses</h1>
-            <div class="row">
-                <div class="col-sm-10">
-                    <v-text-field prepend-icon="title" label="Course Name" v-model="courseName" color="secondary" maxlength="50" id="course-name"></v-text-field>
-                </div>
-                <div class="col-sm-2">
-                    <div id="create-box">
-                        <v-btn id="create-btn" color="secondary" @click="addCourse()" depressed :disabled="courseName ? false : true">Create</v-btn>
-                    </div>
-                </div>
-            </div>
-        </v-card>
-
-        <v-card class="col-md-8 offset-md-2" id="courses">
-            <v-list>
-                <div v-for="(course, index) in courses.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
-                    <v-list-tile style="height: 50px;">
-                        <v-list-tile-title style="width: 100%; height: 45px;">
-                            <div v-if="!course.input">
-                                <a @click="$router.push('/courses/' + course.course_id)"> {{course.course_name}} </a>
-                                <v-btn @click="changeInput(index, true)" flat style="min-width: 50px; width: 50px; float: right;">
-                                    <v-icon>edit</v-icon>
-                                </v-btn>
-                            </div>
-                            <div v-if="course.input">
-                                <v-text-field color="secondary" maxlength="50" v-model="courses[index].course_name" style="float: left; width: 70%;"></v-text-field>
-                                <v-btn @click="changeName(index, course.course_id, course.course_name)" color="secondary" depressed style="min-width: 50px; width: 50px; float: right;">Save</v-btn>
-                            </div>
-                        </v-list-tile-title>
-                        <v-list-tile-content>
-                        </v-list-tile-content>
-
-                    </v-list-tile>
-                    <v-divider v-if="index != courses.length - 1"></v-divider>
-                </div>
-                <v-pagination color="secondary" :length="Math.ceil(courses.length / 8)" id="courses-pagination" v-model="page"></v-pagination>
-            </v-list>
-
-        </v-card>
-
+        <AddCourse :courseName.sync="courseName" :addCourse="addCourse"></AddCourse>
+        <CourseList :courses="courses" :changeName="changeName" :changeInput="changeInput"></CourseList>
     </div>
 </template>
 
 <script>
 import helpers from "./helpers";
 
+//Auth
 import teacherStore from "../../store/teacherStore.js";
 import studentStore from "../../store/studentStore.js";
+
+//Components
+import AddCourse from "./AddCourse/AddCourse.vue";
+import CourseList from "./CourseList/CourseList.vue";
+
 export default {
+  components: {
+    AddCourse,
+    CourseList,
+  },
   data() {
     return {
       courses: [],
-      currentCourses: [],
       courseName: null,
-      page: 1
     };
   },
   async mounted() {
-    try {
-      const { courses } = await helpers.getCourses();
-      this.courses = courses;
-      for (let i = 0; i < this.courses.length; i++) {
-        //this.courses[i].input = false;
-      }
-    } catch (e) {
-      console.log(e);
-      this.$router.push("/dashboard");
-    }
+    this.getCourses();
   },
   methods: {
+    async getCourses() {
+      try {
+        const { courses } = await helpers.getCourses();
+        this.courses = courses;
+      } catch (e) {
+        console.log(e);
+        this.$router.push("/dashboard");
+      }
+    },
     async addCourse() {
       try {
-        const courseId = await helpers.addCourse(this.courseName);
-        this.courses.push({ 
+        const course = await helpers.addCourse(this.courseName);
+        this.courses.push({
           course_name: this.courseName,
-          course_id: courseId.course_id
+          course_id: course.course_id,
         });
-        this.courseName = null;
       } catch (e) {
         console.log(e);
       }
     },
     async changeName(index, id, name) {
       try {
+        console.log("try");
         await helpers.changeName(id, name);
       } catch (e) {
         console.log(e);
@@ -93,30 +62,11 @@ export default {
     },
     changeInput: function(index, value) {
       this.$set(this.courses[index], "input", value);
-    }
-  }
+    },
+  },
 };
 </script>
 
-<style lang="scss">
-@import "../../styles/_mixins.scss";
-@import "../../styles/_variables.scss";
-#courses {
-  background-color: #fff;
-  h1 {
-    text-align: center;
-    color: $text-color;
-  }
-  padding-top: 20px;
-  margin-top: 20px;
-  padding-bottom: 20px;
-  overflow: hidden;
-}
 
-#courses-pagination {
-  display: flex;
-  justify-content: center;
-}
-</style>
 
 
