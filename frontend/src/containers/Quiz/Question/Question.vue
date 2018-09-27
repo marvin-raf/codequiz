@@ -126,9 +126,9 @@
     </span>
 
     <div id="check-btns">
-      <v-btn flat class="precheck-btn" @click="precheck()" :loading="precheckLoading" v-if="!question.edit_mode">Precheck</v-btn>
+      <v-btn :flat="!hasFinished" class="precheck-btn" @click="precheck()" :loading="precheckLoading" v-if="!question.edit_mode" :disabled="hasFinished">Precheck</v-btn>
 
-      <v-btn flat class="check-btn" @click="check()" :loading="checkLoading" v-if="!question.edit_mode">Check</v-btn>
+      <v-btn :flat="!hasFinished" class="check-btn" @click="check()" :loading="checkLoading" v-if="!question.edit_mode" :disabled="hasFinished">Check</v-btn>
 
       <div style="clear: both;"></div>
 
@@ -137,7 +137,7 @@
   </v-card>
 </template>
 
-<script>
+<script>  
 import VueMarkdown from "vue-markdown";
 import studentStore from "../../../store/studentStore";
 import teacherStore from "../../../store/teacherStore";
@@ -145,7 +145,7 @@ import teacherStore from "../../../store/teacherStore";
 import helpers from "./helpers.js";
 
 export default {
-  props: ["question", "questionIndex", "isTeacher"],
+  props: ["question", "questionIndex", "isTeacher", "hasFinished"],
   components: {
     "vue-markdown": VueMarkdown
   },

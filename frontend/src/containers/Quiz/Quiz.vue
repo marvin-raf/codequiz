@@ -9,7 +9,7 @@
 
     </v-card>
 
-    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion">
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" :hasFinished="hasFinished" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion">
 
     </Question>
 
@@ -50,7 +50,8 @@ export default {
       testCaseModal: false,
       testCaseModalData: null,
       quizCourseId: null,
-      quizTeacherId: null
+      quizTeacherId: null,
+      hasFinished: true
     };
   },
   async mounted() {
@@ -63,6 +64,16 @@ export default {
         quizCourseId,
         quizTeacherId 
       } = await helpers.getQuizData(this.$route.params.id);
+
+      // If student is logged in, and they aren't doing a free quiz, check times
+      console.log(quizCourseId);
+      if (studentStore.data.studentId && quizCourseId) {
+        const currentTime = Date.now();
+        
+        if (currentTime > quizEndDate) {
+          this.hasFinished = true;
+        }
+        }
 
       // Parsing timestamps into date and times
       const startDateTime = helpers.getDateTime(quizStartDate);
@@ -123,9 +134,7 @@ export default {
       this.editDateTime = !this.editDateTime;
     },
     isTeacher() {
-      console.log(this.quizCourseId);
-      console.log(teacherStore.data.teacherIsAdmin);
-      return this.quizCourseId === null && teacherStore.data.teacherIsAdmin ||
+      return !this.quizCourseId && teacherStore.data.teacherIsAdmin ||
              teacherStore.data.teacherId === this.quizTeacherId
     },
     isLoggedIn() {
@@ -159,8 +168,7 @@ export default {
       
       question.edit_mode = false;
       question.question_id = obj.questionId
-
-    }
+    },
   }
 };
 </script>

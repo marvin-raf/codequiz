@@ -4,6 +4,7 @@ from pylint.lint import Run
 import subprocess
 import uuid
 from app.packages.quizzes import models
+from app.packages.quizzes.code_runner import CodeRunner
 from app.util.responses import success, bad_request, server_error, created, forbidden
 from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out, test_case_exists
 
@@ -192,6 +193,7 @@ def check(quiz_id, question_id):
     Checks students code for a particular question against test cases
     """
     try:
+        # If user is not a student, assign them random uuid for filename
         student_id = request.student_id if hasattr(request,
                                                    "student_id") else str(
                                                        uuid.uuid4().hex)
@@ -199,37 +201,34 @@ def check(quiz_id, question_id):
 
         code = body["code"]
 
-        filename = models.precheck_file_name(student_id, quiz_id, question_id)
-        filepath = os.path.join("app", "packages", "quizzes", "question_files",
-                                filename)
+        code_runner = CodeRunner(student_id, quiz_id, question_id)
 
-        with open(filepath, "w") as f:
-            f.write(code)
+        code_runner.write_code(code)  # Writes students code to file
 
         test_cases = models.get_test_cases(question_id)
 
-        test_case_results = models.run_test_cases(
-            test_cases, filepath, student_id, quiz_id, question_id, code)
+        results = code_runner.run(test_cases)
 
-        os.remove(filepath)
+        code_runner.remove_code()  # Deletes students code
 
         # If user is not student or the quiz is a free quiz, then don't save their attempt
         if not hasattr(request, "student_id"):
-            return success({"results": test_case_results})
+            return success({"results": results})
 
         attempt_id = models.insert_attempt(question_id, student_id)
 
-        models.insert_test_cases(test_case_results, attempt_id)
+        models.insert_test_cases(results, attempt_id)
 
         question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
             question_id, student_id)
-
+    except KeyError:
+        return bad_request()
     except Exception as e:
         print(e)
         return server_error()
 
     return success({
-        "results": test_case_results,
+        "results": results,
         "question_worth": question_worth,
         "total_negated": total_negated,
         "last_attempt_wrong": last_attempt_wrong

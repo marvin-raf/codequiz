@@ -4,7 +4,8 @@ Contains models for the Quizzes package
 import os
 from app.util import db
 import subprocess
-RUN_CODE_COMMAND = "python3 {}"
+RUN_CODE_FILE = os.path.join("app", "packages", "quizzes", "run_code.sh")
+RUN_CODE_COMMAND = "bash " + RUN_CODE_FILE + " {}"
 TIME_LIMIT_EXCEEDED = "ERROR: Time Limit Exceeded"
 
 
@@ -13,7 +14,7 @@ def get_quiz(quiz_id):
     """
 
     query = """
-    SELECT quizzes.quiz_id, quizzes.quiz_course_id, quizzes.quiz_name, quizzes.quiz_start_date, quizzes.quiz_end_date, quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
+    SELECT quizzes.quiz_id, quizzes.quiz_course_id, quizzes.quiz_name, quizzes.quiz_start_date * 1000 AS quiz_start_date, quizzes.quiz_end_date * 1000 AS quiz_end_date, quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
     FROM quizzes
     LEFT JOIN courses ON quizzes.quiz_course_id = courses.course_id
     LEFT JOIN teachers ON teachers.teacher_id = courses.course_teacher_id
@@ -248,6 +249,7 @@ def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
     results = []
 
     for test_case in test_cases:
+        # If test case is program that prints something hence no test input
         if not test_case["test_input"]:
             output, is_error = run_code(filepath)
             test_case["output"] = output

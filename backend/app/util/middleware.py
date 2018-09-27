@@ -1,7 +1,7 @@
 """
 Middleware functions
 """
-
+import time
 from functools import wraps
 from flask import request
 from app.util import db
@@ -290,7 +290,7 @@ def can_access_quiz(func):
 
         # Check that the quiz exists
         query = """
-        SELECT quiz_id, quiz_course_id
+        SELECT quiz_id, quiz_course_id, quiz_start_date * 1000 AS quiz_start_date
         FROM quizzes
         WHERE quiz_id = %s
         """
@@ -309,7 +309,7 @@ def can_access_quiz(func):
 
             # Check that teacher owns the course
             query = """
-            SELECT quiz_id
+            SELECT quiz_id 
             FROM quizzes
             INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
             INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
@@ -326,6 +326,12 @@ def can_access_quiz(func):
             student_id = request.student_id
 
             quiz_id = request.view_args["quiz_id"]
+
+            # If the quiz hasn't started yet, then don't let student access
+            current_time = int(time.time() * 1000)
+
+            if current_time < quizzes[0]["quiz_start_date"]:
+                return forbidden()
 
             # Check that students teacher owns the quiz
             query = """
