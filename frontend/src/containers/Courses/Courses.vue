@@ -40,6 +40,7 @@ export default {
         this.$router.push("/dashboard");
       }
     },
+
     async addCourse() {
       try {
         const course = await helpers.addCourse(this.courseName);
@@ -53,7 +54,6 @@ export default {
     },
     async changeName(index, id, name) {
       try {
-        console.log("try");
         await helpers.changeName(id, name);
       } catch (e) {
         console.log(e);
