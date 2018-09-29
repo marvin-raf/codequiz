@@ -14,11 +14,12 @@ def get_quiz(quiz_id):
     """
 
     query = """
-    SELECT quizzes.quiz_id, quizzes.quiz_course_id, quizzes.quiz_name, quizzes.quiz_start_date * 1000 AS quiz_start_date, quizzes.quiz_end_date * 1000 AS quiz_end_date, quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
-    FROM quizzes
-    LEFT JOIN courses ON quizzes.quiz_course_id = courses.course_id
+    SELECT quizzes_courses.qc_id, quizzes_courses.qc_course_id, quizzes_courses.qc_start_date * 1000 AS qc_start_date, quizzes_courses.qc_end_date * 1000 AS qc_end_date, quizzes.quiz_name,quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
+    FROM quizzes_courses
+    INNER JOIN quizzes ON quizzes_courses.qc_quiz_id = quizzes.quiz_id
+    LEFT JOIN courses ON quizzes_courses.qc_course_id = courses.course_id
     LEFT JOIN teachers ON teachers.teacher_id = courses.course_teacher_id
-    WHERE quizzes.quiz_id = %s
+    WHERE quizzes_courses.qc_id = %s
     """
 
     quizzes = db.query(query, (quiz_id))
@@ -238,48 +239,6 @@ def get_test_cases(question_id):
     return test_cases
 
 
-def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
-                   code):
-    """
-    Runs test cases for a specific question in a quiz. 
-
-    Returns the output of test cases
-    """
-
-    results = []
-
-    for test_case in test_cases:
-        # If test case is program that prints something hence no test input
-        if not test_case["test_input"]:
-            output, is_error = run_code(filepath)
-            test_case["output"] = output
-            test_case["error"] = is_error
-            results.append(test_case)
-            break
-        else:
-            filepath = os.path.join("app", "packages", "quizzes",
-                                    "question_files",
-                                    "test_case_{}_{}.py".format(
-                                        test_case["test_id"], student_id))
-
-            with open(filepath, "w") as f:
-                f.write("from code_{}_{}_{} import *\n".format(
-                    student_id, quiz_id, question_id))
-                f.write(code)
-                f.write("\n")
-                f.write(test_case["test_input"])
-
-            output, is_error = run_code(filepath)
-            os.remove(filepath)
-
-            test_case["output"] = output.strip()
-            test_case["error"] = is_error
-
-            results.append(test_case)
-
-    return results
-
-
 def insert_attempt(question_id, student_id):
     """
     Inserts a users question attempt
@@ -331,10 +290,11 @@ def get_free_quizzes():
     """
 
     query = """
-    SELECT quizzes.quiz_id, quizzes.quiz_name, languages.language_name, quizzes.quiz_short_desc
-    FROM quizzes
+    SELECT quizzes_courses.qc_id, quizzes.quiz_name, languages.language_name, quizzes.quiz_short_desc
+    FROM quizzes_courses
+    INNER JOIN quizzes ON quizzes_courses.qc_quiz_id = quizzes.quiz_id
     INNER JOIN languages ON quizzes.quiz_language_id = languages.language_id
-    WHERE quizzes.quiz_course_id IS NULL
+    WHERE quizzes_courses.qc_course_id IS NULL
     """
 
     free_quizzes = db.query(query)
@@ -382,7 +342,6 @@ def create_free_quiz(quiz_name, quiz_language_id, quiz_short_desc):
     """
 
     languages = db.query(query, (quiz_language_id))
-    print(quiz_language_id)
 
     if not languages:
         raise ValueError("Language ID does not exist")

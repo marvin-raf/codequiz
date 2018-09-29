@@ -12,10 +12,11 @@
         <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
         <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
           <v-divider v-if="index === 0"></v-divider>
-          <v-list-tile @click="$router.push(`/quizzes/${quiz.quiz_id}`)">
+          <v-list-tile @click="$router.push(`/quizzes/${quiz.qc_id}`)">
             <span>
               <div class="quiz-name-language">
-                <a @click="$router.push(`/quizzes/${quiz.quiz_id}`)" href="#">{{ quiz.quiz_name }}</a>
+
+                <a @click="$router.push(`/quizzes/${quiz.qc_id}`)" href="#">{{ quiz.quiz_name }}</a>
 
               </div>
 

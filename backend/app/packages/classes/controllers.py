@@ -1,7 +1,7 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.classes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden, not_found
-from app.util.middleware import teacher_signed_in, class_exists
+from app.util.middleware import teacher_signed_in, teacher_owns_class
 
 classes_module = Blueprint("classes", __name__, url_prefix="/classes")
 
@@ -48,7 +48,7 @@ def create():
 
 @classes_module.route("/<class_id>", methods=["PATCH"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def change_class(class_id):
     """
     Changes information about a class
@@ -72,7 +72,7 @@ def change_class(class_id):
 
 @classes_module.route("/<class_id>", methods=["DELETE"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def delete_class(class_id):
     """
     Deletes a class
@@ -87,7 +87,7 @@ def delete_class(class_id):
 
 @classes_module.route("/<class_id>/students", methods=["GET"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def get_students(class_id):
     """
     Gets all the students of a class
@@ -102,7 +102,7 @@ def get_students(class_id):
 
 @classes_module.route("/<class_id>/students", methods=["POST"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def add_students(class_id):
     """
     Adds students to the database
@@ -130,7 +130,7 @@ def add_students(class_id):
 
 @classes_module.route("/<class_id>/students", methods=["DELETE"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def delete_students(class_id):
     """
     Deletes all students in a class
@@ -145,7 +145,7 @@ def delete_students(class_id):
 
 @classes_module.route("/<class_id>/students/<student_id>", methods=["DELETE"])
 @teacher_signed_in
-@class_exists
+@teacher_owns_class
 def delete_student(class_id, student_id):
     """
     Deletes a student from a class

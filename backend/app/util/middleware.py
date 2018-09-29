@@ -105,14 +105,13 @@ def teacher_signed_in(func):
         if rows[0]["teacher_is_admin"]:
             request.teacher_is_admin = True
 
-        print(rows)
         request.teacher_id = rows[0]["teacher_id"]
         return func(*args, **kwargs)
 
     return wrap
 
 
-def class_exists(func):
+def teacher_owns_class(func):
     """Decorator"""
 
     @wraps(func)
@@ -233,36 +232,38 @@ def teacher_owns_quiz(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         """
+        NOTE: This middleware is NOT stateless, depends on 
+
         Checks to see if teacher actually owns the quiz, or if 
         a teacher is an admin and the quiz is a free quiz
         """
 
         quiz_id = request.view_args["quiz_id"]
 
+        # Checks if the quiz does not exist
         query = """
-        SELECT quiz_course_id
-        FROM quizzes
-        WHERE quiz_id = %s
+        SELECT qc_id , qc_course_id
+        FROM quizzes_courses 
+        WHERE qc_id = %s
         """
 
         quizzes = db.query(query, (quiz_id))
 
-        # Checks if the quiz does not exist
         if not quizzes:
             return not_found()
 
-        #If the course_id is null, check if teacher is an admin (Passed down from teacher_signed_in middleware)
-        if quizzes[0]["quiz_course_id"] == None and hasattr(
-                request, "teacher_is_admin"):
+        # If the quiz is a free quiz and the teacher is an admin
+        if not quizzes[0]["qc_course_id"] and hasattr(request,
+                                                      "teacher_is_admin"):
             return func(*args, **kwargs)
 
         # Check that teacher owns the course
         query = """
-        SELECT quiz_id
-        FROM quizzes
-        INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
+        SELECT qc_id 
+        FROM quizzes_courses 
+        INNER JOIN courses ON quizzes_courses.qc_course_id = courses.course_id
         INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
-        WHERE quizzes.quiz_id = %s
+        WHERE quizzes_courses.qc_id = %s
         AND teachers.teacher_id = %s
         """
 
@@ -290,9 +291,9 @@ def can_access_quiz(func):
 
         # Check that the quiz exists
         query = """
-        SELECT quiz_id, quiz_course_id, quiz_start_date * 1000 AS quiz_start_date
-        FROM quizzes
-        WHERE quiz_id = %s
+        SELECT quizzes_courses.qc_id,qc_start_date * 1000 AS quiz_start_date, quizzes_courses.qc_course_id 
+        FROM quizzes_courses
+        WHERE qc_id = %s
         """
 
         quizzes = db.query(query, (quiz_id))
@@ -301,7 +302,7 @@ def can_access_quiz(func):
             return not_found()
 
         # IMPORTANT: If the course_id is null for the quiz, that means anyone can view the quiz
-        if not quizzes[0]["quiz_course_id"]:
+        if not quizzes[0]["qc_course_id"]:
             return func(*args, **kwargs)
 
         if hasattr(request, "teacher_id"):
@@ -309,11 +310,11 @@ def can_access_quiz(func):
 
             # Check that teacher owns the course
             query = """
-            SELECT quiz_id 
-            FROM quizzes
-            INNER JOIN courses ON quizzes.quiz_course_id = courses.course_id
+            SELECT quizzes_courses.qc_id 
+            FROM quizzes_courses 
+            INNER JOIN courses ON qc.qc_course_id = courses.course_id
             INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
-            WHERE quizzes.quiz_id = %s
+            WHERE quizzes_courses.qc_id = %s
             AND teachers.teacher_id = %s
             """
 
@@ -336,11 +337,11 @@ def can_access_quiz(func):
             # Check that students teacher owns the quiz
             query = """
             SELECT students_classes.sc_student_id
-            FROM quizzes
-            INNER JOIN classes_courses ON quizzes.quiz_course_id = classes_courses.cc_course_id
+            FROM quizzes_courses 
+            INNER JOIN classes_courses ON quizzes_courses.qc_course_id = classes_courses.cc_course_id
             INNER JOIN courses ON classes_courses.cc_course_id = courses.course_id
             INNER JOIN students_classes ON classes_courses.cc_class_id = students_classes.sc_class_id
-            WHERE students_classes.sc_student_id = %s AND quiz_id = %s
+            WHERE students_classes.sc_student_id = %s AND quizzes_courses.qc_id = %s
             """
 
             rows = db.query(query, (student_id, quiz_id))

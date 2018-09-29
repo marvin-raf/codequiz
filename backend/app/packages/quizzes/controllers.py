@@ -23,7 +23,8 @@ def get_free_quizzes():
     try:
         free_quizzes = models.get_free_quizzes()
         return success(free_quizzes)
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
 
 
@@ -61,7 +62,6 @@ def get_quiz(quiz_id):
     """
     Gets quiz information along with questions for one quiz
     """
-
     try:
         quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)

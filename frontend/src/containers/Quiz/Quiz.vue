@@ -49,7 +49,7 @@ export default {
       endTime: null,
       testCaseModal: false,
       testCaseModalData: null,
-      quizCourseId: null,
+      qcCourseId: null,
       quizTeacherId: null,
       hasFinished: true
     };
@@ -59,15 +59,14 @@ export default {
       const {
         quizName,
         questions,
-        quizStartDate,
-        quizEndDate,
-        quizCourseId,
+        qcStartDate,
+        qcEndDate,
+        qcCourseId,
         quizTeacherId 
       } = await helpers.getQuizData(this.$route.params.id);
 
       // If student is logged in, and they aren't doing a free quiz, check times
-      console.log(quizCourseId);
-      if (studentStore.data.studentId && quizCourseId) {
+      if (studentStore.data.studentId && qcCourseId) {
         const currentTime = Date.now();
         
         if (currentTime > quizEndDate) {
@@ -76,8 +75,8 @@ export default {
         }
 
       // Parsing timestamps into date and times
-      const startDateTime = helpers.getDateTime(quizStartDate);
-      const endDateTime = helpers.getDateTime(quizEndDate);
+      const startDateTime = helpers.getDateTime(qcStartDate);
+      const endDateTime = helpers.getDateTime(qcEndDate);
 
       this.startDate = startDateTime.date;
       this.startTime = startDateTime.time;
@@ -85,7 +84,7 @@ export default {
       this.endDate = endDateTime.date;
       this.endTime = endDateTime.time;
 
-      this.quizCourseId = quizCourseId;
+      this.qcCourseId = qcCourseId;
       this.quizTeacherId = quizTeacherId;
       
 
@@ -134,7 +133,7 @@ export default {
       this.editDateTime = !this.editDateTime;
     },
     isTeacher() {
-      return !this.quizCourseId && teacherStore.data.teacherIsAdmin ||
+      return !this.qcCourseId && teacherStore.data.teacherIsAdmin ||
              teacherStore.data.teacherId === this.quizTeacherId
     },
     isLoggedIn() {
