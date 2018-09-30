@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 5.7.21)
 # Database: quiz_server
-# Generation Time: 2018-09-06 02:08:26 +0000
+# Generation Time: 2018-09-30 20:20:45 +0000
 # ************************************************************
 
 
@@ -27,12 +27,26 @@ DROP TABLE IF EXISTS `answers`;
 
 CREATE TABLE `answers` (
   `answer_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `answer_content` varchar(256) DEFAULT NULL,
+  `answer_content` varchar(1000) DEFAULT NULL,
   `answer_test_id` int(11) unsigned NOT NULL,
   `answer_attempt_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`answer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `answers` WRITE;
+/*!40000 ALTER TABLE `answers` DISABLE KEYS */;
+
+INSERT INTO `answers` (`answer_id`, `answer_content`, `answer_test_id`, `answer_attempt_id`)
+VALUES
+	(1,'Hello World!',3,1),
+	(2,'Hello World!',3,2),
+	(3,'Hello World',3,4),
+	(4,'Hello World!',3,5),
+	(5,'File \"app/packages/quizzes/question_files/test_case_3_1.py\", line 1, in <module>\r\n    from code_1_1_5 import *\r\n  File \"/usr/src/myapp/app/packages/quizzes/question_files/code_1_1_5.py\", line 2\r\n    return \"Hello World!\r\n                       ^\r\nSyntaxError: EOL while scanning string literal',3,6),
+	(6,'Hello World!',3,7);
+
+/*!40000 ALTER TABLE `answers` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table attempts
@@ -51,6 +65,21 @@ CREATE TABLE `attempts` (
   CONSTRAINT `attempts_ibfk_2` FOREIGN KEY (`attempt_student_id`) REFERENCES `students` (`student_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `attempts` WRITE;
+/*!40000 ALTER TABLE `attempts` DISABLE KEYS */;
+
+INSERT INTO `attempts` (`attempt_id`, `attempt_question_id`, `attempt_student_id`)
+VALUES
+	(1,5,1),
+	(2,5,1),
+	(3,5,1),
+	(4,5,1),
+	(5,5,1),
+	(6,5,1),
+	(7,5,1);
+
+/*!40000 ALTER TABLE `attempts` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table classes
@@ -61,10 +90,19 @@ DROP TABLE IF EXISTS `classes`;
 CREATE TABLE `classes` (
   `class_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `class_name` varchar(50) NOT NULL DEFAULT '',
-  `class_teacher_id` int(11) NOT NULL,
+  `class_teacher_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`class_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `classes` WRITE;
+/*!40000 ALTER TABLE `classes` DISABLE KEYS */;
+
+INSERT INTO `classes` (`class_id`, `class_name`, `class_teacher_id`)
+VALUES
+	(1,'1',1);
+
+/*!40000 ALTER TABLE `classes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table classes_courses
@@ -74,11 +112,20 @@ DROP TABLE IF EXISTS `classes_courses`;
 
 CREATE TABLE `classes_courses` (
   `cc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `cc_class_id` int(11) NOT NULL,
-  `cc_course_id` int(11) NOT NULL,
+  `cc_class_id` int(11) unsigned NOT NULL,
+  `cc_course_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`cc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `classes_courses` WRITE;
+/*!40000 ALTER TABLE `classes_courses` DISABLE KEYS */;
+
+INSERT INTO `classes_courses` (`cc_id`, `cc_class_id`, `cc_course_id`)
+VALUES
+	(1,1,1);
+
+/*!40000 ALTER TABLE `classes_courses` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table courses
@@ -95,6 +142,15 @@ CREATE TABLE `courses` (
   CONSTRAINT `courses_ibfk_1` FOREIGN KEY (`course_teacher_id`) REFERENCES `teachers` (`teacher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `courses` WRITE;
+/*!40000 ALTER TABLE `courses` DISABLE KEYS */;
+
+INSERT INTO `courses` (`course_id`, `course_teacher_id`, `course_name`)
+VALUES
+	(1,1,'Python');
+
+/*!40000 ALTER TABLE `courses` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table languages
@@ -157,7 +213,8 @@ VALUES
 	(24,4,'Write a function `total_list(list1)` that returns the result of adding all of its elements together'),
 	(25,4,'Write a function `convert_to_string(list1)` that returns `list1` converted to a string'),
 	(26,4,'Write a function `remove_duplicates(list1)` that returns a list with all values removed that are found in `list1` more than once'),
-	(27,4,'Write a function `merge(list1, list2)` that returns a list of `list1` and `list2` merged together');
+	(27,4,'Write a function `merge(list1, list2)` that returns a list of `list1` and `list2` merged together'),
+	(28,5,'This is a new test case');
 
 /*!40000 ALTER TABLE `questions` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -170,30 +227,55 @@ DROP TABLE IF EXISTS `quizzes`;
 
 CREATE TABLE `quizzes` (
   `quiz_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `quiz_course_id` int(11) unsigned DEFAULT NULL,
   `quiz_name` varchar(30) NOT NULL DEFAULT '',
-  `quiz_start_date` bigint(11) unsigned DEFAULT NULL,
-  `quiz_end_date` bigint(11) unsigned DEFAULT NULL,
   `quiz_language_id` int(11) unsigned DEFAULT NULL,
   `quiz_short_desc` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`quiz_id`),
-  KEY `quiz_course_id` (`quiz_course_id`),
   KEY `quiz_language_id` (`quiz_language_id`),
-  CONSTRAINT `quizzes_ibfk_1` FOREIGN KEY (`quiz_course_id`) REFERENCES `courses` (`course_id`),
   CONSTRAINT `quizzes_ibfk_2` FOREIGN KEY (`quiz_language_id`) REFERENCES `languages` (`language_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `quizzes` WRITE;
 /*!40000 ALTER TABLE `quizzes` DISABLE KEYS */;
 
-INSERT INTO `quizzes` (`quiz_id`, `quiz_course_id`, `quiz_name`, `quiz_start_date`, `quiz_end_date`, `quiz_language_id`, `quiz_short_desc`)
+INSERT INTO `quizzes` (`quiz_id`, `quiz_name`, `quiz_language_id`, `quiz_short_desc`)
 VALUES
-	(1,NULL,'Functions',NULL,NULL,1,'A brief introduction to functions'),
-	(2,NULL,'Conditionals and loops',NULL,NULL,1,'A brief introduction to conditionals and loops'),
-	(3,NULL,'Strings',NULL,NULL,1,'A brief introduction to strings'),
-	(4,NULL,'Lists',NULL,NULL,1,'A brief introduction to lists');
+	(1,'Functions',1,'A brief introduction to functions'),
+	(2,'Conditionals and loops',1,'A brief introduction to conditionals and loops'),
+	(3,'Strings',1,'A brief introduction to strings'),
+	(4,'Lists',1,'A brief introduction to lists'),
+	(5,'something',1,'This is a quiz');
 
 /*!40000 ALTER TABLE `quizzes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+# Dump of table quizzes_courses
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `quizzes_courses`;
+
+CREATE TABLE `quizzes_courses` (
+  `qc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `qc_quiz_id` int(11) unsigned NOT NULL,
+  `qc_course_id` int(11) unsigned DEFAULT NULL,
+  `qc_start_date` bigint(20) unsigned DEFAULT NULL,
+  `qc_end_date` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`qc_id`),
+  KEY `qc_quiz_id` (`qc_quiz_id`),
+  KEY `qc_course_id` (`qc_course_id`),
+  CONSTRAINT `quizzes_courses_ibfk_1` FOREIGN KEY (`qc_quiz_id`) REFERENCES `quizzes` (`quiz_id`),
+  CONSTRAINT `quizzes_courses_ibfk_2` FOREIGN KEY (`qc_course_id`) REFERENCES `courses` (`course_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `quizzes_courses` WRITE;
+/*!40000 ALTER TABLE `quizzes_courses` DISABLE KEYS */;
+
+INSERT INTO `quizzes_courses` (`qc_id`, `qc_quiz_id`, `qc_course_id`, `qc_start_date`, `qc_end_date`)
+VALUES
+	(1,1,NULL,NULL,NULL);
+
+/*!40000 ALTER TABLE `quizzes_courses` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
@@ -218,6 +300,15 @@ CREATE TABLE `students` (
   CONSTRAINT `students_ibfk_1` FOREIGN KEY (`student_teacher_id`) REFERENCES `teachers` (`teacher_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `students` WRITE;
+/*!40000 ALTER TABLE `students` DISABLE KEYS */;
+
+INSERT INTO `students` (`student_id`, `student_teacher_id`, `student_name`, `student_email`, `student_hash`, `student_activate_token`, `student_token`)
+VALUES
+	(1,1,'Raf','helloworld@gmail.com','$2b$12$JM.03H84KUPaLy.syEEDFOkdSits4dDpJY9XJq2IgUu3kvLw1W0ey','','92b4cb213c1042db93bb541394842dd4');
+
+/*!40000 ALTER TABLE `students` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table students_classes
@@ -227,11 +318,20 @@ DROP TABLE IF EXISTS `students_classes`;
 
 CREATE TABLE `students_classes` (
   `sc_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `sc_student_id` int(11) NOT NULL,
-  `sc_class_id` int(11) NOT NULL,
+  `sc_student_id` int(11) unsigned NOT NULL,
+  `sc_class_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`sc_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `students_classes` WRITE;
+/*!40000 ALTER TABLE `students_classes` DISABLE KEYS */;
+
+INSERT INTO `students_classes` (`sc_id`, `sc_student_id`, `sc_class_id`)
+VALUES
+	(1,1,1);
+
+/*!40000 ALTER TABLE `students_classes` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table teachers
@@ -252,6 +352,15 @@ CREATE TABLE `teachers` (
   UNIQUE KEY `teacher_token` (`teacher_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+LOCK TABLES `teachers` WRITE;
+/*!40000 ALTER TABLE `teachers` DISABLE KEYS */;
+
+INSERT INTO `teachers` (`teacher_id`, `teacher_name`, `teacher_email`, `teacher_hash`, `teacher_token`, `teacher_is_admin`)
+VALUES
+	(1,'Rafael Goesmann','rafaelgoesmann@gmail.com','$2b$12$1cYfHEqo0amFDQKnMhPQQ.ceeHha05OHAn2pp6qf8uwtiDrE527JW',NULL,1);
+
+/*!40000 ALTER TABLE `teachers` ENABLE KEYS */;
+UNLOCK TABLES;
 
 
 # Dump of table tests
