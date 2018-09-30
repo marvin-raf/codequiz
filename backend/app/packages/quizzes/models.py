@@ -290,49 +290,6 @@ def get_test_cases(question_id):
     return test_cases
 
 
-<<<<<<< HEAD
-=======
-def run_test_cases(test_cases, filepath, student_id, quiz_id, question_id,
-                   code):
-    """
-    Runs test cases for a specific question in a quiz. 
-
-    Returns the output of test cases
-    """
-
-    results = []
-
-    for test_case in test_cases:
-        if not test_case["test_input"]:
-            output, is_error = run_code(filepath)
-            test_case["output"] = output
-            test_case["error"] = is_error
-            results.append(test_case)
-            break
-        else:
-            filepath = os.path.join(
-                "app", "packages", "quizzes", "question_files",
-                "test_case_{}_{}.py".format(test_case["test_id"], student_id))
-
-            with open(filepath, "w") as f:
-                f.write("from code_{}_{}_{} import *\n".format(
-                    student_id, quiz_id, question_id))
-                f.write(code)
-                f.write("\n")
-                f.write(test_case["test_input"])
-
-            output, is_error = run_code(filepath)
-            os.remove(filepath)
-
-            test_case["output"] = output.strip()
-            test_case["error"] = is_error
-
-            results.append(test_case)
-
-    return results
-
-
->>>>>>> e6f60c62d2ab98c365542411592c460ccefb503a
 def insert_attempt(question_id, student_id):
     """
     Inserts a users question attempt
