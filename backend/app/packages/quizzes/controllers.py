@@ -207,13 +207,20 @@ def check(quiz_id, question_id):
 
         test_cases = models.get_test_cases(question_id)
 
-        results = code_runner.run(test_cases)
+        # question_worth, total_negated and last_attempt_wrong only valid for free quiz!
+        results, question_worth, total_negated, last_attempt_wrong = code_runner.run(
+            test_cases)
 
         code_runner.remove_code()  # Deletes students code
 
         # If user is not student or the quiz is a free quiz, then don't save their attempt
         if not hasattr(request, "student_id"):
-            return success({"results": results})
+            return success({
+                "results": results,
+                "question_worth": question_worth,
+                "total_negated": total_negated,
+                "last_attempt_wrong": last_attempt_wrong
+            })
 
         attempt_id = models.insert_attempt(question_id, student_id)
 
@@ -221,7 +228,8 @@ def check(quiz_id, question_id):
 
         question_worth, total_negated, last_attempt_wrong = models.get_mark_worth(
             question_id, student_id)
-    except KeyError:
+    except KeyError as e:
+        print(e)
         return bad_request()
     except Exception as e:
         print(e)

@@ -56,83 +56,83 @@
       <br>
     </div>
 
-    <h3>Question {{ questionIndex + 1 }}
-      <v-btn class="save-btn" v-if="question.edit_mode" color="secondary" @click="setEditMode()">Save</v-btn>
+      <h3>Question {{ questionIndex + 1 }}
+        <v-btn class="save-btn" v-if="question.edit_mode" color="secondary" @click="setEditMode()">Save</v-btn>
 
-      <v-btn v-if="!question.edit_mode && isTeacher()" flat class="edit-btn" color="primary">
-        <v-icon @click="setEditMode()" color="primary">edit</v-icon>
-      </v-btn>
-    </h3>
+        <v-btn v-if="!question.edit_mode && isTeacher()" flat class="edit-btn" color="primary">
+          <v-icon @click="setEditMode()" color="primary">edit</v-icon>
+        </v-btn>
+      </h3>
 
-    <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
+      <vue-markdown v-if="!question.edit_mode">{{ questionDescription }}</vue-markdown>
 
-    <v-textarea v-else hint="Question Description" auto-grow color="secondary" v-model="questionDescription"></v-textarea>
+      <v-textarea v-else hint="Question Description" auto-grow color="secondary" v-model="questionDescription"></v-textarea>
 
-    <v-data-table :headers="headers" :items="question.test_cases" no-data-text="No Test Cases" class="elevation-1" hide-actions>
-      <template slot="items" slot-scope="props">
-        <td>
-          <pre>{{ props.item.test_input }}</pre>
-        </td>
-        <td>
-          <pre>{{ props.item.test_expected }}</pre>
-        </td>
-        <td class="text-xs-right">
-          <v-icon v-if="isTeacher()" class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
-            edit
-          </v-icon>
-          <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
-            delete
-          </v-icon>
-        </td>
-      </template>
-    </v-data-table>
-
-    <v-btn flat v-if="isTeacher()" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
-
-    <div class="editor" v-if="!question.edit_mode">
-    </div>
-
-    <v-alert id="precheck-error" type="error" :value="precheckError.length">
-
-      <div v-for="error in precheckError" v-bind:key="error">{{ error }}</div>
-    </v-alert>
-
-    <v-alert :value="precheckSuccess" id="precheck-success" type="success">
-      Successful Precheck
-    </v-alert>
-
-    <v-data-table v-if="testCaseResults && testCaseResults.length" :headers="testCaseResultHeaders" :items="testCaseResults" no-data-text="" class="elevation-1" hide-actions>
-      <template slot="items" slot-scope="props">
-        <tr v-bind:class="{'question-right' : props.item.test_expected === props.item.output, 'question-wrong': props.item.test_expected !== props.item.output}">
+      <v-data-table :headers="headers" :items="question.test_cases" no-data-text="No Test Cases" class="elevation-1" hide-actions>
+        <template slot="items" slot-scope="props">
           <td>
             <pre>{{ props.item.test_input }}</pre>
           </td>
           <td>
             <pre>{{ props.item.test_expected }}</pre>
           </td>
-          <td>
-            <pre>{{ props.item.output }}</pre>
+          <td class="text-xs-right">
+            <v-icon v-if="isTeacher()" class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
+              edit
+            </v-icon>
+            <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
+              delete
+            </v-icon>
           </td>
-        </tr>
-      </template>
-    </v-data-table>
+        </template>
+      </v-data-table>
 
-    <span v-if="testCaseResults && testCaseResults.length">
-      Marks for this submission: 0.{{ question.question_worth }}
-      <br />
-      <span v-if="question.last_attempt_wrong">
-        Total Negated: 0.{{ question.total_negated }}
+      <v-btn flat v-if="isTeacher()" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
+
+      <div class="editor" v-if="!question.edit_mode">
+      </div>
+
+      <v-alert id="precheck-error" type="error" :value="precheckError.length">
+
+        <div v-for="error in precheckError" v-bind:key="error">{{ error }}</div>
+      </v-alert>
+
+      <v-alert :value="precheckSuccess" id="precheck-success" type="success">
+        Successful Precheck
+      </v-alert>
+
+      <v-data-table v-if="testCaseResults && testCaseResults.length" :headers="testCaseResultHeaders" :items="testCaseResults" no-data-text="" class="elevation-1" hide-actions>
+        <template slot="items" slot-scope="props">
+          <tr v-bind:class="{'question-right' : props.item.test_expected === props.item.output, 'question-wrong': props.item.test_expected !== props.item.output}">
+            <td>
+              <pre>{{ props.item.test_input }}</pre>
+            </td>
+            <td>
+              <pre>{{ props.item.test_expected }}</pre>
+            </td>
+            <td>
+              <pre>{{ props.item.output }}</pre>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
+
+      <span v-if="testCaseResults && testCaseResults.length">
+        Marks for this submission: {{ question.question_worth / 10}}
+        <br />
+        <span v-if="question.last_attempt_wrong">
+          Total Negated: {{ question.total_negated / 10}}
+        </span>
       </span>
-    </span>
 
-    <div id="check-btns">
-      <v-btn :flat="!hasFinished" class="precheck-btn" @click="precheck()" :loading="precheckLoading" v-if="!question.edit_mode" :disabled="hasFinished">Precheck</v-btn>
+      <div id="check-btns">
+        <v-btn :flat="!hasFinished" class="precheck-btn" @click="precheck()" :loading="precheckLoading" v-if="!question.edit_mode" :disabled="hasFinished">Precheck</v-btn>
 
-      <v-btn :flat="!hasFinished" class="check-btn" @click="check()" :loading="checkLoading" v-if="!question.edit_mode" :disabled="hasFinished">Check</v-btn>
+        <v-btn :flat="!hasFinished" class="check-btn" @click="check()" :loading="checkLoading" v-if="!question.edit_mode" :disabled="hasFinished">Check</v-btn>
 
-      <div style="clear: both;"></div>
+        <div style="clear: both;"></div>
 
-    </div>
+      </div>
 
   </v-card>
 </template>
@@ -271,11 +271,8 @@ export default {
         );
 
         this.testCaseResults = json.results;
-        console.log(json.results);
         
         this.checkLoading = false;
-
-        if (!studentStore.methods.studentLoggedIn()) return;
 
         this.$emit("update-question-worth", {
           questionIndex: this.questionIndex,

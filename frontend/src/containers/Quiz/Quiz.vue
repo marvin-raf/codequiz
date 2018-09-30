@@ -51,7 +51,7 @@ export default {
       testCaseModalData: null,
       qcCourseId: null,
       quizTeacherId: null,
-      hasFinished: true
+      hasFinished: false 
     };
   },
   async mounted() {
@@ -71,6 +71,8 @@ export default {
         
         if (currentTime > quizEndDate) {
           this.hasFinished = true;
+        } else {
+          this.hasFinished = false; 
         }
         }
 
@@ -133,8 +135,9 @@ export default {
       this.editDateTime = !this.editDateTime;
     },
     isTeacher() {
-      return !this.qcCourseId && teacherStore.data.teacherIsAdmin ||
-             teacherStore.data.teacherId === this.quizTeacherId
+      // Check if teacher is admin and on a free quiz or if teacher is admin on their own quiz
+      return teacherStore.data.teacherId && ((!this.qcCourseId && teacherStore.data.teacherIsAdmin) ||
+             (teacherStore.data.teacherId === this.quizTeacherId))
     },
     isLoggedIn() {
       return teacherStore.data.teacherId || studentStore.data.studentId;

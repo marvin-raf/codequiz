@@ -368,9 +368,10 @@ def question_exists(func):
         question_id = request.view_args["question_id"]
 
         query = """
-        SELECT question_id
+        SELECT questions.question_id
         FROM questions
-        WHERE question_quiz_id = %s AND question_id = %s
+        INNER JOIN quizzes_courses ON questions.question_quiz_id = quizzes_courses.qc_quiz_id
+        WHERE quizzes_courses.qc_id = %s AND questions.question_id = %s
         """
         rows = db.query(query, (quiz_id, question_id))
 
