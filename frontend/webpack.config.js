@@ -4,8 +4,7 @@ require("babel-polyfill");
 var WebpackBundleAnalyzer =
     require("webpack-bundle-analyzer").WebpackBundleAnalyzer;
 
-const distPath =
-    process.env.NODE_ENV === "production" ? "../frontend-serve/dist" : "dist";
+const distPath = process.env.NODE_ENV === "production" ? "../frontend-serve/dist" : "dist";
 
 module.exports = {
     entry : [ "babel-polyfill", "./src/main.js" ],

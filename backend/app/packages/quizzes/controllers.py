@@ -66,15 +66,45 @@ def get_quiz(quiz_id):
         quiz = models.get_quiz(quiz_id)
         questions = models.get_questions(quiz_id)
 
-        questions_with_tests = models.get_tests(questions, request.student_id
-                                                if hasattr(
-                                                    request, "student_id") else
-                                                None)
+        questions_with_tests = models.get_tests(
+            questions, request.student_id
+            if hasattr(request, "student_id") else None)
     except Exception as e:
         print(e)
         return server_error()
 
     return success({"quiz": quiz, "questions": questions_with_tests})
+
+
+@quizzes_module.route("/<quiz_id>", methods=["PATCH"])
+@teacher_signed_in
+@teacher_owns_quiz
+def edit_quiz(quiz_id):
+    """
+    Changes quiz info
+    """
+    try:
+        body = request.get_json()
+
+        name = body["name"]
+        start_date = body["start_date"]
+        end_date = body["end_date"]
+        description = body["description"]
+        language = body["language"]
+
+        if not models.check_dates(
+                start_date, end_date) and not models.check_languages(language):
+            return bad_request()
+
+        models.edit_quiz(quiz_id, name, start_date, end_date, description,
+                         language)
+
+    except KeyError:
+        return bad_request()
+    except Exception as e:
+        print(e)
+        return server_error()
+    return success()
 
 
 @quizzes_module.route("/<quiz_id>/questions", methods=["POST"])
@@ -152,9 +182,8 @@ def precheck(quiz_id, question_id):
     """
 
     try:
-        student_id = request.student_id if hasattr(request,
-                                                   "student_id") else str(
-                                                       uuid.uuid4().hex)
+        student_id = request.student_id if hasattr(
+            request, "student_id") else str(uuid.uuid4().hex)
 
         body = request.get_json()
 
@@ -193,10 +222,15 @@ def check(quiz_id, question_id):
     Checks students code for a particular question against test cases
     """
     try:
+<<<<<<< HEAD
         # If user is not a student, assign them random uuid for filename
         student_id = request.student_id if hasattr(request,
                                                    "student_id") else str(
                                                        uuid.uuid4().hex)
+=======
+        student_id = request.student_id if hasattr(
+            request, "student_id") else str(uuid.uuid4().hex)
+>>>>>>> e6f60c62d2ab98c365542411592c460ccefb503a
         body = request.get_json()
 
         code = body["code"]
