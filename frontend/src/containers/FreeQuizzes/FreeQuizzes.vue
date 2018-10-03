@@ -8,39 +8,13 @@
     <v-progress-circular indeterminate color="secondary" id="free-quizzes-spinner" v-if="freeQuizzes === null"></v-progress-circular>
 
     <div v-else>
-      <v-list>
-        <!--.slice call gets only the quizzes we want on the specific page of the pagination-->
-        <div v-for="(quiz, index) in freeQuizzes.slice((page-1)*8, (page - 1) * 8 + 8)" v-bind:key="index">
-          <v-divider v-if="index === 0"></v-divider>
-          <v-list-tile @click="$router.push(`/quizzes/${quiz.qc_id}`)">
-            <span>
-              <div class="quiz-name-language">
+      <QuizList :quizzes="freeQuizzes" :page="page" :perPage="8" />
 
-                <a @click="$router.push(`/quizzes/${quiz.qc_id}`)" href="#">{{ quiz.quiz_name }}</a>
+      <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin">
+        <v-icon>add</v-icon>
+      </v-btn>
 
-              </div>
-
-            </span>
-
-            <v-list-tile-content style="width: 100%;">
-              <div class="quiz-short-description">
-
-                {{ quiz.quiz_short_desc }}
-
-              </div>
-
-            </v-list-tile-content>
-            <font-awesome-icon :icon="['fab', 'python']" id="quiz-icon" />
-
-          </v-list-tile>
-          <v-divider></v-divider>
-        </div>
-        <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin">
-          <v-icon>add</v-icon>
-        </v-btn>
-
-        <v-pagination color="secondary" :length="Math.ceil(freeQuizzes.length / 8)" id="free-quizzes-pagination" v-model="page"></v-pagination>
-      </v-list>
+      <v-pagination color="secondary" :length="Math.ceil(freeQuizzes.length / 8)" id="free-quizzes-pagination" v-model="page"></v-pagination>
 
       <v-dialog v-model="newQuizDialog" width="600">
 
@@ -84,8 +58,12 @@
 <script>
 import helpers from "./helpers";
 import teacherStore from "../../store/teacherStore";
+import QuizList from "../../components/QuizList/QuizList";
 
 export default {
+  components: {
+    QuizList
+  },
   data() {
     return {
       freeQuizzes: [],
@@ -200,15 +178,6 @@ export default {
     margin: 0 auto;
     display: block;
     margin-top: 50px;
-  }
-
-  .quiz-name-language {
-    width: 100px;
-    float: left;
-  }
-
-  .quiz-short-description {
-    float: left;
   }
 
   #quiz-icon {

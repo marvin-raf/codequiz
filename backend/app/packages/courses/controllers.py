@@ -58,7 +58,8 @@ def get_course(course_id):
         quizzes = models.get_quizzes(course_id)
         classes = models.get_classes(course_id)
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
     return success({
         "course_id": course_id,

@@ -8,10 +8,23 @@ from app.packages.quizzes.code_runner import CodeRunner
 from app.util.responses import success, bad_request, server_error, created, forbidden
 from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out, test_case_exists
 
-# RUN_CODE_COMMAND = 'gtimeout 15s docker run -it --memory 4m --rm --name my-running-script -v "\$PWD":/usr/src/myapp -w /usr/src/myapp python:3 python3 {}'
-RUN_CODE_COMMAND = "python3 {}"
-
 quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
+
+
+@quizzes_module.route("/", methods=["GET"])
+@teacher_signed_in
+def get_quizzes():
+    """
+    Gets all the quizzes that the teacher owns
+    """
+
+    try:
+        quizzes = models.get_quizzes(request.teacher_id)
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success(quizzes)
 
 
 @quizzes_module.route("/free", methods=["GET"])
@@ -22,10 +35,11 @@ def get_free_quizzes():
 
     try:
         free_quizzes = models.get_free_quizzes()
-        return success(free_quizzes)
     except Exception as e:
         print(e)
         return server_error()
+
+    return success(free_quizzes)
 
 
 @quizzes_module.route("/free", methods=["POST"])
@@ -211,7 +225,7 @@ def precheck(quiz_id, question_id):
         print(e)
         return server_error()
 
-    return success({"output": output})
+    return success({"output": output.decode()})
 
 
 @quizzes_module.route(
@@ -245,7 +259,7 @@ def check(quiz_id, question_id):
         code_runner.remove_code()  # Deletes students code
 
         # If user is not student or the quiz is a free quiz, then don't save their attempt
-        if not hasattr(request, "student_id"):
+        if hasattr(request, "is_free_quiz"):
             return success({
                 "results": results,
                 "question_worth": question_worth,

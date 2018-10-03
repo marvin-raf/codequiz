@@ -1,13 +1,13 @@
 <template>
-    <v-card class="col-lg-8 offset-lg-2" id="sign-in">
-        <h1>Sign In</h1>
+  <v-card class="col-lg-8 offset-lg-2" id="sign-in">
+    <h1>Sign In</h1>
 
-        <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
+    <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
 
-        <v-text-field type="password" label="Password" v-model="password" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.password" :maxlength="50"></v-text-field>
+    <v-text-field type="password" label="Password" v-model="password" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.password" :maxlength="50"></v-text-field>
 
-        <v-btn color="secondary" id="sign-in-btn" depressed @click="signIn()" :loading="loading">Sign Up</v-btn>
-    </v-card>
+    <v-btn color="secondary" id="sign-in-btn" depressed @click="signIn()" :loading="loading">Sign Up</v-btn>
+  </v-card>
 </template>
 
 <script>

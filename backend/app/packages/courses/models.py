@@ -54,9 +54,10 @@ def get_quizzes(course_id):
     """
 
     query = """
-    SELECT quiz_id, quiz_name, quiz_start_date, quiz_end_date, quiz_short_desc, quiz_language_id
-    FROM quizzes
-    WHERE quiz_course_id = %s
+    SELECT quizzes_courses.qc_id, quizzes_courses.qc_start_date, quizzes_courses.qc_end_date, quizzes.quiz_id, quizzes.quiz_short_desc, quizzes.quiz_language_id 
+    FROM quizzes_courses 
+    INNER JOIN quizzes ON quizzes_courses.qc_quiz_id = quizzes.quiz_id
+    WHERE quizzes_courses.qc_course_id = %s
     """
 
     quizzes = db.query(query, (course_id))

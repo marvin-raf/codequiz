@@ -105,6 +105,7 @@ def teacher_signed_in(func):
         if rows[0]["teacher_is_admin"]:
             request.teacher_is_admin = True
 
+        print("Did I make it here")
         request.teacher_id = rows[0]["teacher_id"]
         return func(*args, **kwargs)
 
@@ -303,6 +304,7 @@ def can_access_quiz(func):
 
         # IMPORTANT: If the course_id is null for the quiz, that means anyone can view the quiz
         if not quizzes[0]["qc_course_id"]:
+            request.is_free_quiz = True
             return func(*args, **kwargs)
 
         if hasattr(request, "teacher_id"):

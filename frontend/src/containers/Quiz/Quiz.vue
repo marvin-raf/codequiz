@@ -5,7 +5,7 @@
     <v-card class="col-lg-10 offset-lg-1" id="quiz">
       <h1 v-if="quizName">{{ quizName }}</h1>
 
-      <DateTime v-if="quizName && !isLoggedIn()" :startDate="startDate" :startTime="startTime" :endDate="endDate" :endTime="endTime" :editDateTime="editDateTime" v-on:save-date-time="saveDateTime" v-on:toggle-edit-date-time="toggleDateTime" />
+      <!-- <DateTime v-if="quizName && !isLoggedIn()" :startDate="startDate" :startTime="startTime" :endDate="endDate" :endTime="endTime" :editDateTime="editDateTime" v-on:save-date-time="saveDateTime" v-on:toggle-edit-date-time="toggleDateTime" /> -->
 
     </v-card>
 
@@ -179,15 +179,7 @@ export default {
 @import "../../styles/_mixins.scss";
 @import "../../styles/_variables.scss";
 #quiz {
-  background-color: $wet-asphalt;
-
-  h1 {
-    text-align: center;
-    color: #fff;
-  }
-  padding-top: 20px;
-  margin-top: 20px;
-  padding-bottom: 20px;
+  @include dark-header();
 }
 
 #sign-in-btn {

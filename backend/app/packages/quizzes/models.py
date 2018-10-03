@@ -9,6 +9,22 @@ RUN_CODE_COMMAND = "bash " + RUN_CODE_FILE + " {}"
 TIME_LIMIT_EXCEEDED = "ERROR: Time Limit Exceeded"
 
 
+def get_quizzes(teacher_id):
+    """
+    Gets all the quizzes that the teacher owns
+    """
+
+    query = """
+    SELECT quiz_id, quiz_name, quiz_short_desc, quiz_language_id
+    FROM quizzes
+    WHERE quiz_teacher_id = %s
+    """
+
+    quizzes = db.query(query, (teacher_id))
+
+    return quizzes
+
+
 def get_quiz(quiz_id):
     """ Gets name of a quiz based on the quiz_id
     """

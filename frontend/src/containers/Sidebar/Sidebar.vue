@@ -94,6 +94,14 @@ export default {
           showForStudent: false
         },
         {
+          title: "Your Quizzes",
+          url: "/quizzes",
+          icon: "assignment",
+          signedIn: true,
+          showForTeacher: true,
+          showForStudent: false 
+        },
+        {
           title: "Courses",
           url: "/courses",
           icon: "folder",
