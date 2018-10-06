@@ -84,7 +84,7 @@ export default {
   async mounted() {
     try {
       const freeQuizzes = await helpers.getFreeQuizzes();
-
+      console.log(freeQuizzes);
       this.freeQuizzes = freeQuizzes;
 
       // If user is an admin, then get all languages

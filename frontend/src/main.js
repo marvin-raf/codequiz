@@ -64,9 +64,16 @@ const routes = [
         beforeEnter : authHelper.loggedIn
     },
     {
-        path : "/quizzes/:id",
+        path : "/quizzes/instance/:id",
         component : Quiz,
-        beforeEnter : authHelper.loggedInOrOut
+        beforeEnter : authHelper.loggedInOrOut,
+        props : {isInstance : true}
+    },
+    {
+        path : "/quizzes/template/:id",
+        component : Quiz,
+        beforeEnter : authHelper.teacherLoggedIn,
+        props : {isInstance : false}
     },
     {
         path : "/quizzes",

@@ -6,7 +6,7 @@ import uuid
 from app.packages.quizzes import models
 from app.packages.quizzes.code_runner import CodeRunner
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz, question_exists, signed_in_or_out, test_case_exists
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz_instance, question_exists, signed_in_or_out, test_case_exists
 
 quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
@@ -69,21 +69,41 @@ def create_free_quizzes():
     return created()
 
 
-@quizzes_module.route("/<quiz_id>", methods=["GET"])
+@quizzes_module.route("/instance/<qc_id>", methods=["GET"])
 @signed_in_or_out
-@can_access_quiz
-def get_quiz(quiz_id):
+@can_access_quiz_instance
+def get_quiz_instance(qc_id):
     """
     Gets quiz information along with questions for one quiz
     """
     try:
-        quiz = models.get_quiz(quiz_id)
-        questions = models.get_questions(quiz_id)
+        quiz = models.get_quiz_instance(qc_id)
+        questions = models.get_questions(quiz["quiz_id"])
 
         questions_with_tests = models.get_tests(questions, request.student_id
                                                 if hasattr(
                                                     request, "student_id") else
                                                 None)
+    except Exception as e:
+        print(e)
+        return server_error()
+
+    return success({"quiz": quiz, "questions": questions_with_tests})
+
+
+@quizzes_module.route("/template/<quiz_id>", methods=["GET"])
+@teacher_signed_in
+@teacher_owns_quiz
+def get_quiz_template(quiz_id):
+    """
+    Gets quiz information along with questions for one quiz
+    """
+    try:
+        quiz = models.get_quiz_template(quiz_id)
+        questions = models.get_questions(quiz_id)
+
+        questions_with_tests = models.get_tests(questions, None)
+
     except Exception as e:
         print(e)
         return server_error()
@@ -187,11 +207,11 @@ def delete_question(quiz_id, question_id):
 
 
 @quizzes_module.route(
-    "/<quiz_id>/questions/<question_id>/precheck", methods=["POST"])
+    "/<qc_id>/questions/<question_id>/precheck", methods=["POST"])
 @signed_in_or_out
-@can_access_quiz
+@can_access_quiz_instance
 @question_exists
-def precheck(quiz_id, question_id):
+def precheck(qc_id, question_id):
     """
     Adds one question to a quiz
     """
@@ -205,7 +225,7 @@ def precheck(quiz_id, question_id):
 
         code = body["code"]
 
-        filename = models.precheck_file_name(student_id, quiz_id, question_id)
+        filename = models.precheck_file_name(student_id, qc_id, question_id)
         filepath = os.path.join("app", "packages", "quizzes", "question_files",
                                 filename)
 
@@ -229,11 +249,11 @@ def precheck(quiz_id, question_id):
 
 
 @quizzes_module.route(
-    "/<quiz_id>/questions/<question_id>/check", methods=["POST"])
+    "/<qc_id>/questions/<question_id>/check", methods=["POST"])
 @signed_in_or_out
-@can_access_quiz
+@can_access_quiz_instance
 @question_exists
-def check(quiz_id, question_id):
+def check(qc_id, question_id):
     """
     Checks students code for a particular question against test cases
     """
@@ -246,7 +266,7 @@ def check(quiz_id, question_id):
 
         code = body["code"]
 
-        code_runner = CodeRunner(student_id, quiz_id, question_id)
+        code_runner = CodeRunner(student_id, qc_id, question_id)
 
         code_runner.write_code(code)  # Writes students code to file
 

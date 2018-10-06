@@ -1,8 +1,8 @@
 <template>
-<v-card class="col-lg-8 offset-lg-2" id="sign-up">
+  <v-card class="col-lg-8 offset-lg-2" id="sign-up">
     <h1>Sign Up</h1>
 
-    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.name" :maxlength="50"></v-text-field> 
+    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.name" :maxlength="50"></v-text-field>
 
     <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
 
@@ -12,8 +12,7 @@
 
     <v-btn color="secondary" id="sign-up-btn" depressed @click="signUp()" :loading="loading">Sign Up</v-btn>
 
-
-    </v-card>
+  </v-card>
 </template>
 
 <script>

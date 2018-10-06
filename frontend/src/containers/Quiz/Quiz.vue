@@ -35,6 +35,7 @@ export default {
     DateTime,
     TestCaseModal
   },
+  props: ["isInstance"],
   data() {
     return {
       teacherStore: teacherStore.data,
@@ -63,13 +64,14 @@ export default {
         qcEndDate,
         qcCourseId,
         quizTeacherId 
-      } = await helpers.getQuizData(this.$route.params.id);
+      } = await helpers.getQuizData(this.$route.params.id, this.isInstance);
 
       // If student is logged in, and they aren't doing a free quiz, check times
       if (studentStore.data.studentId && qcCourseId) {
         const currentTime = Date.now();
         
-        if (currentTime > quizEndDate) {
+        if (currentTime > qcEndDate) {
+          console.log("This quiz has finished");
           this.hasFinished = true;
         } else {
           this.hasFinished = false; 
@@ -98,6 +100,7 @@ export default {
       this.questions = questions;
 
     } catch (e) {
+      console.log(e);
       this.$router.push("/dashboard");
     }
   },

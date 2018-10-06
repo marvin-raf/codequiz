@@ -10,7 +10,7 @@ from app.util.responses import unauthorized, bad_request, not_found, forbidden
 
 def student_signed_in(func):
     """
-    Checks to see if the teacher is authenticated or not.
+    Checks to see if the student is authenticated or not.
     """
 
     @wraps(func)
@@ -233,7 +233,7 @@ def teacher_owns_quiz(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         """
-        NOTE: This middleware is NOT stateless, depends on 
+        NOTE: This middleware is NOT stateless, depends on teacher_logged_in
 
         Checks to see if teacher actually owns the quiz, or if 
         a teacher is an admin and the quiz is a free quiz
@@ -277,22 +277,23 @@ def teacher_owns_quiz(func):
     return wrap
 
 
-def can_access_quiz(func):
+def can_access_quiz_instance(func):
     """Decorator"""
 
     @wraps(func)
     def wrap(*args, **kwargs):
-        """Checks to see if either a teacher, student or unauthorized user
-        can access the quiz
-
-           If a student is logged in, check whether their teacher owns the quiz
-           If a teacher is logged in, wheck whether they own the course for that quiz
         """
-        quiz_id = request.view_args["quiz_id"]
+        Checks to see if either a student or unauthorized user can access the quiz.
+
+           If the quiz is a free quiz, the let everyone through 
+           If not and if the user is a student, check whether student is an a course
+           that is part of the quiz instance.
+        """
+        quiz_id = request.view_args["qc_id"]
 
         # Check that the quiz exists
         query = """
-        SELECT quizzes_courses.qc_id,qc_start_date * 1000 AS quiz_start_date, quizzes_courses.qc_course_id 
+        SELECT quizzes_courses.qc_id,qc_start_date * 1000 AS quiz_start_date, qc_end_date * 1000 AS quiz_end_date, quizzes_courses.qc_course_id , quizzes_courses.qc_quiz_id
         FROM quizzes_courses
         WHERE qc_id = %s
         """
@@ -302,37 +303,21 @@ def can_access_quiz(func):
         if not quizzes:
             return not_found()
 
+        # Set the quiz_id in the context so that controllers can use it
+        request.quiz_id = quizzes[0]["qc_quiz_id"]
+
         # IMPORTANT: If the course_id is null for the quiz, that means anyone can view the quiz
         if not quizzes[0]["qc_course_id"]:
             request.is_free_quiz = True
             return func(*args, **kwargs)
 
-        if hasattr(request, "teacher_id"):
-            teacher_id = request.teacher_id
-
-            # Check that teacher owns the course
-            query = """
-            SELECT quizzes_courses.qc_id 
-            FROM quizzes_courses 
-            INNER JOIN courses ON qc.qc_course_id = courses.course_id
-            INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
-            WHERE quizzes_courses.qc_id = %s
-            AND teachers.teacher_id = %s
-            """
-
-            quizzes = db.query(query, (quiz_id, teacher_id))
-
-            if not quizzes:
-                return forbidden()
-            return func(*args, **kwargs)
-        elif hasattr(request, "student_id"):
+        if hasattr(request, "student_id"):
             student_id = request.student_id
-
-            quiz_id = request.view_args["quiz_id"]
 
             # If the quiz hasn't started yet, then don't let student access
             current_time = int(time.time() * 1000)
-
+            print(current_time)
+            print(quizzes[0]["quiz_start_date"])
             if current_time < quizzes[0]["quiz_start_date"]:
                 return forbidden()
 
@@ -366,7 +351,7 @@ def question_exists(func):
     @wraps(func)
     def wrap(*args, **kwargs):
 
-        quiz_id = request.view_args["quiz_id"]
+        quiz_id = request.view_args["qc_id"]
         question_id = request.view_args["question_id"]
 
         query = """

@@ -25,17 +25,34 @@ def get_quizzes(teacher_id):
     return quizzes
 
 
-def get_quiz(quiz_id):
-    """ Gets name of a quiz based on the quiz_id
+def get_quiz_instance(qc_id):
+    """
+    Gets name of a quiz based on the quiz_id
     """
 
     query = """
-    SELECT quizzes_courses.qc_id, quizzes_courses.qc_course_id, quizzes_courses.qc_start_date * 1000 AS qc_start_date, quizzes_courses.qc_end_date * 1000 AS qc_end_date, quizzes.quiz_name,quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
+    SELECT quizzes_courses.qc_id, quizzes_courses.qc_course_id, quizzes_courses.qc_start_date * 1000 AS qc_start_date, quizzes_courses.qc_end_date * 1000 AS qc_end_date, quizzes.quiz_id, quizzes.quiz_name,quizzes.quiz_language_id, quizzes.quiz_short_desc, teachers.teacher_id
     FROM quizzes_courses
     INNER JOIN quizzes ON quizzes_courses.qc_quiz_id = quizzes.quiz_id
     LEFT JOIN courses ON quizzes_courses.qc_course_id = courses.course_id
     LEFT JOIN teachers ON teachers.teacher_id = courses.course_teacher_id
     WHERE quizzes_courses.qc_id = %s
+    """
+
+    quizzes = db.query(query, (qc_id))
+
+    return quizzes[0]
+
+
+def get_quiz_template(quiz_id):
+    """
+    Gets name of a quiz based on the quiz_id
+    """
+
+    query = """
+    SELECT quizzes.quiz_id, quizzes.quiz_name,quizzes.quiz_language_id, quizzes.quiz_short_desc, quizzes.quiz_teacher_id
+    FROM quizzes 
+    WHERE quizzes.quiz_id = %s
     """
 
     quizzes = db.query(query, (quiz_id))
