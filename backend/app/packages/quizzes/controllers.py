@@ -6,7 +6,7 @@ import uuid
 from app.packages.quizzes import models
 from app.packages.quizzes.code_runner import CodeRunner
 from app.util.responses import success, bad_request, server_error, created, forbidden
-from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz_instance, question_exists, signed_in_or_out, test_case_exists
+from app.util.middleware import teacher_student_logged_in, teacher_signed_in, student_signed_in, teacher_owns_quiz, can_access_quiz_instance, question_exists_instance, question_exists_template, signed_in_or_out, test_case_exists
 
 quizzes_module = Blueprint("quizzes", __name__, url_prefix="/quizzes")
 
@@ -167,7 +167,7 @@ def questions(quiz_id):
 @quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["PUT"])
 @teacher_signed_in
 @teacher_owns_quiz
-@question_exists
+@question_exists_template
 def update_question(quiz_id, question_id):
     """
     Updates a question from a quiz
@@ -191,7 +191,7 @@ def update_question(quiz_id, question_id):
 @quizzes_module.route("/<quiz_id>/questions/<question_id>", methods=["DELETE"])
 @teacher_signed_in
 @teacher_owns_quiz
-@question_exists
+@question_exists_template
 def delete_question(quiz_id, question_id):
     """
     Deletes a question from a quiz
@@ -210,7 +210,7 @@ def delete_question(quiz_id, question_id):
     "/<qc_id>/questions/<question_id>/precheck", methods=["POST"])
 @signed_in_or_out
 @can_access_quiz_instance
-@question_exists
+@question_exists_instance
 def precheck(qc_id, question_id):
     """
     Adds one question to a quiz
@@ -252,7 +252,7 @@ def precheck(qc_id, question_id):
     "/<qc_id>/questions/<question_id>/check", methods=["POST"])
 @signed_in_or_out
 @can_access_quiz_instance
-@question_exists
+@question_exists_instance
 def check(qc_id, question_id):
     """
     Checks students code for a particular question against test cases
@@ -326,7 +326,7 @@ def get_languages():
     "/<quiz_id>/questions/<question_id>/testcase", methods=["POST"])
 @teacher_signed_in
 @teacher_owns_quiz
-@question_exists
+@question_exists_template
 def create_test_case(quiz_id, question_id):
     """
     Creates a test case
@@ -354,7 +354,7 @@ def create_test_case(quiz_id, question_id):
     methods=["DELETE"])
 @teacher_signed_in
 @teacher_owns_quiz
-@question_exists
+@question_exists_template
 @test_case_exists
 def delete_test_case(quiz_id, question_id, test_id):
     """

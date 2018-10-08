@@ -105,7 +105,6 @@ def teacher_signed_in(func):
         if rows[0]["teacher_is_admin"]:
             request.teacher_is_admin = True
 
-        print("Did I make it here")
         request.teacher_id = rows[0]["teacher_id"]
         return func(*args, **kwargs)
 
@@ -233,7 +232,7 @@ def teacher_owns_quiz(func):
     @wraps(func)
     def wrap(*args, **kwargs):
         """
-        NOTE: This middleware is NOT stateless, depends on teacher_logged_in
+        NOTE: This middleware is NOT stateless, depends on teacher_signed_in
 
         Checks to see if teacher actually owns the quiz, or if 
         a teacher is an admin and the quiz is a free quiz
@@ -243,9 +242,9 @@ def teacher_owns_quiz(func):
 
         # Checks if the quiz does not exist
         query = """
-        SELECT qc_id , qc_course_id
-        FROM quizzes_courses 
-        WHERE qc_id = %s
+        SELECT quiz_id
+        FROM quizzes
+        WHERE quiz_id = %s
         """
 
         quizzes = db.query(query, (quiz_id))
@@ -253,19 +252,11 @@ def teacher_owns_quiz(func):
         if not quizzes:
             return not_found()
 
-        # If the quiz is a free quiz and the teacher is an admin
-        if not quizzes[0]["qc_course_id"] and hasattr(request,
-                                                      "teacher_is_admin"):
-            return func(*args, **kwargs)
-
-        # Check that teacher owns the course
+        # Check that teacher owns the quiz
         query = """
-        SELECT qc_id 
-        FROM quizzes_courses 
-        INNER JOIN courses ON quizzes_courses.qc_course_id = courses.course_id
-        INNER JOIN teachers ON courses.course_teacher_id = teachers.teacher_id
-        WHERE quizzes_courses.qc_id = %s
-        AND teachers.teacher_id = %s
+        SELECT quiz_teacher_id
+        FROM quizzes
+        WHERE quiz_id = %s and quiz_teacher_id = %s
         """
 
         quizzes = db.query(query, (quiz_id, request.teacher_id))
@@ -343,9 +334,9 @@ def can_access_quiz_instance(func):
     return wrap
 
 
-def question_exists(func):
+def question_exists_instance(func):
     """
-    Check that a question exists in a quiz
+    Check that a question exists in a quiz instance
     """
 
     @wraps(func)
@@ -359,6 +350,33 @@ def question_exists(func):
         FROM questions
         INNER JOIN quizzes_courses ON questions.question_quiz_id = quizzes_courses.qc_quiz_id
         WHERE quizzes_courses.qc_id = %s AND questions.question_id = %s
+        """
+        rows = db.query(query, (quiz_id, question_id))
+
+        if not rows:
+            return forbidden()
+
+        return func(*args, **kwargs)
+
+    return wrap
+
+
+def question_exists_template(func):
+    """
+    Check that a question exists in a quiz template
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+
+        quiz_id = request.view_args["quiz_id"]
+        question_id = request.view_args["question_id"]
+
+        query = """
+        SELECT questions.question_id
+        FROM questions
+        INNER JOIN quizzes ON questions.question_quiz_id = quizzes.quiz_id 
+        WHERE quizzes.quiz_id = %s AND questions.question_id = %s
         """
         rows = db.query(query, (quiz_id, question_id))
 
