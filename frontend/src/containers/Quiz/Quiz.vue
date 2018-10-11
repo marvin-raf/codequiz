@@ -1,3 +1,13 @@
+<!--
+This component is responsible for rendering either a quiz 'instance' or quiz 'template'.
+
+Anything that mentions a quiz_id can also be a qc_id. 
+
+quiz_id's are from the quizzes table
+qc_id's are from the quizzes_courses table
+-->
+
+
 <template>
   <div>
     <TestCaseModal :quizId="$route.params.id" :testCaseModal="testCaseModal" :testCaseModalData="testCaseModalData" v-on:new-test-case="addTestCase" v-on:close-test-case-modal="testCaseModal = false"></TestCaseModal>
@@ -9,7 +19,7 @@
 
     </v-card>
 
-    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" :hasFinished="hasFinished" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion">
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" :hasFinished="hasFinished" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion" v-on:question-deleted="questionDeleted">
 
     </Question>
 
@@ -169,11 +179,25 @@ export default {
       this.questions[obj.questionIndex].test_cases.splice(obj.testCaseIndex, 1);
     },
     saveQuestion(obj) {
-      const question = this.questions[obj.questionIndex];
-      
-      question.edit_mode = false;
-      question.question_id = obj.questionId
+        this.$set(
+        this.questions[obj.questionIndex],
+        "edit_mode",
+        false
+      );
+
+        
+        this.$set(
+        this.questions[obj.questionIndex],
+        "question_id",
+        obj.questionId
+      );
     },
+      questionDeleted(questionIndex) {
+        console.log(questionIndex);
+        
+        this.questions.splice(questionIndex, 1);
+        console.log(this.questions);
+    }
   }
 };
 </script>

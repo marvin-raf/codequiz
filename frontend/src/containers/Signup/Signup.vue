@@ -2,19 +2,15 @@
   <v-card class="col-lg-8 offset-lg-2" id="sign-up">
     <h1>Sign Up</h1>
 
-    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.name" :maxlength="50" append-icon="keyboard-arrow-down"></v-text-field>
+    <v-text-field type="text" label="Name" v-model="name" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.name" :maxlength="50"></v-text-field>
 
-    <v-text-field type="text" label="Location" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
-    <!-- <div class="col-md-10 offset-md-1">
-      <div style="float: left; width: 70%;">
-        <v-text-field type="text" label="Name" v-model="confirmPassword" color="secondary" :error-messages="errors.confirmPassword" :maxlength="50" style="margin-left: 2px;"></v-text-field>
-      </div>
+    <v-text-field type="text" label="Email" v-model="email" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.email" :maxlength="320"></v-text-field>
 
-      <div style="float: left; width: 26%;margin-left: 5px;">
-        <v-text-field type="text" label="Time" color="secondary"> </v-text-field>
-      </div>
-    </div> -->
-    <v-btn color="secondary" id="sign-up-btn" class="col-md-10 offset-md-1" depressed @click="signUp()" :loading="loading">Create</v-btn>
+    <v-text-field type="password" label="Password" v-model="password" color="secondary" class="col-md-10 offset-md-1" :error-messages="errors.password" :maxlength="50"></v-text-field>
+
+    <v-text-field type="password" label="Confirm Password" v-model="confirmPassword" class="col-md-10 offset-md-1" color="secondary" :error-messages="errors.confirmPassword" :maxlength="50"></v-text-field>
+
+    <v-btn color="secondary" id="sign-up-btn" depressed @click="signUp()" :loading="loading">Sign Up</v-btn>
 
   </v-card>
 </template>
@@ -94,7 +90,6 @@ export default {
 #sign-up-btn {
   display: block;
   margin: 0 auto;
-  width: 100%;
 }
 </style>
 

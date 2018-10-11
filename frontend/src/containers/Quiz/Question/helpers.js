@@ -4,6 +4,9 @@ import studentStore from "../../../store/studentStore";
 
 const helpers = {};
 
+/*
+  Precheck prechecks code and returns response from server
+*/
 helpers.precheck = (quizId, questionId, code) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -31,6 +34,9 @@ helpers.precheck = (quizId, questionId, code) => {
     });
 };
 
+/*
+    Check checks code against test cases and returns response
+*/
 helpers.check = (quizId, questionId, code) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -58,28 +64,9 @@ helpers.check = (quizId, questionId, code) => {
     });
 };
 
-helpers.deleteQuestion = (quizId, questionId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const res = await fetch(
-                endpoint(`/quizzes/${quizId}/questions/${questionId}`), {
-                    method : "DELETE",
-                    headers :
-                        {"Teacher-Authorization" : cookies.get("teacher")},
-                });
-
-            if (res.status !== 200) {
-                reject(res.status);
-                return;
-            }
-
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
-    });
-};
-
+/*
+  updateQuestion updates a questions description
+*/
 helpers.updateQuestion = question => {
     return new Promise(async (resolve, reject) => {
         console.log("Did I make it here");
@@ -112,33 +99,9 @@ helpers.updateQuestion = question => {
     });
 };
 
-helpers.deleteTestCase = (quizId, questionId, testId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const res = await fetch(
-                endpoint(`/quizzes/${quizId}/questions/${questionId}/testcase/${
-                    testId}`),
-                {
-                    method : "DELETE",
-                    headers : {
-                        "Content-Type" : "application/json",
-                        "Teacher-Authorization" : cookies.get("teacher"),
-                    },
-                    body : JSON.stringify({test_id : testId}),
-                });
-
-            if (res.status !== 200) {
-                reject(res.status);
-                return;
-            }
-
-            resolve();
-        } catch (e) {
-            reject(e);
-        }
-    });
-};
-
+/*
+  addQuestion creates a new question in a quiz and returns the question_id
+*/
 helpers.addQuestion = (description, quizId) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -160,7 +123,7 @@ helpers.addQuestion = (description, quizId) => {
 
             const json = await res.json();
 
-            resolve(json.questionId);
+            resolve(json.question_id);
         } catch (e) {
             reject(e);
         }

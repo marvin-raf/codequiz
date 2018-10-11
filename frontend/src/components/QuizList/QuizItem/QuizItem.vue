@@ -1,9 +1,9 @@
 <template>
-    <v-list-tile @click="$router.push(`/quizzes/${quiz.qc_id}`)">
+    <v-list-tile @click="$router.push(`/quizzes/${quiz.qc_id ? `instance/${quiz.qc_id}` : `template/${quiz.quiz_id}`}`)">
+
         <span>
             <div class="quiz-name-language">
-
-                <a @click="$router.push(`/quizzes/${quiz.qc_id}`)" href="#">{{ quiz.quiz_name }}</a>
+                <a @click="$router.push(`/quizzes/${quiz.qc_id ? `instance/${quiz.qc_id}` : `template/${quiz.quiz_id}`}`)" href="#">{{ quiz.quiz_name }}</a>
 
             </div>
 

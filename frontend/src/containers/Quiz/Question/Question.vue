@@ -1,60 +1,15 @@
 <template>
-  <v-card class="question col-lg-10 offset-lg-1">
+  <div>
 
-    <div class="text-xs-center">
-      <v-dialog v-model="deleteModal" width="500">
+    <!--Modal that deletes questions and test cases-->
 
-        <v-card>
-          <v-card-title class="headline red lighten-1 justify-center" primary-title>
-            <span style="color: #fff;">Are you sure?</span>
-          </v-card-title>
+    <v-card class="question col-lg-10 offset-lg-1">
 
-          <v-divider></v-divider>
-
-          <v-card-actions style="width: 200px;margin: 0 auto;">
-            <v-btn color="primary" flat @click="deleteModal = false">
-              Go Back
-            </v-btn>
-
-            <v-btn color="red lighten-1" flat @click="deleteQuestion();">
-              Delete
-            </v-btn>
-
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <v-dialog v-model="deleteTestCaseModal" width="500">
-
-        <v-card>
-          <v-card-title class="headline red lighten-1 justify-center" primary-title>
-            <span style="color: #fff;">Are you sure?</span>
-          </v-card-title>
-
-          <v-divider></v-divider>
-
-          <v-card-actions style="width: 200px;margin: 0 auto;">
-            <v-btn color="primary" flat @click="deleteTestCaseModal = false">
-              Go Back
-            </v-btn>
-
-            <v-btn color="red lighten-1" flat @click="deleteTestCase();">
-              Delete
-            </v-btn>
-
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-    </div>
-
-    <div v-if="isTeacher()">
-      <v-btn flat class="delete-btn" @click="deleteModal = true;">
-        <v-icon>delete</v-icon>
-      </v-btn>
-      <br>
-      <br>
-    </div>
+      <div v-if="isTeacher() && question.question_id">
+        <DeleteQuestion v-on:question-deleted="questionDeleted" :quizId="$route.params.id" :questionId="question.question_id" />
+        <br>
+        <br>
+      </div>
 
       <h3>Question {{ questionIndex + 1 }}
         <v-btn class="save-btn" v-if="question.edit_mode" color="secondary" @click="setEditMode()">Save</v-btn>
@@ -80,17 +35,16 @@
             <v-icon v-if="isTeacher()" class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
               edit
             </v-icon>
-            <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="testCaseDeleteId = props.item.test_id; testCaseDeleteIndex = props.index; deleteTestCaseModal = true;">
+            <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="deleteTestCaseModal(props.item.test_id, props.index)">
               delete
             </v-icon>
           </td>
         </template>
       </v-data-table>
 
-      <v-btn flat v-if="isTeacher()" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
+      <v-btn flat v-if="isTeacher() && question.question_id" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
 
-      <div class="editor" v-if="!question.edit_mode">
-      </div>
+      <codemirror class="editor" v-if="!question.edit_mode" v-model="editor" :options="cmOptions"></codemirror>
 
       <v-alert id="precheck-error" type="error" :value="precheckError.length">
 
@@ -134,20 +88,30 @@
 
       </div>
 
-  </v-card>
+    </v-card>
+  </div>
 </template>
 
 <script>  
+
+
+
+
+
+
 import VueMarkdown from "vue-markdown";
 import studentStore from "../../../store/studentStore";
 import teacherStore from "../../../store/teacherStore";
+
+import DeleteQuestion from "./DeleteQuestion/DeleteQuestion";
 
 import helpers from "./helpers.js";
 
 export default {
   props: ["question", "questionIndex", "isTeacher", "hasFinished"],
   components: {
-    "vue-markdown": VueMarkdown
+    "vue-markdown": VueMarkdown,
+    DeleteQuestion,
   },
   data() {
     return {
@@ -173,7 +137,7 @@ export default {
       testCaseContent: "",
       testCaseExpected: "",
       testCaseError: false,
-      editor: null,
+      editor: "",
       precheckError: [],
       precheckSuccess: false,
       precheckLoading: false,
@@ -196,42 +160,25 @@ export default {
           value: "actual"
         }
       ],
-      deleteModal: false,
       teacherStore: teacherStore.data,
       testCaseModal: false,
       testCaseIdEdit: null,
       testCaseDeleteId: null,
       testCaseDeleteIndex: null,
-      deleteTestCaseModal: false,
+      cmOptions: {
+        // codemirror options
+        tabSize: 4,
+        lineNumbers: true,
+        indentUnit: 4,
+        line: true,
+        mode: "python",
+        theme: "idea"
+      }
     };
   },
   mounted() {
     this.testCaseResults = this.question.test_case_results;
-
-    // Setup all the ace editors
-    const editorNode = document.getElementsByClassName("editor")[
-      this.questionIndex
-    ];
-
-    const testCaseEditorNode = document.getElementsByClassName(
-      "test-case-editor"
-    )[this.questionIndex];
-
-    const expectedEditorNode = document.getElementsByClassName(
-      "expected-editor"
-    )[this.questionIndex];
-
-
-    const editor = window.ace.edit(editorNode);
-
-    editor.setOptions({
-      useSoftTabs: true
-    });
-
-    editor.getSession().setMode("ace/mode/python");
-
-    this.editor = editor;
-  },
+ },
   methods: {
     async precheck() {
       // Reset success/error messages and spinner
@@ -243,7 +190,7 @@ export default {
         const output = await helpers.precheck(
           this.$route.params.id,
           this.question.question_id,
-          this.editor.getValue()
+          this.editor,
         );
 
         if (output !== "") {
@@ -267,7 +214,7 @@ export default {
         const json = await helpers.check(
           this.$route.params.id,
           this.question.question_id,
-          this.editor.getValue()
+          this.editor
         );
 
         this.testCaseResults = json.results;
@@ -300,8 +247,6 @@ export default {
               questionIndex: this.questionIndex,
               questionId
             });
-
-            
           }
          } catch (e) {
            console.log(e);
@@ -334,7 +279,6 @@ export default {
         const testId = this.testCaseDeleteId;
         await helpers.deleteTestCase(quizId, questionId, testId);
 
-        this.deleteTestCaseModal = false;
         
         this.$emit("delete-test-case", {
           questionIndex: this.questionIndex,
@@ -344,9 +288,11 @@ export default {
         console.log(e);
       }
 
+    },
+    questionDeleted() {
+      this.$emit("question-deleted", this.questionIndex); 
     }
   },
-
   watch: {
     questionDescription(newVal, oldVal) {
       this.$emit("alter-question", {
@@ -389,11 +335,6 @@ export default {
 .split-fields {
   width: 50%;
   float: left;
-}
-
-.editor {
-  margin-top: 20px;
-  height: 400px;
 }
 
 #check-btns {
@@ -451,6 +392,12 @@ export default {
 .save-btn {
   width: 50px !important;
   min-width: 50px !important;
+}
+
+.editor {
+  margin-top: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
 }
 </style>
 

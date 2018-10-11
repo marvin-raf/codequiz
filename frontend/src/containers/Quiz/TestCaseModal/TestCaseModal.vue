@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="testCaseModal" persistent width="800">
+    <v-dialog :value="testCaseModal" persistent width="800">
 
         <v-card>
             <v-card-title class="headline justify-center wet-asphalt" primary-title>
@@ -21,10 +21,10 @@
                     <h3 style="text-align: center;">Expected Result</h3>
                 </div>
                 <div class="split-fields">
-                    <div id="test-case-editor"></div>
+                    <codemirror v-model="testCaseEditor" ref="testCaseEditor" :options="cmOptions"></codemirror>
                 </div>
                 <div class="split-fields">
-                    <div id="expected-editor"></div>
+                    <codemirror v-model="expectedEditor" ref="expectedEditor" :options="cmOptions"></codemirror>
                 </div>
 
             </div>
@@ -54,42 +54,24 @@ export default {
     props: ["quizId", "testCaseModal", "testCaseModalData"],
     data() {
         return {
-            testCaseEditor: null,
-            expectedEditor: null, 
+            testCaseEditor: "",
+            expectedEditor: "", 
             testCaseError:  false,
-            modal: false
+            modal: false,
+            cmOptions: {
+                // codemirror options
+                tabSize: 4,
+                indentUnit: 4,
+                line: true,
+                mode: "python",
+                theme: "idea",
+            }
         };
-    },
-    mounted() {
-        
-      const testCaseEditorNode = document.getElementById(
-        "test-case-editor"
-        );
-
-    const expectedEditorNode = document.getElementById(
-      "expected-editor"
-    );
-
-    const testCaseEditor = window.ace.edit(testCaseEditorNode);
-    const expectedEditor = window.ace.edit(expectedEditorNode);
-
-    testCaseEditor.setOptions({
-      useSoftTabs: true
-    });
-
-    expectedEditor.setOptions({
-      useSoftTabs: true
-    });
-
-    testCaseEditor.getSession().setMode("ace/mode/python");
-
-    this.testCaseEditor = testCaseEditor;
-    this.expectedEditor = expectedEditor;
     },
     methods: {
         async addTestCase() {
         this.testCaseError = false;
-        if (!this.testCaseEditor.getValue() || !this.expectedEditor.getValue()) {
+        if (!this.testCaseEditor || !this.expectedEditor) {
             this.testCaseError = "Test input and Test expected fields required";
         }
 
@@ -98,14 +80,14 @@ export default {
         try {
             const quizId = this.quizId;
             const questionId = this.testCaseModalData.questionId;
-            const testInput = this.testCaseEditor.getValue();
-            const testExpected = this.expectedEditor.getValue();
+            const testInput = this.testCaseEditor;
+            const testExpected = this.expectedEditor;
             const testId = await helpers.addTestCase(quizId, questionId, testInput, testExpected);
 
             this.$emit("new-test-case", {
                 testId,
-                testCaseContent: this.testCaseEditor.getValue(),
-                testCaseExpected: this.expectedEditor.getValue(),
+                testCaseContent: this.testCaseEditor,
+                testCaseExpected: this.expectedEditor,
                 testCaseModalData: this.testCaseModalData
             });
 
@@ -114,6 +96,14 @@ export default {
             this.testCaseError = "Server Error";
         }
             
+        }
+    },
+    watch: {
+        testCaseModal(val) {
+            if (val === true) {
+                this.$refs.testCaseEditor.refresh();
+                this.$refs.expectedEditor.refresh();
+            }
         }
     }
 }
@@ -126,5 +116,9 @@ export default {
 
 #expected-editor {
   height: 400px;
+}
+
+.split-fields {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 </style>
