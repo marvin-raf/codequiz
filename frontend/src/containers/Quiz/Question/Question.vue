@@ -23,24 +23,7 @@
 
       <v-textarea v-else hint="Question Description" auto-grow color="secondary" v-model="questionDescription"></v-textarea>
 
-      <v-data-table :headers="headers" :items="question.test_cases" no-data-text="No Test Cases" class="elevation-1" hide-actions>
-        <template slot="items" slot-scope="props">
-          <td>
-            <pre>{{ props.item.test_input }}</pre>
-          </td>
-          <td>
-            <pre>{{ props.item.test_expected }}</pre>
-          </td>
-          <td class="text-xs-right">
-            <v-icon v-if="isTeacher()" class="edit-test-case-btn" color="primary" @click="testCaseIdEdit = props.item.test_id; testCaseModal = true;">
-              edit
-            </v-icon>
-            <v-icon v-if="isTeacher()" class="delete-test-case-btn" color="primary" @click="deleteTestCaseModal(props.item.test_id, props.index)">
-              delete
-            </v-icon>
-          </td>
-        </template>
-      </v-data-table>
+      <TestCases :headers="headers" :testCases="question.test_cases" :isTeacher="isTeacher" :quizId="$route.params.id" :questionId="question.question_id" v-on:test-case-deleted="testCaseDeleted" />
 
       <v-btn flat v-if="isTeacher() && question.question_id" class="add-test-case" @click="$emit('open-test-case-modal', {questionId: question.question_id, questionIndex})">Add Test Case</v-btn>
 
@@ -104,6 +87,7 @@ import studentStore from "../../../store/studentStore";
 import teacherStore from "../../../store/teacherStore";
 
 import DeleteQuestion from "./DeleteQuestion/DeleteQuestion";
+import TestCases from "./TestCases/TestCases";
 
 import helpers from "./helpers.js";
 
@@ -112,6 +96,7 @@ export default {
   components: {
     "vue-markdown": VueMarkdown,
     DeleteQuestion,
+    TestCases
   },
   data() {
     return {
@@ -172,7 +157,7 @@ export default {
         indentUnit: 4,
         line: true,
         mode: "python",
-        theme: "idea"
+        theme: "idea",
       }
     };
   },
@@ -291,6 +276,12 @@ export default {
     },
     questionDeleted() {
       this.$emit("question-deleted", this.questionIndex); 
+    },
+    testCaseDeleted(testCaseIndex) {
+      this.$emit("test-case-deleted", {
+        testCaseIndex,
+        questionIndex: this.questionIndex 
+      });
     }
   },
   watch: {

@@ -1,26 +1,30 @@
 <template>
   <div id="app">
-    <Sidebar id="sidebar"/>
+    <Notification />
+    <Sidebar id="sidebar" />
 
-    <div id="router-view"> <v-app>
+    <div id="router-view">
+      <v-app>
         <router-view></router-view>
-        </v-app>
-          </div>
-
+      </v-app>
+    </div>
 
   </div>
 </template>
 
 <script>
 import Sidebar from "./Sidebar/Sidebar";
+import Notification from "../components/Notification/Notification.vue"
 
 export default {
   name: "app",
   components: {
-    Sidebar
+    Sidebar,
+    Notification
   },
   data() {
-    return {};
+    return {
+    };
   }
 };
 </script>

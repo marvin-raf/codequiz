@@ -9,6 +9,7 @@ along with the functionality of deleting a question.
         <v-btn flat class="delete-btn" @click="deleteQuestionModal = true">
             <v-icon>delete</v-icon>
         </v-btn>
+
         <DeleteModal :deleteModal="deleteQuestionModal" :confirmEvent="deleteQuestion" :cancelEvent="cancelEvent" />
 
     </div>
@@ -16,6 +17,7 @@ along with the functionality of deleting a question.
 
 <script>
 import DeleteModal from "../../../../components/DeleteModal/DeleteModal";
+import notificationStore from "../../../../store/notificationStore";
 
 import helpers from "./helpers";
 
@@ -32,12 +34,18 @@ export default {
     },
     methods: {
        /*
-         deleteQuestion deletes a question and tells Quiz to update the array
+         deleteQuestion deletes the question, shows success or error
+         notifiaction and then tells Quiz to update the array
        */
        async deleteQuestion() {
            try {
                 await helpers.deleteQuestion(this.quizId, this.questionId)
                 this.deleteQuestion = false;
+                notificationStore.methods.showNotification({
+                    text: "Question Deleted",
+                    isError: false
+                });
+            
                 this.$emit("question-deleted");
            } catch (e) {
                console.log(e);

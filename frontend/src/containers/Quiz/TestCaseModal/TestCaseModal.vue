@@ -120,5 +120,6 @@ export default {
 
 .split-fields {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -19,7 +19,7 @@ qc_id's are from the quizzes_courses table
 
     </v-card>
 
-    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" :hasFinished="hasFinished" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:delete-question="deleteQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:delete-test-case="deleteTestCase" v-on:save-question="saveQuestion" v-on:question-deleted="questionDeleted">
+    <Question v-for="(question, index) in questions" :question="question" :questionIndex="index" :isTeacher="isTeacher" v-bind:key="question.quiz_id" v-on:alter-question="alterDescription" v-on:update-question-worth="updateQuestionWorth" v-on:toggle-edit-question="toggleEditQuestion" v-on:open-test-case-modal="openTestCaseModal" v-on:save-question="saveQuestion" v-on:question-deleted="questionDeleted" v-on:test-case-deleted="testCaseDeleted">
 
     </Question>
 
@@ -175,9 +175,6 @@ export default {
       this.testCaseModalData = obj;
       this.testCaseModal = true;
     },
-    deleteTestCase(obj) {
-      this.questions[obj.questionIndex].test_cases.splice(obj.testCaseIndex, 1);
-    },
     saveQuestion(obj) {
         this.$set(
         this.questions[obj.questionIndex],
@@ -197,9 +194,12 @@ export default {
         
         this.questions.splice(questionIndex, 1);
         console.log(this.questions);
-    }
+    },
+  testCaseDeleted(obj) {
+    this.questions[obj.questionIndex].test_cases.splice(obj.testCaseIndex, 1);
   }
-};
+  },
+  };
 </script>
 
 <style lang="scss">
