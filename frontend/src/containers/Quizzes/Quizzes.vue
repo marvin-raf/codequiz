@@ -5,7 +5,7 @@
         </v-card>
 
         <v-card class="col-lg-10 offset-lg-1" id="quiz-content">
-            <QuizList :quizzes="quizzes" :page="page" :perPage="PER_PAGE" />
+            <List :items="quizzes" :page="page" :perPage="PER_PAGE" idKey="quiz_id" nameKey="quiz_name" descriptionKey="quiz_short_desc" :generateUrl="generateUrl" :icon="['fab', 'python']" />
 
             <v-pagination color="secondary" :length="Math.ceil(quizzes.length / PER_PAGE)" id="quizzes-pagination" v-model="page"></v-pagination>
 
@@ -14,13 +14,13 @@
 </template>
 
 <script>
-import QuizList from "../../components/QuizList/QuizList";
+import List from "../../components/List/List";
 
 import helpers from "./helpers";
 
 export default {
     components: {
-        QuizList
+        List
     },
     data() {
         return {
@@ -35,7 +35,9 @@ export default {
         this.quizzes = quizzes;
     },
     methods: {
-        
+        generateUrl(quiz_id) {
+            return `/quizzes/template/${quiz_id}`; 
+        }    
     }
 }
 </script>

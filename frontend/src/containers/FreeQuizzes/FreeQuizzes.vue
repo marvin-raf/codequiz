@@ -8,7 +8,7 @@
     <v-progress-circular indeterminate color="secondary" id="free-quizzes-spinner" v-if="freeQuizzes === null"></v-progress-circular>
 
     <div v-else>
-      <QuizList :quizzes="freeQuizzes" :page="page" :perPage="8" />
+      <List :items="freeQuizzes" :page="page" :perPage="8" nameKey="qc_id" descriptionKey="quic_short_desc" :generateUrl="generateUrl" :icon="['fab', 'python']" />
 
       <v-btn color="secondary" id="new-free-quiz-btn" @click="newQuizDialog = true;" v-if="teacherStore.teacherIsAdmin">
         <v-icon>add</v-icon>
@@ -58,11 +58,11 @@
 <script>
 import helpers from "./helpers";
 import teacherStore from "../../store/teacherStore";
-import QuizList from "../../components/QuizList/QuizList";
+import List from "../../components/List/List";
 
 export default {
   components: {
-    QuizList
+    List
   },
   data() {
     return {
@@ -150,6 +150,9 @@ export default {
         this.newQuizLoading = false;
         this.createQuizError = true;
       }
+    },
+    generateUrl(qc_id) {
+      return `/quizzes/instance/${qc_id}`;
     }
   }
 };
