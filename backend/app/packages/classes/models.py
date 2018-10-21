@@ -63,6 +63,22 @@ def delete_class(class_id):
     return
 
 
+def get_class(class_id):
+    """
+    Gets class details based on the class_id
+    """
+
+    query = """
+    SELECT class_id, class_name 
+    FROM classes
+    WHERE class_id = %s
+    """
+
+    classes = db.query(query, (class_id))
+
+    return classes[0]
+
+
 def get_students(class_id):
     """
     Gets all the students of a class
@@ -88,9 +104,9 @@ def insert_students(students, teacher_id):
     """
 
     query = """
-    INSERT IGNORE INTO students 
+    INSERT INTO students 
     (student_teacher_id, student_name, student_email, student_activate_token)
-    VALUES
+    VALUES 
     """
     values = []
     token = None
@@ -102,7 +118,7 @@ def insert_students(students, teacher_id):
         values.append(student["email"])
         values.append(token)
 
-    query = query[:-2]
+    query = query[:-2]  # Delete last trailing comma
 
     db.query(query, tuple(values))
     return
@@ -182,3 +198,26 @@ def delete_student(class_id, student_id):
 
     db.query(query, (class_id, student_id))
     return
+
+
+def check_email(email):
+    """
+    Checks to see if a students email is taken
+    """
+
+    query = """
+    SELECT student_id
+    FROM students
+    WHERE student_email = %s
+    """
+
+    query2 = """
+    SELECT teacher_id 
+    FROM teachers
+    WHERE teacher_email = %s
+    """
+
+    students = db.query(query, (email))
+    teachers = db.query(query2, (email))
+
+    return True if students or teachers else False

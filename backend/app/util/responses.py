@@ -64,3 +64,11 @@ def server_error(data=None):
     """
 
     return response(500, data)
+
+
+def resource_conflict(data=None):
+    """
+    Resource Conflict response with 409 status
+    """
+
+    return response(409, data)

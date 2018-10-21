@@ -1,6 +1,6 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.classes import models
-from app.util.responses import success, bad_request, server_error, created, forbidden, not_found
+from app.util.responses import success, bad_request, server_error, created, forbidden, not_found, resource_conflict
 from app.util.middleware import teacher_signed_in, teacher_owns_class
 
 classes_module = Blueprint("classes", __name__, url_prefix="/classes")
@@ -44,6 +44,24 @@ def create():
     except Exception:
         return server_error()
     return created({"class_id": class_id})
+
+
+@classes_module.route("/<class_id>", methods=["GET"])
+@teacher_signed_in
+@teacher_owns_class
+def get_class(class_id):
+    """
+    Gets class details based on the class ID
+    """
+
+    try:
+        class_details = models.get_class(class_id)
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
+
+    return success({"class": class_details})
 
 
 @classes_module.route("/<class_id>", methods=["PATCH"])
@@ -114,17 +132,20 @@ def add_students(class_id):
         students = body["students"]
         emails = []
 
-        for email in students:
-            emails.append(email["email"])
+        for student in students:
+            emails.append(student["email"])
 
         models.insert_students(students, teacher_id)
         models.delete_unique()
-        models.insert_into_class(class_id, tuple(emails))
+        student_list = models.insert_into_class(class_id, tuple(emails))
 
-    except KeyError:
+    except KeyError as e:
+        print(e)
         return bad_request()
-    except Exception:
+    except Exception as e:
+        print(e)
         return server_error()
+    print(student_list)
     return created()
 
 
@@ -140,6 +161,34 @@ def delete_students(class_id):
 
     except Exception:
         return server_error()
+    return success()
+
+
+@classes_module.route("<class_id>/email", methods=["GET"])
+@teacher_signed_in
+@teacher_owns_class
+def check_email():
+    """
+    Checks to see if a students or teachers email is taken
+    """
+
+    try:
+
+        email = request.args.get("email")
+
+        if not body:
+            return bad_request()
+
+        email_taken = models.check_email(email)
+
+        if email_taken:
+            return resource_conflict()
+
+    except KeyError:
+        return bad_request()
+    except Exception:
+        return server_error()
+
     return success()
 
 
