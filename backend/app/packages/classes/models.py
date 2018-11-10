@@ -88,7 +88,8 @@ def get_students(class_id):
     SELECT 
     students.student_id AS student_id, 
     students.student_name AS student_name, 
-    students.student_email AS student_email
+    students.student_email AS student_email,
+    IF(students.student_hash IS NOT NULL and students.student_hash != '', True, False) AS student_activated
     FROM students_classes 
     INNER JOIN students ON students_classes.sc_student_id = students.student_id
     WHERE students_classes.sc_class_id = %s
@@ -151,8 +152,7 @@ def insert_into_class(class_id, emails):
     WHERE student_email IN %s
     """
 
-    student_list = db.query(query, (class_id, emails))
-    return student_list
+    db.query(query, (class_id, emails))
 
 
 def delete_students(class_id):
@@ -185,21 +185,6 @@ def check_student(class_id, student_id):
     return student
 
 
-def delete_student(class_id, student_id):
-    """
-    Deletes a student from a class
-    """
-
-    query = """
-    DELETE FROM students_classes
-    WHERE sc_class_id = %s
-    AND sc_student_id = %s
-    """
-
-    db.query(query, (class_id, student_id))
-    return
-
-
 def check_email(email):
     """
     Checks to see if a students email is taken
@@ -221,3 +206,16 @@ def check_email(email):
     teachers = db.query(query2, (email))
 
     return True if students or teachers else False
+
+
+def delete_student(student_id):
+    """
+    Deletes a student
+    """
+
+    query = """
+    DELETE FROM students
+    WHERE student_id = %s
+    """
+
+    db.query(query, (student_id))

@@ -59,10 +59,10 @@ helpers.checkEmailExists = (classId, email) => {
       });
 
       if (res.status === 200) {
-        resolve(true);
+        resolve(false);
         return;
       } else if (res.status === 409) {
-        resolve(false);
+        resolve(true);
         return;
       } else {
         reject(res.status);
@@ -92,8 +92,29 @@ helpers.addStudents = (classId, students) => {
 
       const json = await res.json();
 
-      resolve(json.students);
+      resolve(json);
     } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+helpers.deleteStudent = (classId, studentId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const res = await fetch(endpoint(`/classes/${classId}/students/${studentId}`), {
+        method: "DELETE",
+        headers: { "Teacher-Authorization": cookies.get("teacher") },
+      });
+
+      if (res.status !== 200) {
+        reject(res.status);
+        return;
+      }
+
+      resolve();
+    } catch (e) {
+      console.log(e);
       reject(e);
     }
   });

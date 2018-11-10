@@ -411,3 +411,38 @@ def test_case_exists(func):
         return func(*args, **kwargs)
 
     return wrap
+
+
+def student_in_class(func):
+    """
+    Checks to see if a student is part of a class
+    """
+
+    @wraps(func)
+    def wrap(*args, **kwargs):
+        class_id = request.view_args["class_id"]
+        student_id = request.view_args["student_id"]
+
+        query = """
+        SELECT student_id
+        FROM students
+        WHERE student_id = %s
+        """
+        students = db.query(query, (student_id))
+
+        if not students:
+            print("I made it here")
+            return not_found()
+
+        query = """
+        SELECT sc_id 
+        FROM students_classes 
+        WHERE sc_student_id = %s AND sc_class_id = %s
+        """
+        students = db.query(query, (student_id, class_id))
+
+        if not students:
+            return forbidden()
+        return func(*args, **kwargs)
+
+    return wrap

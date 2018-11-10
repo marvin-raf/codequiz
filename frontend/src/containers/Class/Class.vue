@@ -1,5 +1,7 @@
 <template>
     <div>
+        <DeleteModal :deleteModal="deleteStudentModal.modal" :confirmEvent="deleteStudent" :cancelEvent="() => {deleteStudentModal.modal = false;}" />
+
         <v-card id="class-header" class="col-lg-10 offset-lg-1">
             <v-progress-circular indeterminate color="secondary" class="class-loader" v-if="className === null"></v-progress-circular>
 
@@ -26,7 +28,7 @@
 
         </v-card>
 
-        <v-card class="col-lg-10 offset-lg-1" id="students">
+        <v-card class="col-lg-10 offset-lg-1" id="students" style="padding-bottom: 10px;">
             <h2>Students</h2>
 
             <div v-if="students === null">
@@ -46,11 +48,12 @@
                             {{ props.item.student_email }}
                         </td>
 
+                        <td class="text-xs-left">
+                            <v-icon>{{ props.item.student_activated ? "done" : "close" }}</v-icon>
+                        </td>
+
                         <td class="text-xs-right">
-                            <v-icon color="primary">
-                                edit
-                            </v-icon>
-                            <v-icon color="primary">
+                            <v-icon color="primary" class="delete-icon" @click="openModal(props.item.student_id, props.index)">
                                 delete
                             </v-icon>
                         </td>
@@ -66,14 +69,21 @@
 </template>
 
 <script>
+import DeleteModal from "../../components/DeleteModal/DeleteModal";
+import notificationStore from "../../store/notificationStore";
+
 import helpers from "./helpers";
 
 import validator from "email-validator";
 
 
 export default {
+    components: {
+        DeleteModal,
+    },
     data() {
         return {
+        helloworld: false,
         studentName: "",
         studentEmail: "",
         classId: null,
@@ -81,6 +91,12 @@ export default {
         students: null,
         nameErrors: [],
         emailErrors: [],
+        // All data to do with deleting a student
+        deleteStudentModal: {
+            modal: false,
+            studentId: null,
+            studentIndex: null
+        },
         headers: [
         {
           text: "Student ID",
@@ -98,6 +114,11 @@ export default {
           value: "student_email"
         },
         {
+            text: "Activated",
+            sortable: false,
+            value: "activated"
+        },
+        {
           text: "Actions",
           sortable: false,
           value: "actions",
@@ -113,6 +134,9 @@ export default {
 
         const students = await helpers.getStudents(this.$route.params.id);
 
+
+        console.log(students);
+
         this.students = students;
 
         
@@ -122,7 +146,8 @@ export default {
         Resets, checks and sets errors. Returns true if an error was found,
         returns false otherwise
         */
-        async addStudentError() {
+        addStudentError() {
+            return new Promise(async (resolve, reject) => {
             this.nameErrors = [];
             this.emailErrors = [];
 
@@ -136,34 +161,35 @@ export default {
             } else if (!validator.validate(this.studentEmail)) {
                 this.emailErrors.push("Invalid Email");
             } else {
-                const emailNotUsed = await helpers.checkEmailExists(this.$route.params.id, this.studentEmail)
+                const emailUsed = await helpers.checkEmailExists(this.$route.params.id, this.studentEmail)
 
-                if (!emailNotUsed) {
+                if (emailUsed) {
                     this.emailErrors.push("Email already taken");
                 }
             }
 
             
 
-
-
             if (this.nameErrors.length || this.emailErrors.length) {
-                return true;
+                resolve(true);
+                return;
             }
 
-            return false;
+                resolve(false);
+            })
         },
         // Adds a single student to a class
         async addStudent() {
             try {
-                if (!this.addStudentError()) {
+                if (!(await this.addStudentError())) {
                     console.log("I made it here");
-                    await helpers.addStudents(this.$route.params.id, [{name: this.studentName, email: this.studentEmail}]);              
+                    const students = await helpers.addStudents(this.$route.params.id, [{name: this.studentName, email: this.studentEmail}]);              
+
+                    this.students = students;
+
                     this.studentName = "";
                     this.studentEmail = "";
-                } else {
-                    console.log("Oops, I made it here");
-                }
+                } 
             } catch (e) {
                 // PLEASE CHANGE THIS LATER TO DIALOGS
                 console.log(e);
@@ -172,6 +198,38 @@ export default {
          
             
             
+        },
+        async deleteStudent() {
+            try {
+                await helpers.deleteStudent(this.$route.params.id, this.deleteStudentModal.studentId);
+                notificationStore.methods.showNotification({
+                    text: "Student Deleted",
+                    isError: false,
+                });
+
+                
+                this.students.splice(this.deleteStudentModal.studentIndex, 1);
+
+            } catch (e) {
+                notificationStore.methods.showNotification({
+                    text: "Error Deleting Student",
+                    isError: true,
+                });
+
+            }
+
+            this.deleteStudentModal = {
+                modal: false,
+                studentId: null,
+                studentIndex: null
+            }
+        },
+        openModal(studentId, studentIndex) {
+            this.deleteStudentModal = {
+                modal: true,
+                studentId,
+                studentIndex
+            }
         }
     }
 }
@@ -209,6 +267,22 @@ export default {
 .class-loader {
   display: block;
   margin: 0 auto;
+}
+
+.edit-icon {
+  cursor: pointer;
+
+  &:hover {
+    color: $emerald !important;
+  }
+}
+
+.delete-icon {
+  cursor: pointer;
+
+  &:hover {
+    color: $ALIZARIN !important;
+  }
 }
 </style>
 

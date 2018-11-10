@@ -1,7 +1,7 @@
 from flask import Blueprint, request, abort, jsonify
 from app.packages.classes import models
 from app.util.responses import success, bad_request, server_error, created, forbidden, not_found, resource_conflict
-from app.util.middleware import teacher_signed_in, teacher_owns_class
+from app.util.middleware import teacher_signed_in, teacher_owns_class, student_in_class
 
 classes_module = Blueprint("classes", __name__, url_prefix="/classes")
 
@@ -137,7 +137,10 @@ def add_students(class_id):
 
         models.insert_students(students, teacher_id)
         models.delete_unique()
-        student_list = models.insert_into_class(class_id, tuple(emails))
+        models.insert_into_class(class_id, tuple(emails))
+
+        # Get all students to return back to user
+        students = models.get_students(class_id)
 
     except KeyError as e:
         print(e)
@@ -145,8 +148,7 @@ def add_students(class_id):
     except Exception as e:
         print(e)
         return server_error()
-    print(student_list)
-    return created()
+    return created(students)
 
 
 @classes_module.route("/<class_id>/students", methods=["DELETE"])
@@ -164,10 +166,27 @@ def delete_students(class_id):
     return success()
 
 
-@classes_module.route("<class_id>/email", methods=["GET"])
+@classes_module.route("/<class_id>/students/<student_id>", methods=["DELETE"])
 @teacher_signed_in
 @teacher_owns_class
-def check_email():
+@student_in_class
+def delete_student(class_id, student_id):
+    """
+    Deletes a student and removes entry from class
+    """
+    try:
+        # Only need to delete student because student_classes (etc) has auto cascade set
+        models.delete_student(student_id)
+
+    except Exception:
+        return server_error()
+    return success()
+
+
+@classes_module.route("/<class_id>/email", methods=["GET"])
+@teacher_signed_in
+@teacher_owns_class
+def check_email(class_id):
     """
     Checks to see if a students or teachers email is taken
     """
@@ -176,7 +195,7 @@ def check_email():
 
         email = request.args.get("email")
 
-        if not body:
+        if not email:
             return bad_request()
 
         email_taken = models.check_email(email)
@@ -189,22 +208,4 @@ def check_email():
     except Exception:
         return server_error()
 
-    return success()
-
-
-@classes_module.route("/<class_id>/students/<student_id>", methods=["DELETE"])
-@teacher_signed_in
-@teacher_owns_class
-def delete_student(class_id, student_id):
-    """
-    Deletes a student from a class
-    """
-    try:
-        if not models.check_student(class_id, student_id):
-            return not_found()
-
-        models.delete_student(class_id, student_id)
-
-    except Exception:
-        return server_error()
     return success()
